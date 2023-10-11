@@ -1,7 +1,15 @@
-import React from "react";
+import React from 'react'
+// import './components/register.css'
+import "./App.css"
+
 
 const App = () => {
-  return <h1>React App</h1>;
-};
+  return (
+    <div className='reg_background container'>
+        <div className='glass_window'>
+        </div>
+    </div>
+  )
+}
 
-export default App;
+export default App
