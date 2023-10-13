@@ -7,7 +7,7 @@ app = Flask(__name__)
 def serve_react_app():
 
     try:
-        response = make_response(send_file('../my-react-app/build/index.html', mimetype='text/html'))
+        response = make_response(send_file('../client/build/index.html', mimetype='text/html'))
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response
     except Exception:
@@ -16,7 +16,7 @@ def serve_react_app():
 @app.route('/static/css/<path:filename>')
 def serve_static_css(filename):
     try:
-        response = send_from_directory('../my-react-app/build/static/css', filename)
+        response = send_from_directory('../client/build/static/css', filename)
         response.headers['MIME type'] = 'text/css'
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response
@@ -27,7 +27,7 @@ def serve_static_css(filename):
 @app.route('/static/js/<path:filename>')
 def serve_static_js(filename):
     try:
-        response = send_from_directory('../my-react-app/build/static/js', filename)
+        response = send_from_directory('../client/build/static/js', filename)
         response.headers['MIME type'] = 'text/javascript'
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response
