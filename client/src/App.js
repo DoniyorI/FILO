@@ -23,7 +23,8 @@ const App = () => {
 const LoginForm = ({ onRegisterClick }) => {
   return (
     <div className="login_form flex flex-col justify-center p-8 rounded-xl">
-      <h1 className="text-4xl text-center font-bold ">Welcome Back</h1>
+      {/* <h1 className="text-4xl text-center font-bold color ">Welcome Back</h1>  */}
+      <h1 className="text-4xl text-orange-300 text-center font-bold color">Welcome Back</h1>
       <form className="w-5/12 mx-auto py-10">
         <div className="mb-4">
           <label
@@ -54,7 +55,7 @@ const LoginForm = ({ onRegisterClick }) => {
           />
         </div>
         <button
-          className="w-full p-2 mb-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 active:bg-blue-800"
+          className="w-full p-2 mb-4 bg-blue-500 shadow-lg text-white rounded-md hover:bg-blue-600 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 active:bg-blue-800"
           type="submit"
         >
           Log In
