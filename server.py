@@ -2,7 +2,6 @@ from flask import Flask, request, Response, send_file, make_response, send_from_
 
 app = Flask(__name__)
 
-# Define a route to serve the index.html file
 @app.route('/')
 def serve_react_app():
 

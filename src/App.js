@@ -24,7 +24,11 @@ const LoginForm = ({ onRegisterClick }) => {
   return (
     <div className="login_form flex flex-col justify-center p-8 rounded-xl">
       {/* <h1 className="text-4xl text-center font-bold color ">Welcome Back</h1>  */}
+<<<<<<< Updated upstream
       <h1 className="text-4xl text-orange-300 text-center font-bold ">
+=======
+      <h1 className="text-4xl text-center font-bold">
+>>>>>>> Stashed changes
         Welcome Back
       </h1>
       <form className="w-5/12 mx-auto py-10">
