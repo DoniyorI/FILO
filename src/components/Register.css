@@ -45,9 +45,11 @@
     transform: rotateY(180deg);
 }
 
-.button-color{
+.button-color {
+    background-color: #4D9FCD;
+}
+  
+.button-color:hover {
     background-color: #63ADD7;
-    :hover{
-      background-color: #4D9FCD;
-    }
-  }
+}
+  
