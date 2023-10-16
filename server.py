@@ -36,7 +36,14 @@ def serve_static_js(filename):
         return response
     except Exception:
         return page_not_found()
-
+@app.route('/login')
+def register():
+    try:
+        response = make_response(send_file('./build/index.html', mimetype='text/html'))
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        return response
+    except Exception:
+        return page_not_found()
 
 @app.errorhandler(404)
 def page_not_found(error=None):
