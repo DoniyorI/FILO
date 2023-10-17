@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./register.css";
+import "./Register.css";
 
 const App = () => {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -29,22 +29,24 @@ const LoginForm = ({ onRegisterClick }) => {
         <div className="mb-4">
           <input
             className="w-full p-2 border rounded-lg"
-            id="username"
+            id="username_exist"
             type="text"
             placeholder="Username"
+            name = "username_exist"
           />
         </div>
         <div className="mb-2">
           <input
             className="w-full p-2 border rounded-lg"
-            id="password"
+            id="password_exist"
             type="password"
             placeholder="Password"
+            name="password_exist"
           />
         </div>
         <button
           className="w-full p-2 mt-5 button-color shadow-lg text-white rounded-lg "
-          type="submit"
+          type="submit" value = "Post"
         >
           Log In
         </button>
@@ -73,38 +75,42 @@ const RegisterForm = ({ onLoginClick }) => {
     <div className="mb-2">
       <input
         className="w-full p-2 border rounded-lg"
-        id="email"
+        id="email_new"
         type="text"
         placeholder="Email"
+        name="email_new"
       />
     </div>
     <div className="mb-2">
       <input
         className="w-full p-2 border rounded-lg"
-        id="username"
+        id="username_new"
         type="text"
         placeholder="Username"
+        name="username_new"
       />
     </div>
     <div className="mb-2">
       <input
         className="w-full p-2 border rounded-lg"
-        id="password"
+        id="password_new"
         type="password"
         placeholder="Password"
+        name="password_new"
       />
     </div>
     <div className="mb-2">
       <input
         className="w-full p-2 border rounded-lg"
-        id="confirmPassword"
+        id="confirm_password_new"
         type="password"
         placeholder="Confirm Password"
+        name="confirm_password_new"
       />
     </div>
     <button
       className="w-full p-2 mt-5 button-color shadow-lg text-white rounded-lg"
-      type="submit"
+      type="submit" value = "Post"
     >
       Register
     </button>

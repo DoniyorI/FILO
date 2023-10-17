@@ -1,10 +1,14 @@
-from flask import Flask, request, Response, send_file, make_response, send_from_directory
+from flask import Flask, request, Response, send_file, make_response, send_from_directory, jsonify, redirect
 import pymongo
 from pymongo import MongoClient
 app = Flask(__name__)
+import bcrypt
+import hashlib
 
-mongo_client = MongoClient("mongo") #"localhost" for server.py, "mongo" for docker
+
+mongo_client = MongoClient("localhost") #"localhost" for server.py, "mongo" for docker
 db = mongo_client["FILO"]
+userCollection = db["user"]
 
 @app.route('/')
 def serve_react_app():
@@ -26,7 +30,6 @@ def serve_static_css(filename):
     except Exception:
         return page_not_found()
 
-
 @app.route('/static/js/<path:filename>')
 def serve_static_js(filename):
     try:
@@ -36,6 +39,7 @@ def serve_static_js(filename):
         return response
     except Exception:
         return page_not_found()
+    
 @app.route('/login')
 def register():
     try:
@@ -44,6 +48,28 @@ def register():
         return response
     except Exception:
         return page_not_found()
+
+@app.route('/login/new_user', method = ["POST"])
+def newUser():
+    try:
+        newUserDat= request.get_json()
+        email = newUserDat.get("email_new")
+        username = newUserDat.get("username_new")
+        password = newUserDat.get("password_new")
+        passwordConfirm = newUserDat.get("confirm_password_new")
+        
+        if not username or not password:
+            return jsonify({'message': 'Username and password are required'}), 400
+        
+        if password is not passwordConfirm:
+            return jsonify({'message': 'passwords do not match'}), 400
+        
+        salt = bcrypt.gensalt()
+        userCollection.insert_one({"username": username, "password": bcrypt.hashpw(password.encode('utf-8'), salt), "salt": salt, "token":None})
+        return redirect('/')
+    except Exception:
+            return page_not_found()
+
 
 @app.errorhandler(404)
 def page_not_found(error=None):
