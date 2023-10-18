@@ -118,12 +118,6 @@ const LoginForm = ({ onRegisterClick }) => {
 };
 
 
-
-
-
-
-
-
 const RegisterForm = ({ onLoginClick }) => {
   const [formData, setFormData] = useState({
     email_new: "",
