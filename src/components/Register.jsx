@@ -19,35 +19,83 @@ const App = () => {
 };
 
 const LoginForm = ({ onRegisterClick }) => {
+  const [formData, setFormData] = useState({
+    username_exists: "",
+    password_exists: "",
+  });
+  const {username_exists, password_exists } =
+    formData;
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    // Create an object with the data you want to send to the server
+    const dataToSend = {
+      username: username_exists,
+      password: password_exists,
+    };
+    console.log(dataToSend);
+
+    try {
+      const response = await fetch("/login/returning_user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (response.ok) {
+        console.log(dataToSend);
+        // Registration was successful, you can handle the response here
+        // e.g., redirect or display a success message
+      } else {
+        // Registration failed, handle the error here
+        // e.g., display an error message
+      }
+    } catch (error) {
+      // ...
+    }
+  };
   return (
     <div className="login_form flex flex-col justify-center px-8 rounded-xl">
       {/* <h1 className="text-4xl text-center font-bold color ">Welcome Back</h1>  */}
       <h1 className="text-4xl text-orange-300 text-center font-bold ">
         Welcome Back
       </h1>
-      <form className="w-5/12 mx-auto py-8">
+      <form className="w-5/12 mx-auto py-8" onSubmit={handleSubmit}>
         <div className="mb-4">
           <input
             className="w-full p-2 border rounded-lg"
-            id="username_exist"
+            id="username_exists"
             type="text"
             placeholder="Username"
-            name="username_exist"
+            name="username_exists"
+            value={username_exists}
+            onChange={handleChange}
           />
         </div>
         <div className="mb-2">
           <input
             className="w-full p-2 border rounded-lg"
-            id="password_exist"
+            id="password_exists"
             type="password"
             placeholder="Password"
-            name="password_exist"
+            name="password_exists"
+            value={password_exists}
+            onChange={handleChange}
           />
         </div>
         <button
           className="w-full p-2 mt-5 button-color shadow-lg text-white rounded-lg "
           type="submit"
-          value="Post"
         >
           Log In
         </button>
@@ -67,6 +115,13 @@ const LoginForm = ({ onRegisterClick }) => {
     </div>
   );
 };
+
+
+
+
+
+
+
 
 const RegisterForm = ({ onLoginClick }) => {
   const [formData, setFormData] = useState({
