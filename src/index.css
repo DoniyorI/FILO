@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.nav_bg {
+    background-image: linear-gradient(to right, #94bed0, #374158);
+}
+
+.sidebar_bg {
+    background-image: linear-gradient(to bottom, #8cbacf, #64a8ce);
+}
+
+.home_bg {
+    background-image: url('./assets/HomePageBackgroundcolor.png');
+}

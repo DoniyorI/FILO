@@ -1,10 +1,6 @@
 from flask import Flask, request, Response, send_file, make_response, send_from_directory
-import pymongo
-from pymongo import MongoClient
-app = Flask(__name__)
 
-mongo_client = MongoClient("mongo") #"localhost" for server.py, "mongo" for docker
-db = mongo_client["FILO"]
+app = Flask(__name__)
 
 @app.route('/')
 def serve_react_app():
@@ -36,14 +32,7 @@ def serve_static_js(filename):
         return response
     except Exception:
         return page_not_found()
-@app.route('/login')
-def register():
-    try:
-        response = make_response(send_file('./build/index.html', mimetype='text/html'))
-        response.headers['X-Content-Type-Options'] = 'nosniff'
-        return response
-    except Exception:
-        return page_not_found()
+
 
 @app.errorhandler(404)
 def page_not_found(error=None):

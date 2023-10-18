@@ -42,14 +42,13 @@
 }
 
 .glass_window.spin {
-    transform: rotateY(180deg);
+  transform: rotateY(180deg);
 }
 
 .button-color {
-    background-color: #4D9FCD;
+  background-color: #4d9fcd;
 }
-  
+
 .button-color:hover {
-    background-color: #63ADD7;
+  background-color: #63add7;
 }
-  
