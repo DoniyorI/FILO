@@ -54,6 +54,7 @@ const LoginForm = ({ onRegisterClick }) => {
 
       if (response.ok) {
         console.log(dataToSend);
+        window.location.href = "/";
         // Registration was successful, you can handle the response here
         // e.g., redirect or display a success message
       } else {
@@ -165,6 +166,8 @@ const RegisterForm = ({ onLoginClick }) => {
 
       if (response.ok) {
         console.log(dataToSend);
+        window.location.href = "/login";
+
         // Registration was successful, you can handle the response here
         // e.g., redirect or display a success message
       } else {

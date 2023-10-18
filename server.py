@@ -60,39 +60,32 @@ def register():
 
 @app.route('/login/new_user', methods=['POST'])  
 def newUser():
-    # print("*********new user*********")
     try:
         newUserDat = request.get_json()
-        print(newUserDat)
+        print("register form",newUserDat)
         email = newUserDat.get("email")
-        print(email)
+        print("email", email)
         username = newUserDat.get("username")
-        print(username)
+        print("username", username)
         password = newUserDat.get("password")
-        print(password)
+        print("password", password)
         passwordConfirm = newUserDat.get("confirm_password")
-        print(passwordConfirm)
+        print("passwordConfirm", passwordConfirm)
         if username == " " or password == " ":
-            # print("user does not have both username and pass")
             return jsonify({'message': 'Username and password are required'}), 400
 
         if password != passwordConfirm:  # Use != instead of is not
-            # print("user does not have both username and pass")
             return jsonify({'message': 'Passwords do not match'}), 400
         
-        # print("user has both username and pass")
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-        # print("///////////////")
-        # print(hashed_password)
         userCollection.insert_one({
             "email": email,
             "username": username, 
             "password": hashed_password, 
             "salt": salt, 
             })
-        
-        return redirect("/")
+        return make_response()
     except Exception as e:  # Catch the exception and print it for debugging
         print(e)
         return jsonify({'message': 'An error occurred'}), 500
@@ -104,29 +97,15 @@ def returningUser():
         retusername = retUserdat.get("username")
         retuserpassword = retUserdat.get("password")
         if retusername == " " or retuserpassword == " ":
-            print("user does not have both username and pass")
             return jsonify({'message': 'Username and password are required'}), 400
         checking = userCollection.find_one({"username":retusername})
         salt = checking["salt"]
-        print(salt)
         hasheduserpasswd = bcrypt.hashpw(retuserpassword.encode(),salt)
-        print("/////////////////")
-        print(hasheduserpasswd)
         if retusername == checking["username"]:
             if hasheduserpasswd == checking["password"]:
-                print("TTTTTTTTTTTTRuE")
                 token1 = secrets.token_hex()
-                print("hello")
-                print(token1)
                 result = hashlib.sha256(token1.encode("utf-8")).hexdigest()
-                print("maybe")
-                print(result)
-                # auth = request.cookies.get("auth_tok",0)
-                # count = int(request.cookies.get('cookie', 0)) + 1
-                # response = make_response(f"{count}")
-                # response.set_cookie('cookie', value = str(count), max_age=3600)
                 response = make_response()
-                response.headers['X-Content-Type-Options'] = 'nosniff'
                 response.set_cookie("auth_tok",value = token1,max_age=3600,httponly=True)
                 userCollection.update_one(
                     {"username":retusername},
