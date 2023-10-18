@@ -122,14 +122,17 @@ def returningUser():
                 print("maybe")
                 print(result)
                 # auth = request.cookies.get("auth_tok",0)
-                # response = app.make_response('Cookie has been set!')
-
-                # response.set_cookie("auth_tok",token1,max_age=3600,httponly=True)
+                # count = int(request.cookies.get('cookie', 0)) + 1
+                # response = make_response(f"{count}")
+                # response.set_cookie('cookie', value = str(count), max_age=3600)
+                response = make_response()
+                response.headers['X-Content-Type-Options'] = 'nosniff'
+                response.set_cookie("auth_tok",value = token1,max_age=3600,httponly=True)
                 userCollection.update_one(
                     {"username":retusername},
                     {"$set":{"token":result}}
                 )
-                return redirect("/")
+                return response
             else:
                 return jsonify({'message': 'password is incorrect'}), 400
         else:
