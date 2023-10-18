@@ -2,11 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* place consistent component designs in index.css */
 .nav_bg {
     background-color: #393D48;
 }
 
 .sidebar_bg {
     background-color: #393D48;
+}
+.home_bg {
+    background-color:#0D1321;
 }

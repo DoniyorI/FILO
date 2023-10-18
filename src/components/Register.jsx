@@ -3,6 +3,7 @@ import "./Register.css";
 
 const App = () => {
   const [isFlipped, setIsFlipped] = useState(false);
+  // const {name = }
 
   return (
     <div className="min-h-screen flex items-center justify-center reg_background ">
@@ -12,6 +13,10 @@ const App = () => {
         }`}
       >
         <LoginForm onRegisterClick={() => setIsFlipped(true)} />
+        {/* <div>
+        {{name}}
+        </div> */}
+        
         <RegisterForm onLoginClick={() => setIsFlipped(false)} />
       </div>
     </div>
