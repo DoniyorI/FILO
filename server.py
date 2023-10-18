@@ -57,6 +57,14 @@ def register():
     except Exception:
         return page_not_found()
 
+@app.route('/public/image/<picture>')
+def image(picture):
+    try:
+        response = make_response(send_file(f'public/image/{picture}', mimetype="image/jpeg"))
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        return response
+    except Exception:
+        return page_not_found()    
 
 @app.route('/login/new_user', methods=['POST'])  
 def newUser():
