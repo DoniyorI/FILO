@@ -57,7 +57,7 @@ def register():
     except Exception:
         return page_not_found()
 
-@app.route('/public/image/<picture>')
+@app.route('/image/<picture>')
 def image(picture):
     try:
         response = make_response(send_file(f'public/image/{picture}', mimetype="image/jpeg"))
