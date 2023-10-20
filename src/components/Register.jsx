@@ -3,7 +3,6 @@ import "./Register.css";
 
 const App = () => {
   const [isFlipped, setIsFlipped] = useState(false);
-  // const {name = }
 
   return (
     <div className="min-h-screen flex items-center justify-center reg_background ">
@@ -13,10 +12,6 @@ const App = () => {
         }`}
       >
         <LoginForm onRegisterClick={() => setIsFlipped(true)} />
-        {/* <div>
-        {{name}}
-        </div> */}
-        
         <RegisterForm onLoginClick={() => setIsFlipped(false)} />
       </div>
     </div>
@@ -24,27 +19,79 @@ const App = () => {
 };
 
 const LoginForm = ({ onRegisterClick }) => {
+  const [formData, setFormData] = useState({
+    username_exists: "",
+    password_exists: "",
+  });
+  const {username_exists, password_exists } =
+    formData;
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    // Create an object with the data you want to send to the server
+    const dataToSend = {
+      username: username_exists,
+      password: password_exists,
+    };
+    console.log(dataToSend);
+
+    try {
+      const response = await fetch("/login/returning_user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (response.ok) {
+        console.log(dataToSend);
+        window.location.href = "/";
+        // Registration was successful, you can handle the response here
+        // e.g., redirect or display a success message
+      } else {
+        // Registration failed, handle the error here
+        // e.g., display an error message
+      }
+    } catch (error) {
+      // ...
+    }
+  };
   return (
     <div className="login_form flex flex-col justify-center px-8 rounded-xl">
       {/* <h1 className="text-4xl text-center font-bold color ">Welcome Back</h1>  */}
       <h1 className="text-4xl text-orange-300 text-center font-bold ">
         Welcome Back
       </h1>
-      <form className="w-5/12 mx-auto py-8">
+      <form className="w-5/12 mx-auto py-8" onSubmit={handleSubmit}>
         <div className="mb-4">
           <input
             className="w-full p-2 border rounded-lg"
-            id="username"
+            id="username_exists"
             type="text"
             placeholder="Username"
+            name="username_exists"
+            value={username_exists}
+            onChange={handleChange}
           />
         </div>
         <div className="mb-2">
           <input
             className="w-full p-2 border rounded-lg"
-            id="password"
+            id="password_exists"
             type="password"
             placeholder="Password"
+            name="password_exists"
+            value={password_exists}
+            onChange={handleChange}
           />
         </div>
         <button
@@ -70,50 +117,116 @@ const LoginForm = ({ onRegisterClick }) => {
   );
 };
 
+
 const RegisterForm = ({ onLoginClick }) => {
+  const [formData, setFormData] = useState({
+    email_new: "",
+    username_new: "",
+    password_new: "",
+    confirm_password_new: "",
+  });
+
+  const { email_new, username_new, password_new, confirm_password_new } =
+    formData;
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    // Create an object with the data you want to send to the server
+    const dataToSend = {
+      email: email_new,
+      username: username_new,
+      password: password_new,
+      confirm_password: confirm_password_new,
+    };
+    console.log(dataToSend);
+
+    try {
+      const response = await fetch("/login/new_user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (response.ok) {
+        console.log(dataToSend);
+        window.location.href = "/login";
+
+        // Registration was successful, you can handle the response here
+        // e.g., redirect or display a success message
+      } else {
+        // Registration failed, handle the error here
+        // e.g., display an error message
+      }
+    } catch (error) {
+      // ...
+    }
+  };
+
   return (
     <div className="register_form flex flex-col justify-center px-8 rounded-xl">
       <h1 className="text-4xl text-center font-bold text-orange-300">
         Register
       </h1>
-      <form className="w-5/12 mx-auto py-10">
+      <form className="w-5/12 mx-auto py-10" onSubmit={handleSubmit}>
         <div className="mb-2">
           <input
             className="w-full p-2 border rounded-lg"
-            id="email"
+            id="email_new"
             type="text"
             placeholder="Email"
+            name="email_new"
+            value={email_new}
+            onChange={handleChange}
           />
         </div>
         <div className="mb-2">
           <input
             className="w-full p-2 border rounded-lg"
-            id="username"
+            id="username_new"
             type="text"
             placeholder="Username"
+            name="username_new"
+            value={username_new}
+            onChange={handleChange}
           />
         </div>
         <div className="mb-2">
           <input
             className="w-full p-2 border rounded-lg"
-            id="password"
+            id="password_new"
             type="password"
             placeholder="Password"
+            name="password_new"
+            value={password_new}
+            onChange={handleChange}
           />
         </div>
         <div className="mb-2">
           <input
             className="w-full p-2 border rounded-lg"
-            id="confirmPassword"
+            id="confirm_password_new"
             type="password"
             placeholder="Confirm Password"
+            name="confirm_password_new"
+            value={confirm_password_new}
+            onChange={handleChange}
           />
         </div>
         <button
           className="w-full p-2 mt-5 button-color shadow-lg text-white rounded-lg"
-          type="submit"
-        >
-          Register
+          type="submit">
+            Register
         </button>
       </form>
 

@@ -13,11 +13,11 @@ export default function App() {
         <Route
           path="/"
           element={
-            <div>
+            <>
               <Navbar />
               <Sidebar />
               <Home />
-            </div>
+            </>
           }
         />
         {/* <Route path="/" element={<Navbar />} /> */}

@@ -11,7 +11,7 @@ def serve_react_app():
         return response
     except Exception:
         return page_not_found()
-
+    
 @app.route('/static/css/<path:filename>')
 def serve_static_css(filename):
     try:
