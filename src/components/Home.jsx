@@ -1,7 +1,7 @@
 import React from "react";
 import "./Home.css";
 
-
+/* create const variables for reading in user get requests to make posts live on the home page */
 const Home = () => {
   
   return (
