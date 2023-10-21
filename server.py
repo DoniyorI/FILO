@@ -5,6 +5,8 @@ app = Flask(__name__)
 
 mongo_client = MongoClient("mongo") #"localhost" for server.py, "mongo" for docker
 db = mongo_client["FILO"]
+userCollection = db["user"]
+
 
 @app.route('/')
 def serve_react_app():
@@ -27,7 +29,6 @@ def serve_static_css(filename):
     except Exception:
         return page_not_found()
 
-
 @app.route('/static/js/<path:filename>')
 def serve_static_js(filename):
     try:
@@ -37,6 +38,8 @@ def serve_static_js(filename):
         return response
     except Exception:
         return page_not_found()
+
+
 @app.route('/login')
 def register():
     try:
@@ -46,6 +49,14 @@ def register():
     except Exception:
         return page_not_found()
 
+@app.route('/image/<picture>')
+def image(picture):
+    try:
+        response = make_response(send_file(f'public/image/{picture}', mimetype="image/jpeg"))
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        return response
+    except Exception:
+        return page_not_found()    
 
 @app.route('/login/new_user', methods=['POST'])  
 def newUser():
@@ -109,8 +120,13 @@ def returningUser():
         print(e)
         return jsonify({'message': 'An error occurred'}), 500
         
+    
+        
 
 
+
+    except Exception:
+        return page_not_found()    
 
 @app.errorhandler(404)
 def page_not_found(error=None):
