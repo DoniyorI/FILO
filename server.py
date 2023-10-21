@@ -3,6 +3,7 @@ import bcrypt
 from flask import Flask, request, Response, send_file, make_response, send_from_directory, jsonify, redirect
 import pymongo
 import secrets
+from bson.objectid import ObjectId
 from pymongo import MongoClient
 app = Flask(__name__)
 
@@ -12,6 +13,10 @@ mongo_client = MongoClient("localhost")
 db = mongo_client["FILO"]
 userCollection = db["user"]
 postCollection = db["global post"]
+
+def getUsername(token):
+    checking = userCollection.find_one({"token":token})
+    return checking["username"]
 
 @app.route('/')
 def serve_react_app():
@@ -128,8 +133,24 @@ def returningUser():
     
         
 
-
-
+@app.route('/posts-upload', methods = ['POST'])
+def userPost():
+    try:
+        token = request.cookies.get("auth_tok")
+        username = getUsername(token)
+        data = request.get_json()
+        post = data.get("description")
+        title = data.get("title")
+        postCollection.insert_one({
+            "username": username,
+            "description": post,
+            "title" :title,
+            "like_counter":0,
+            "likers":set(),
+            "comments": [],
+            "image_id":None
+        })
+        return make_response()
     except Exception:
         return page_not_found()    
 
