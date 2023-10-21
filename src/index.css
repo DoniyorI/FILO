@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* place consistent component designs in index.css */
+.nav_bg {
+    background-color: #393D48;
+}
+
+.sidebar_bg {
+    background-color: #393D48;
+}
+
+body {
+    background-color: #393D48;
+}

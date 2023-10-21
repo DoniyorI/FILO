@@ -1,17 +1,10 @@
-import hashlib
-import bcrypt
-from flask import Flask, request, Response, send_file, make_response, send_from_directory, jsonify, redirect
+from flask import Flask, request, Response, send_file, make_response, send_from_directory
 import pymongo
-import secrets
 from pymongo import MongoClient
 app = Flask(__name__)
 
-
-# "localhost" for server.py, "mongo" for docker
-mongo_client = MongoClient("localhost")
+mongo_client = MongoClient("mongo") #"localhost" for server.py, "mongo" for docker
 db = mongo_client["FILO"]
-userCollection = db["user"]
-
 
 @app.route('/')
 def serve_react_app():
@@ -23,7 +16,6 @@ def serve_react_app():
         return response
     except Exception:
         return page_not_found()
-
 
 @app.route('/static/css/<path:filename>')
 def serve_static_css(filename):
@@ -45,13 +37,10 @@ def serve_static_js(filename):
         return response
     except Exception:
         return page_not_found()
-
-
 @app.route('/login')
 def register():
     try:
-        response = make_response(
-            send_file('./build/index.html', mimetype='text/html'))
+        response = make_response(send_file('./build/index.html', mimetype='text/html'))
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response
     except Exception:
