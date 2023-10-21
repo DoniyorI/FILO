@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 .nav_bg {
-    background-color: #393D48;
+  background-color: #393d48;
 }
 
 .sidebar_bg {
-    background-color: #393D48;
+  background-color: #393d48;
 }
 .home_bg {
-    background-color:#0D1321;
+  background-color: #0d1321;
 }
 
 /* .create_post {
