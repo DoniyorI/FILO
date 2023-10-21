@@ -13,10 +13,6 @@ db = mongo_client["FILO"]
 userCollection = db["user"]
 postCollection = db["global post"]
 
-def getUsername(token):
-    checking = userCollection.find_one({"token":token})
-    return checking["username"]
-
 @app.route('/')
 def serve_react_app():
 
@@ -129,15 +125,7 @@ def returningUser():
         print(e)
         return jsonify({'message': 'An error occurred'}), 500
         
-@app.route('/posts-upload', methods = ['POST'])
-def userPost():
-    try:
-        auth_tok = request.cookies.get("Cookie")
-        username = getUsername(auth_tok)
-        data = request.get_json()
-        post = data.get("postBody")
-
-        
+    
         
 
 
