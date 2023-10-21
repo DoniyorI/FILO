@@ -20,9 +20,6 @@ export default function App() {
             </>
           }
         />
-        {/* <Route path="/" element={<Navbar />} /> */}
-        {/* <Route path="/" element={<Sidebar />} /> */}
-        {/* <Route path="/" element={<Home />} /> */}
         <Route path="login" element={<Register />} />
       </Routes>
     </BrowserRouter>

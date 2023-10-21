@@ -10,10 +10,8 @@ userCollection = db["user"]
 
 @app.route('/')
 def serve_react_app():
-
     try:
-        response = make_response(
-            send_file('./build/index.html', mimetype='text/html'))
+        response = make_response(send_file('./build/index.html', mimetype='text/html'))
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response
     except Exception:
@@ -52,6 +50,8 @@ def register():
 @app.route('/image/<picture>')
 def image(picture):
     try:
+        # need to read in the svg files
+        
         response = make_response(send_file(f'public/image/{picture}', mimetype="image/jpeg"))
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response
