@@ -130,9 +130,6 @@ def returningUser():
         print(e)
         return jsonify({'message': 'An error occurred'}), 500
         
-    
-        
-
 @app.route('/posts-upload', methods = ['POST'])
 def userPost():
     try:
@@ -153,6 +150,20 @@ def userPost():
         return make_response()
     except Exception:
         return page_not_found()    
+
+@app.route('/post-like', methods = ['POST'])
+def userLike():
+    try:
+        data = request.get_json()
+        objID = data.get('objectID')
+        token = request.cookies.get("auth_tok")
+        username = getUsername(token)
+        thisPost = postCollection.find_one({"_id":ObjectId(objID)})
+        postCollection.update_one({"_id": ObjectId(objID)}, {"$set":{"likers":thisPost["likers"].add(username)}}) 
+
+        return make_response()
+    except Exception:
+        return page_not_found()  
 
 @app.errorhandler(404)
 def page_not_found(error=None):
