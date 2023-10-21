@@ -12,7 +12,9 @@ app = Flask(__name__)
 mongo_client = MongoClient("localhost")
 db = mongo_client["FILO"]
 userCollection = db["user"]
+
 postCollection = db["global post"]
+
 
 def getUsername(token):
     checking = userCollection.find_one({"token":token})
@@ -30,6 +32,7 @@ def serve_react_app():
 def getPost():
     try:
         posts = list(postCollection.find({}, {'_id': False}))
+        print(posts)
         return jsonify(posts)
     except Exception:
         return page_not_found()
@@ -74,6 +77,16 @@ def image(picture):
         return response
     except Exception:
         return page_not_found()    
+    
+@app.route('/static/media/<path:filename>')
+def serve_svg(filename):
+    try:
+        response = send_from_directory('./build/static/media', filename)
+        response.headers['mimetype'] = "image/svg+xml"
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        return response
+    except Exception:
+        return page_not_found()
 
 @app.route('/login/new_user', methods=['POST'])  
 def newUser():
@@ -146,11 +159,12 @@ def userPost():
         post = data.get("description")
         title = data.get("title")
         postCollection.insert_one({
+    
             "username": username,
             "description": post,
             "title" :title,
             "like_counter":0,
-            "likers":set(),
+            "likers":[],
             "comments": [],
             "image_id":None
         })

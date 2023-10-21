@@ -21,4 +21,8 @@
     transition: transform 0.6s;
     transform-style: preserve-3d;
   }
+
+.bg-post{
+    background-color: #30343F;
+}
 /* create a rectangular design for each of the user posts and the post option */

@@ -2,9 +2,10 @@ import React, { useRef, useEffect, useState } from "react";
 import "./Home.css";
 import Posts from "./Posts";
 import SendIcon from "../assets/sendIcon.svg";
+import heartIcon from "../assets/heart-regular.svg";
+// import Profile from "../assets/mainProfile.svg";
 
 const Home = () => {
-
   const [isFocused, setIsFocused] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
   const [formData, setFormData] = useState({
@@ -40,6 +41,8 @@ const Home = () => {
     };
 
     try {
+      console.log("dataToSend: ");
+      console.log(dataToSend);
       const response = await fetch("/posts-upload", {
         method: "POST",
         headers: {
@@ -49,9 +52,7 @@ const Home = () => {
       });
 
       if (response.ok) {
-        // window.location.href = "/";
       } else {
-        // window.location.href = "/";
         // handle error
       }
     } catch (error) {
@@ -61,7 +62,7 @@ const Home = () => {
   };
 
   return (
-    <div className="home_bg h-screen ml-20">
+    <div className="home_bg min-h-screen h-full ml-20">
       <div className="flex justify-center items-center text-3xl text-white pt-2">
         <a
           href="/"
@@ -69,13 +70,13 @@ const Home = () => {
         >
           Home
         </a>
-        |
+        {/* |
         <a
           href="/"
           className="px-4 text-base hover:underline underline-offset-8"
         >
           Following
-        </a>
+        </a> */}
       </div>
 
       <div
@@ -96,13 +97,7 @@ const Home = () => {
             onBlur={() => setIsFocused(false)}
             onChange={handleInputChange}
           />
-
-          {isFocused && (
-            <p className="text-gray-700">{formData.new_description}</p>
-          )}
-
           <hr />
-
           {showDescription && (
             <div className="mt-2">
               <textarea
@@ -131,7 +126,22 @@ const Home = () => {
         </form>
       </div>
 
-      <Posts />
+      {/* <Posts /> */}
+
+      {/* <div className="mx-20 p-3 bg-post rounded-xl text-white">
+        <div className=" flex items-center space-x-4">
+          
+          <h2>Username</h2>
+          <hr />
+        </div>
+        <h1>Title</h1>
+        <hr />
+        <p>Description</p>
+        <hr />
+        <div className="">
+          <img src={heartIcon} alt="Like" className=" mt-2 w-5 h-5"></img>
+        </div>
+      </div> */}
     </div>
   );
 };
