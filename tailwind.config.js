@@ -7,6 +7,7 @@ module.exports = {
         sand: "#E5E5E5",
         goldenOrange: "#EFA73E",
         primaryDark: "#30343F",
+        primaryBlue: "#225374"
       },
     },
   },

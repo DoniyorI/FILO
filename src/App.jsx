@@ -14,8 +14,8 @@ export default function App() {
           path="/"
           element={
             <>
-              <Navbar />
               <Sidebar />
+              <Navbar />
               <Home />
             </>
           }

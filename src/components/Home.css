@@ -13,13 +13,12 @@
   background-color: #0d1321;
 }
 
-/* .create_post {
-    background: #30343F;
+.create_post {
     margin: 5%;
     height: 85vh;
     width: 80vw;
   
     transition: transform 0.6s;
     transform-style: preserve-3d;
-  } */
+  }
 /* create a rectangular design for each of the user posts and the post option */
