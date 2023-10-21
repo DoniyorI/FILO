@@ -49,9 +49,9 @@ const Home = () => {
       });
 
       if (response.ok) {
-        window.location.href = "/";
+        // window.location.href = "/";
       } else {
-        window.location.href = "/";
+        // window.location.href = "/";
         // handle error
       }
     } catch (error) {

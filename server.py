@@ -1,13 +1,18 @@
-from flask import Flask, request, Response, send_file, make_response, send_from_directory
+import hashlib
+import bcrypt
+from flask import Flask, request, Response, send_file, make_response, send_from_directory, jsonify
+
 import pymongo
 import secrets
+from bson.objectid import ObjectId
 from pymongo import MongoClient
 app = Flask(__name__)
 
-mongo_client = MongoClient("mongo") #"localhost" for server.py, "mongo" for docker
+# "localhost" for server.py, "mongo" for docker
+mongo_client = MongoClient("localhost")
 db = mongo_client["FILO"]
 userCollection = db["user"]
-
+postCollection = db["global post"]
 
 def getUsername(token):
     checking = userCollection.find_one({"token":token})
@@ -19,6 +24,13 @@ def serve_react_app():
         response = make_response(send_file('./build/index.html', mimetype='text/html'))
         response.headers['X-Content-Type-Options'] = 'nosniff'
         return response
+    except Exception:
+        return page_not_found()
+@app.route("/get-posts")
+def getPost():
+    try:
+        posts = list(postCollection.find({}, {'_id': False}))
+        return jsonify(posts)
     except Exception:
         return page_not_found()
 
