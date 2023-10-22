@@ -56,7 +56,7 @@ const Posts = () => {
                 alt="Profile"
                 className="w-10 h-10 rounded-full"
               />
-              <h2>{post.username.username}</h2>
+              <h2>{post.username}</h2>
             </div>
             <hr className="my-4" />
             <h1 className="text-2xl text-sand font-bold">{post.title}</h1>
