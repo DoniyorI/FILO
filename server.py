@@ -1,23 +1,33 @@
 import hashlib
 import bcrypt
-from flask import Flask, request, Response, send_file, make_response, send_from_directory, jsonify
-
-import pymongo
+from flask import Flask, request, Response, send_file, make_response, send_from_directory,jsonify
 import secrets
 from bson.objectid import ObjectId
 from pymongo import MongoClient
+from bson import json_util
+from flask import json
 app = Flask(__name__)
 
 # "localhost" for server.py, "mongo" for docker
 mongo_client = MongoClient("localhost")
 db = mongo_client["FILO"]
 userCollection = db["user"]
-
 postCollection = db["global post"]
+
+# postCollection.insert_one({
+#     "username": "test",
+#     "description": "test",
+#     "title" :"test",
+#     "like_counter":0,
+#     "likers":[],
+#     "comments": [],
+#     "image_id":None
+# })
 
 
 def getUsername(token):
-    checking = userCollection.find_one({"token":token})
+    checking = userCollection.find_one({"auth_tok":token})
+    print(checking)
     return checking["username"]
 
 @app.route('/')
@@ -31,11 +41,11 @@ def serve_react_app():
 @app.route("/get-posts")
 def getPost():
     try:
-        posts = list(postCollection.find({}, {'_id': False}))
-        print(posts)
-        return jsonify(posts)
-    except Exception:
-        return page_not_found()
+        posts = list(postCollection.find({}, {'_id': False}))  # Exclude _id from the response
+        return json_util.dumps(posts)  
+    except Exception as e:
+            error_message = "An error occurred: {}".format(str(e))
+            print("***********ERROR**:", error_message)
 
 @app.route('/static/css/<path:filename>')
 def serve_static_css(filename):
@@ -153,11 +163,18 @@ def returningUser():
 @app.route('/posts-upload', methods = ['POST'])
 def userPost():
     try:
+        print("***************TRYING TO LOAD *******************")
         token = request.cookies.get("auth_tok")
-        username = getUsername(token)
+        print(token)
+        username = userCollection.find_one({"token":hashlib.sha256(token.encode("utf-8")).hexdigest()})
+        # username = getUsername(token)
+        print(username)
         data = request.get_json()
+        print(data)
         post = data.get("description")
+        print(post)
         title = data.get("title")
+        print(title)
         postCollection.insert_one({
     
             "username": username,

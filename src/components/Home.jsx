@@ -52,6 +52,7 @@ const Home = () => {
       });
 
       if (response.ok) {
+        window.location.href = "/";
       } else {
         // handle error
       }
@@ -126,7 +127,7 @@ const Home = () => {
         </form>
       </div>
 
-      {/* <Posts /> */}
+      <Posts />
 
       {/* <div className="mx-20 p-3 bg-post rounded-xl text-white">
         <div className=" flex items-center space-x-4">
