@@ -42,7 +42,8 @@ def serve_react_app():
 @app.route("/get-posts")
 def getPost():
     try:
-        posts = list(postCollection.find({}, {'_id': False}))  # Exclude _id from the response
+        posts = list(postCollection.find({}, {'_id': False})) 
+        print(posts)
         return json_util.dumps(posts)  
     except Exception as e:
             error_message = "An error occurred: {}".format(str(e))

@@ -16,28 +16,35 @@ const Posts = () => {
   }
 
   useEffect(() => {
-    // Fetch posts when component mounts
-    fetch("/get-posts")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok " + response.statusText);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setPosts(data.reverse());
-        setClicked(new Array(data.length).fill(false));
-      })
-
-      .catch((error) => {
-        console.error(
-          "There has been a problem with your fetch operation:",
-          error
-        );
-        setError(error.toString());
-      });
-  }, []); // The empty array means this useEffect runs once when component mounts, like componentDidMount
-
+    const fetchPosts = () => {
+      // Fetch posts
+      fetch("/get-posts")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok " + response.statusText);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
+          setPosts(data.reverse());
+          setClicked(new Array(data.length).fill(false));
+        })
+        .catch((error) => {
+          console.error(
+            "There has been a problem with your fetch operation:",
+            error
+          );
+          setError(error.toString());
+        });
+    };
+  
+    fetchPosts();  // Fetch posts initially when component mounts
+  
+    const intervalId = setInterval(fetchPosts, 5000);  // Fetch posts every 5 seconds
+  
+    return () => clearInterval(intervalId);  // Clear the interval when component unmounts
+  }, []);
   return (
     <div className="justify-center">
       {error ? (
@@ -56,7 +63,7 @@ const Posts = () => {
                 alt="Profile"
                 className="w-10 h-10 rounded-full"
               />
-              <h2>{post.username.username}</h2>
+              <h2>{post.username}</h2>
             </div>
             <hr className="my-4" />
             <h1 className="text-2xl text-sand font-bold">{post.title}</h1>
