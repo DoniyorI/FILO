@@ -27,7 +27,7 @@ postCollection = db["global post"]
 
 
 def getUsername(token):
-    checking = userCollection.find_one({"auth_tok":token})
+    checking = userCollection.find_one({"token":hashlib.sha256(token.encode("utf-8")).hexdigest()})
     print(checking)
     return checking["username"]
 
@@ -167,9 +167,7 @@ def userPost():
         print("***************TRYING TO LOAD *******************")
         token = request.cookies.get("auth_tok")
         print(token)
-        username = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
-        # username = getUsername(token)
-        print(username)
+        user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
         data = request.get_json()
         print(data)
         post = data.get("description")
@@ -178,7 +176,7 @@ def userPost():
         print(title)
         postCollection.insert_one({
     
-            "username": username,
+            "username": user["username"],
             "description": post,
             "title": title,
             "like_counter":0,
