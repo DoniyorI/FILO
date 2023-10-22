@@ -6,6 +6,7 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 from bson import json_util
 from flask import json
+
 app = Flask(__name__)
 
 # "localhost" for server.py, "mongo" for docker
@@ -138,7 +139,7 @@ def returningUser():
         retuserpassword = retUserdat.get("password")
         if retusername == " " or retuserpassword == " ":
             return jsonify({'message': 'Username and password are required'}), 400
-        checking = userCollection.find_one({"username":retusername})
+        checking = userCollection.find_one({"username": retusername})
         salt = checking["salt"]
         hasheduserpasswd = bcrypt.hashpw(retuserpassword.encode(),salt)
         if retusername == checking["username"]:
@@ -148,7 +149,7 @@ def returningUser():
                 response = make_response()
                 response.set_cookie("auth_tok",value = token1,max_age=3600,httponly=True)
                 userCollection.update_one(
-                    {"username":retusername},
+                    {"username": retusername},
                     {"$set":{"token":result}}
                 )
                 return response
@@ -166,7 +167,7 @@ def userPost():
         print("***************TRYING TO LOAD *******************")
         token = request.cookies.get("auth_tok")
         print(token)
-        username = userCollection.find_one({"token":hashlib.sha256(token.encode("utf-8")).hexdigest()})
+        username = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
         # username = getUsername(token)
         print(username)
         data = request.get_json()
@@ -179,7 +180,7 @@ def userPost():
     
             "username": username,
             "description": post,
-            "title" :title,
+            "title": title,
             "like_counter":0,
             "likers":[],
             "comments": [],
@@ -196,8 +197,8 @@ def userLike():
         objID = data.get('objectID')
         token = request.cookies.get("auth_tok")
         username = getUsername(token)
-        thisPost = postCollection.find_one({"_id":ObjectId(objID)})
-        postCollection.update_one({"_id": ObjectId(objID)}, {"$set":{"likers":thisPost["likers"].add(username)}}) 
+        thisPost = postCollection.find_one({"_id": ObjectId(objID)})
+        postCollection.update_one({"_id": ObjectId(objID)}, {"$set": { "likers": thisPost["likers"].add(username) }}) 
 
         return make_response()
     except Exception:
