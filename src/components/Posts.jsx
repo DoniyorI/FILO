@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import Profile from "../assets/mainProfile.svg";
 import heartIcon from "../assets/heart-regular.svg";
-import redHeart from "../assets/redHeart.svg"
+import redHeart from "../assets/redHeart.svg";
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
-  
-  const [clicked, setClicked] = useState(false)
 
-  function handleClick(event) {
-    setClicked(!clicked)
+  const [clicked, setClicked] = useState([]);
+
+  function handleClick(index) {
+    const newClicked = [...clicked];
+    newClicked[index] = !newClicked[index]; // Toggle the clicked state for the specific post
+    setClicked(newClicked);
   }
 
   useEffect(() => {
@@ -22,9 +24,16 @@ const Posts = () => {
         }
         return response.json();
       })
-      .then((data) => setPosts(data.reverse()))  // Added reverse() here
+      .then((data) => {
+        setPosts(data.reverse());
+        setClicked(new Array(data.length).fill(false));
+      })
+
       .catch((error) => {
-        console.error("There has been a problem with your fetch operation:", error);
+        console.error(
+          "There has been a problem with your fetch operation:",
+          error
+        );
         setError(error.toString());
       });
   }, []); // The empty array means this useEffect runs once when component mounts, like componentDidMount
@@ -37,21 +46,36 @@ const Posts = () => {
         <p className="text-white text-4xl">No posts available!</p>
       ) : (
         posts.map((post, index) => (
-          <div key={index} className="max-w-5xl mx-auto my-1 p-3 bg-post rounded-xl text-white">
+          <div
+            key={index}
+            className="max-w-5xl mx-auto my-1 p-3 bg-post rounded-xl text-white"
+          >
             <div className="flex items-center space-x-4">
-              <img src={Profile} alt="Profile" className="w-10 h-10 rounded-full" />
-              <h2>{post.username.username}</h2> 
+              <img
+                src={Profile}
+                alt="Profile"
+                className="w-10 h-10 rounded-full"
+              />
+              <h2>{post.username.username}</h2>
             </div>
             <hr className="my-4" />
-            <h1>{post.title}</h1>
+            <h1 className="text-2xl text-sand font-bold">{post.title}</h1>
             <hr className="my-4" />
-            <p>{post.description}</p>
+            <p className="text-sand">{post.description}</p>
             <hr className="my-2" />
             <div className="mt-2 w-5 h-5 cursor-pointer hover:scale-110">
-              {clicked ? (
-                <img src={redHeart} onClick={handleClick} alt="Liked"/>
+              {clicked[index] ? (
+                <img
+                  src={redHeart}
+                  onClick={() => handleClick(index)}
+                  alt="Liked"
+                />
               ) : (
-                <img src={heartIcon} onClick={handleClick} alt="Like"/>
+                <img
+                  src={heartIcon}
+                  onClick={() => handleClick(index)}
+                  alt="Like"
+                />
               )}
             </div>
           </div>
