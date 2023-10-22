@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Profile from "../assets/mainProfile.svg";
 import heartIcon from "../assets/heart-regular.svg";
+import redHeart from "../assets/redHeart.svg"
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
+  
+  const [clicked, setClicked] = useState(false)
+
+  function handleClick(event) {
+    setClicked(!clicked)
+  }
 
   useEffect(() => {
     // Fetch posts when component mounts
@@ -35,13 +42,17 @@ const Posts = () => {
               <img src={Profile} alt="Profile" className="w-10 h-10 rounded-full" />
               <h2>{post.username.username}</h2> 
             </div>
-            <hr />
+            <hr className="my-4" />
             <h1>{post.title}</h1>
-            <hr />
+            <hr className="my-4" />
             <p>{post.description}</p>
-            <hr />
-            <div className="">
-              <img src={heartIcon} alt="Like" className="mt-2 w-5 h-5"></img>
+            <hr className="my-2" />
+            <div className="mt-2 w-5 h-5 cursor-pointer hover:scale-110">
+              {clicked ? (
+                <img src={redHeart} onClick={handleClick} alt="Liked"/>
+              ) : (
+                <img src={heartIcon} onClick={handleClick} alt="Like"/>
+              )}
             </div>
           </div>
         ))

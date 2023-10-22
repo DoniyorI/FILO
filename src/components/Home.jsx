@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import "./Home.css";
 import Posts from "./Posts";
 import SendIcon from "../assets/sendIcon.svg";
-import heartIcon from "../assets/heart-regular.svg";
+// import heartIcon from "../assets/heart-regular.svg";
 // import Profile from "../assets/mainProfile.svg";
 
 const Home = () => {
