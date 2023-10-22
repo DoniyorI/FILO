@@ -17,7 +17,6 @@ const Posts = () => {
 
   useEffect(() => {
     const fetchPosts = () => {
-      // Fetch posts
       fetch("/get-posts")
         .then((response) => {
           if (!response.ok) {

@@ -39,6 +39,26 @@ def serve_react_app():
         return response
     except Exception:
         return page_not_found()
+@app.route("/get-user")
+def getUser():
+    try:
+        token = request.cookies.get("auth_tok")
+        print("******************")
+        print(token)
+        print("******************")
+
+        user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
+        print("******************")
+        print(user)
+        print(user["username"])
+        print("******************")
+        print("******************")
+
+        return json_util.dumps(user["username"])
+    except Exception as e:
+            error_message = "An error occurred: {}".format(str(e))
+            print("***********ERROR**:", error_message)
+
 @app.route("/get-posts")
 def getPost():
     try:
