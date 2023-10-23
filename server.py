@@ -62,8 +62,7 @@ def getUser():
 @app.route("/get-posts")
 def getPost():
     try:
-        posts = list(postCollection.find({}, {'_id': False})) 
-        print(posts)
+        posts = list(postCollection.find())
         return json_util.dumps(posts)  
     except Exception as e:
             error_message = "An error occurred: {}".format(str(e))
@@ -209,19 +208,56 @@ def userPost():
     except Exception:
         return page_not_found()    
 
-@app.route('/post-like', methods = ['POST'])
-def userLike():
-    try:
-        data = request.get_json()
-        objID = data.get('objectID')
-        token = request.cookies.get("auth_tok")
-        username = getUsername(token)
-        thisPost = postCollection.find_one({"_id": ObjectId(objID)})
-        postCollection.update_one({"_id": ObjectId(objID)}, {"$set": { "likers": thisPost["likers"].add(username) }}) 
+# @app.route('/post-like', methods = ['POST'])
+# def userLike():
+#     try:
+#         data = request.get_json()
+#         objID = data.get('objectID')
+#         token = request.cookies.get("auth_tok")
+#         username = getUsername(token)
+#         thisPost = postCollection.find_one({"_id": ObjectId(objID)})
+#         postCollection.update_one({"_id": ObjectId(objID)}, {"$set": { "likers": thisPost["likers"].add(username) }}) 
 
-        return make_response()
-    except Exception:
-        return page_not_found()  
+#         return make_response()
+#     except Exception:
+#         return page_not_found()  
+
+@app.route('/post-like', methods=['POST'])
+def post_like():
+    data = request.json
+    postId = data["postId"]['$oid']
+    userId = data['userId']
+    post = postCollection.find_one({'_id': ObjectId(postId)})
+    print("**************POST**************")
+    print(post)
+    if not post:
+        print('Post not found')
+        return jsonify({'error': 'Post not found'}), 404
+
+    likers = set(post['likers'])  # Convert list to set for efficient operations
+    print("**************LIKERS**************")
+    print(likers)
+    like_counter = len(likers)
+
+
+    if userId in likers:
+        likers.remove(userId)
+        postCollection.update_one({"_id": ObjectId(postId)}, {"$pull": { "likers": userId }}, {'like_counter': like_counter-1})
+    else:
+        likers.add(userId)
+        print("Added Like")
+        postCollection.update_one({"_id": ObjectId(postId)}, {"$addToSet": { "likers": userId}}, {'like_counter': like_counter+1})
+
+    # print("**************LIKE COUNTER**************")
+    # print(like_counter)
+
+    # db.postCollection.update_one(
+    #     {'_id': postId},
+    #     {'$set': {'likers': list(likers), 'like_counter': like_counter}}
+    # )
+    
+    return jsonify({'like_counter': like_counter})
+
 
 @app.errorhandler(404)
 def page_not_found(error=None):
