@@ -43,40 +43,40 @@ const Posts = () => {
   };
 
   const handleLikes = async (postId, index) => {
-    // No need for event.preventDefault() here because there's no form submission
-
-    // Send the post ID and user ID to the backend
-
-    const dataToSend = { postId, userId: userName }; // Replace 'someUserId' with the actual user ID
+    const dataToSend = { postId, userId: userName };
 
     try {
-      const response = await fetch("/post-like", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
-      });
-
-      if (response.ok) {
-        const data = await response.json(); // Get the updated like count from the backend
-        const updatedPosts = [...posts];
-        updatedPosts[index].like_counter = data.like_counter; // Update the like count in the frontend
-        setPosts(updatedPosts);
-      } else {
-        // Handle error
-      }
+        await fetch("/post-like", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataToSend),
+        });
     } catch (error) {
-      console.error("Error:", error);
+        console.error("Error:", error);
     }
-  };
+};
 
   function handleClick(postId, index) {
-    const newClicked = [...clicked];
-    newClicked[index] = !newClicked[index];
-    setClicked(newClicked);
-    handleLikes(postId, index); // Pass the post ID to the handleLikes function
-  }
+    const updatedPosts = [...posts];
+    const post = updatedPosts[index];
+
+    if (post.likers.includes(userName)) {
+        // If the post is already liked, unlike it
+        const likerIndex = post.likers.indexOf(userName);
+        post.likers.splice(likerIndex, 1);
+        post.like_counter--;
+    } else {
+        // If the post is not yet liked, like it
+        post.likers.push(userName);
+        post.like_counter++;
+    }
+
+    setPosts(updatedPosts);
+    handleLikes(postId, index);  // This will now just update the like status in the backend
+}
+
 
   useEffect(() => {
     const fetchPosts = () => {
@@ -104,7 +104,7 @@ const Posts = () => {
 
     fetchPosts(); // Fetch posts initially when component mounts
 
-    const intervalId = setInterval(fetchPosts, 800); // Fetch posts every .8 seconds
+    const intervalId = setInterval(fetchPosts, 5000); // Fetch posts every .8 seconds
 
     return () => clearInterval(intervalId); // Clear the interval when component unmounts
   }, []);
