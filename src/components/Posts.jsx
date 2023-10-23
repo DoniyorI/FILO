@@ -46,6 +46,7 @@ const Posts = () => {
     // No need for event.preventDefault() here because there's no form submission
 
     // Send the post ID and user ID to the backend
+
     const dataToSend = { postId, userId: userName }; // Replace 'someUserId' with the actual user ID
 
     try {
@@ -89,7 +90,6 @@ const Posts = () => {
           return response.json();
         })
         .then((data) => {
-          console.log(data);
           setPosts(data.reverse());
           setClicked(new Array(data.length).fill(false));
         })
@@ -104,7 +104,7 @@ const Posts = () => {
 
     fetchPosts(); // Fetch posts initially when component mounts
 
-    const intervalId = setInterval(fetchPosts, 5000); // Fetch posts every 5 seconds
+    const intervalId = setInterval(fetchPosts, 800); // Fetch posts every .8 seconds
 
     return () => clearInterval(intervalId); // Clear the interval when component unmounts
   }, []);
@@ -133,23 +133,9 @@ const Posts = () => {
             <hr className="my-4" />
             <p className="text-sand">{post.description}</p>
             <hr className="my-2" />
-            {/* <div className="mt-2 w-5 h-5 cursor-pointer hover:scale-10">
-              {clicked[index] ? (
-                <img
-                  src={redHeart}
-                  onClick={() => handleClick(post._id, index)} // Pass the post ID to handleClick
-                  alt="Liked"
-                />
-              ) : (
-                <img
-                  src={heartIcon}
-                  onClick={() => handleClick(post._id, index)} // Pass the post ID to handleClick
-                  alt="Like"
-                />
-              )}
-            </div> */}
+
             <div className="mt-2 w-5 h-5  flex items-center space-x-2 ">
-              {clicked[index] ? (
+              {post.likers.includes(userName) ? (
                 <img
                   src={redHeart}
                   onClick={() => handleClick(post._id, index)}
@@ -163,7 +149,6 @@ const Posts = () => {
                 />
               )}
               <span className="text-white">{post.like_counter}</span>{" "}
-              {/* Display the like count here */}
             </div>
           </div>
         ))

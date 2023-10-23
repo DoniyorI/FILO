@@ -1,6 +1,6 @@
 import hashlib
 import bcrypt
-from flask import Flask, request, Response, send_file, make_response, send_from_directory,jsonify
+from flask import Flask, request, Response, send_file, make_response, send_from_directory,jsonify,redirect
 import secrets
 from bson.objectid import ObjectId
 from pymongo import MongoClient
@@ -10,7 +10,8 @@ from flask import json
 app = Flask(__name__)
 
 # "localhost" for server.py, "mongo" for docker
-mongo_client = MongoClient("localhost")
+# mongo_client = MongoClient("localhost")
+mongo_client = MongoClient("mongo")
 db = mongo_client["FILO"]
 userCollection = db["user"]
 postCollection = db["global post"]
@@ -34,9 +35,13 @@ def getUsername(token):
 @app.route('/')
 def serve_react_app():
     try:
-        response = make_response(send_file('./build/index.html', mimetype='text/html'))
-        response.headers['X-Content-Type-Options'] = 'nosniff'
-        return response
+        token = request.cookies.get("auth_tok")
+        if not token:
+            return redirect("login")
+        else:
+            response = make_response(send_file('./build/index.html', mimetype='text/html'))
+            response.headers['X-Content-Type-Options'] = 'nosniff'
+            return response
     except Exception:
         return page_not_found()
 @app.route("/get-user")
@@ -228,25 +233,37 @@ def post_like():
     postId = data["postId"]['$oid']
     userId = data['userId']
     post = postCollection.find_one({'_id': ObjectId(postId)})
-    print("**************POST**************")
-    print(post)
     if not post:
         print('Post not found')
         return jsonify({'error': 'Post not found'}), 404
 
     likers = set(post['likers'])  # Convert list to set for efficient operations
-    print("**************LIKERS**************")
-    print(likers)
+   
     like_counter = len(likers)
-
 
     if userId in likers:
         likers.remove(userId)
-        postCollection.update_one({"_id": ObjectId(postId)}, {"$pull": { "likers": userId }}, {'like_counter': like_counter-1})
+        post = postCollection.update_one(
+            {"_id": ObjectId(postId)}, 
+            {
+                "$pull": { "likers": userId },
+                "$set": {'like_counter': like_counter-1}  # Correct way to update like_counter
+            }
+        )
+        print("Removed Like")   
+        print(post)
     else:
         likers.add(userId)
+        post = postCollection.update_one(
+            {"_id": ObjectId(postId)}, 
+            {
+                "$addToSet": { "likers": userId},
+                "$set": {'like_counter': like_counter+1}  # Correct way to update like_counter
+            }
+        )
         print("Added Like")
-        postCollection.update_one({"_id": ObjectId(postId)}, {"$addToSet": { "likers": userId}}, {'like_counter': like_counter+1})
+        print(post)
+
 
     # print("**************LIKE COUNTER**************")
     # print(like_counter)
