@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import BarLoader from "react-spinners/BarLoader";
+// import BarLoader from "react-spinners/BarLoader";
 
 import Register from "./components/Register";
 import Sidebar from "./components/Sidebar";
@@ -31,17 +31,9 @@ export default function App() {
           path="/"
           element={
             <>
-              {loading ? (
-                <div className="flex h-screen justify-center items-center">
-                  <BarLoader color={"#EFA73E"} loading={loading} size={30} />
-                </div>
-              ) : (
-                <>
-                  <Sidebar />
-                  <Navbar />
-                  <Home />
-                </>
-              )}
+              <Sidebar />
+              <Navbar />
+              <Home />
             </>
           }
         />
@@ -49,17 +41,7 @@ export default function App() {
           path="login"
           element={
             <>
-              {registerLoading ? (
-                <div className="flex h-screen justify-center items-center">
-                  <BarLoader
-                    color={"#EFA73E"}
-                    loading={registerLoading}
-                    size={30}
-                  />
-                </div>
-              ) : (
-                <Register />
-              )}
+              <Register />
             </>
           }
         />
