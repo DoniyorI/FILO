@@ -46,37 +46,36 @@ const Posts = () => {
     const dataToSend = { postId, userId: userName };
 
     try {
-        await fetch("/post-like", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(dataToSend),
-        });
+      await fetch("/post-like", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      });
     } catch (error) {
-        console.error("Error:", error);
+      console.error("Error:", error);
     }
-};
+  };
 
   function handleClick(postId, index) {
     const updatedPosts = [...posts];
     const post = updatedPosts[index];
 
     if (post.likers.includes(userName)) {
-        // If the post is already liked, unlike it
-        const likerIndex = post.likers.indexOf(userName);
-        post.likers.splice(likerIndex, 1);
-        post.like_counter--;
+      // If the post is already liked, unlike it
+      const likerIndex = post.likers.indexOf(userName);
+      post.likers.splice(likerIndex, 1);
+      post.like_counter--;
     } else {
-        // If the post is not yet liked, like it
-        post.likers.push(userName);
-        post.like_counter++;
+      // If the post is not yet liked, like it
+      post.likers.push(userName);
+      post.like_counter++;
     }
 
     setPosts(updatedPosts);
-    handleLikes(postId, index);  // This will now just update the like status in the backend
-}
-
+    handleLikes(postId, index); // This will now just update the like status in the backend
+  }
 
   useEffect(() => {
     const fetchPosts = () => {
@@ -102,18 +101,23 @@ const Posts = () => {
         });
     };
 
-    fetchPosts(); // Fetch posts initially when component mounts
+    fetchPosts();
 
-    const intervalId = setInterval(fetchPosts, 5000); // Fetch posts every .8 seconds
+    const intervalId = setInterval(fetchPosts, 5000);
 
-    return () => clearInterval(intervalId); // Clear the interval when component unmounts
+    return () => clearInterval(intervalId);
   }, []);
+
   return (
     <div className="justify-center">
       {error ? (
         <p className="text-red-500 text-xl">Error: {error}</p>
       ) : posts.length === 0 ? (
-        <p className="text-white text-4xl">No posts available!</p>
+        <div className="flex justify-center items-center">
+          <p className="flex text-sand text-4xl text-center">
+            No posts available!
+          </p>
+        </div>
       ) : (
         posts.map((post, index) => (
           <div
@@ -131,21 +135,27 @@ const Posts = () => {
             <hr className="my-4" />
             <h1 className="text-2xl text-sand font-bold">{post.title}</h1>
             <hr className="my-4" />
-            <p className="text-sand">{post.description}</p>
-            <hr className="my-2" />
+            {post.description && (
+              <div>
+                <p className="text-sand">{post.description}</p>
+                <hr className="my-2" />
+              </div>
+            )}
 
-            <div className="mt-2 w-5 h-5  flex items-center space-x-2 ">
+            <div className="mt-2 w-5 h-5 flex items-center space-x-2">
               {post.likers.includes(userName) ? (
                 <img
                   src={redHeart}
                   onClick={() => handleClick(post._id, index)}
                   alt="Liked"
+                  className="hover:scale-110"
                 />
               ) : (
                 <img
                   src={heartIcon}
                   onClick={() => handleClick(post._id, index)}
                   alt="Like"
+                  className="hover:scale-110"
                 />
               )}
               <span className="text-white">{post.like_counter}</span>{" "}

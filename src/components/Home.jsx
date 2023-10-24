@@ -1,9 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
-import "./Home.css";
 import Posts from "./Posts";
 import SendIcon from "../assets/sendIcon.svg";
-// import heartIcon from "../assets/heart-regular.svg";
-// import Profile from "../assets/mainProfile.svg";
 
 const Home = () => {
   const [isFocused, setIsFocused] = useState(false);
@@ -71,13 +68,13 @@ const Home = () => {
         >
           Home
         </a>
-        {/* |
+        |
         <a
           href="/"
           className="px-4 text-base hover:underline underline-offset-8"
         >
           Following
-        </a> */}
+        </a>
       </div>
 
       <div
@@ -128,21 +125,6 @@ const Home = () => {
       </div>
 
       <Posts />
-
-      {/* <div className="mx-20 p-3 bg-post rounded-xl text-white">
-        <div className=" flex items-center space-x-4">
-          
-          <h2>Username</h2>
-          <hr />
-        </div>
-        <h1>Title</h1>
-        <hr />
-        <p>Description</p>
-        <hr />
-        <div className="">
-          <img src={heartIcon} alt="Like" className=" mt-2 w-5 h-5"></img>
-        </div>
-      </div> */}
     </div>
   );
 };

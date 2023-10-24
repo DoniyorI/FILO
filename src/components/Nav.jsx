@@ -1,37 +1,14 @@
-// import React from "react";
-// import Logo from "../assets/FILO_Logo.png";
-// import ProfileImage from "../assets/mainProfile.svg";
-
-// const Nav = () => {
-//   return (
-//     <header>
-//       <nav className="nav_bg flex justify-between items-center w-full z-10 py-3 px-10 shadow-lg">
-//         <a href="/">
-//           <img src={Logo} alt="logo" width={35} height={25} />
-//           <link href="/" alt="title" />
-          
-//         </a>
-//         <div className="flex gap-5 px-5">
-//           <h1 className="text-[#EFEBDA] text-2xl">Solomon Lian</h1>
-//           <a href="/profile">
-//             <img src={ProfileImage} alt="profile" width={30} height={30} />
-//           </a>
-//         </div>
-//       </nav>
-//     </header>
-//   );
-// };
-
-// export default Nav;
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Logo from "../assets/FILO_Logo.png";
 import ProfileImage from "../assets/mainProfile.svg";
 
 const Nav = () => {
-  const [userName, setUserName] = useState(null);  // Added this state to hold the user's name
+  const [userName, setUserName] = useState(null);
+  const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  const profileMenuRef = useRef(null);
 
   useEffect(() => {
-    // Fetch user when component mounts
     fetch("/get-user")
       .then((response) => {
         if (!response.ok) {
@@ -40,7 +17,7 @@ const Nav = () => {
         return response.json();
       })
       .then((user) => {
-        setUserName(user);  // Assuming the username is stored in the 'username' property
+        setUserName(user);
       })
       .catch((error) => {
         console.error(
@@ -48,20 +25,74 @@ const Nav = () => {
           error
         );
       });
-  }, []);  // The empty array means this useEffect runs once when component mounts
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
+
+  const handleDocumentClick = (e) => {
+    // Check if the click occurred outside the profile menu
+    if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+      setProfileMenuOpen(false);
+    }
+  };
+
+  const handleProfileIconClick = () => {
+    setProfileMenuOpen(!isProfileMenuOpen);
+  };
+
+  const handleMenu = () => {
+    setProfileMenuOpen(false);
+  };
 
   return (
     <header>
-      <nav className="nav_bg flex justify-between items-center w-full z-10 py-3 px-10 shadow-lg">
+      <nav className="nav_bg flex justify-between items-center w-full z-10 py-4 px-10 shadow-lg">
         <a href="/">
           <img src={Logo} alt="logo" width={35} height={25} />
         </a>
-        <div className="flex gap-5 px-5">
-          <h1 className="text-[#EFEBDA] text-2xl">{userName ? userName : "Loading..."}</h1>  
-          {/* Updated to display the user's name, if it's null, it will show "Loading..." */}
-          <a href="/profile">
-            <img src={ProfileImage} alt="profile" width={30} height={30} />
-          </a>
+        <div className="flex gap-6 px-4">
+          <h1 className="text-sand text-2xl font-bold">
+            {userName ? userName : "Loading..."}
+          </h1>
+          <div ref={profileMenuRef}>
+            <img
+              src={ProfileImage}
+              alt="profile"
+              width={30}
+              height={30}
+              onClick={handleProfileIconClick}
+              className="cursor-pointer"
+            />
+            {isProfileMenuOpen && (
+              <div className="absolute top-16 right-6 bg-primaryBlue text-sand shadow-md p-2 border-2 border-sand rounded-md">
+                <ul className="text-center">
+                  <li
+                    className="hover:scale-110 hover:underline cursor-pointer"
+                    onClick={handleMenu}
+                  >
+                    Profile
+                  </li>
+                  <li
+                    className="hover:scale-110 hover:underline cursor-pointer"
+                    onClick={handleMenu}
+                  >
+                    Settings
+                  </li>
+                  <li
+                    className="hover:scale-110 hover:underline cursor-pointer"
+                    onClick={handleMenu}
+                  >
+                    Logout
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
     </header>
@@ -69,5 +100,3 @@ const Nav = () => {
 };
 
 export default Nav;
-
-

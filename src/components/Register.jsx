@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./Register.css";
+// import "./Register.css";
 
 const App = () => {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -197,8 +197,6 @@ const RegisterForm = ({ onLoginClick }) => {
             onChange={handleChange}
             required
           />
-          {/* </div> */}
-          {/* <div className="mb-2"> */}
           <input
             className="p-2 border rounded-lg"
             id="username_new"
@@ -210,8 +208,6 @@ const RegisterForm = ({ onLoginClick }) => {
             required
             max="12"
           />
-          {/* </div> */}
-          {/* <div className="mb-2"> */}
           <input
             className="p-2 border rounded-lg"
             id="password_new"
@@ -222,8 +218,6 @@ const RegisterForm = ({ onLoginClick }) => {
             onChange={handleChange}
             required
           />
-          {/* </div> */}
-          {/* <div className="mb-2"> */}
           <input
             className="p-2 border rounded-lg"
             id="confirm_password_new"
