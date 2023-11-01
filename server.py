@@ -1,3 +1,8 @@
+# from utils.static_routes import *
+# from utils.auth_routes import *
+# from utils.post import *
+# from utils.response import *
+
 from flask import Flask, request, Response, make_response,jsonify,redirect, json
 from pymongo import MongoClient
 from bson import json_util
@@ -5,25 +10,18 @@ import hashlib
 import bcrypt
 import secrets
 from bson.objectid import ObjectId
-# from flask import json
 
 from utils.response import sendResponse
-
+from utils.config import app, userCollection, postCollection
+# from utils.static_routes import *
 app = Flask(__name__)
 
-#! "localhost" for server.py, "mongo" for docker
-mongo_client = MongoClient("localhost")
-# mongo_client = MongoClient("mongo")
-db = mongo_client["FILO"]
-userCollection = db["user"]
-postCollection = db["global post"]
-
-
-def getUsername(token):
-    checking = userCollection.find_one({"token":hashlib.sha256(token.encode("utf-8")).hexdigest()})
-    print(checking)
-    return checking["username"]
-
+# #! "localhost" for server.py, "mongo" for docker
+# mongo_client = MongoClient("localhost")
+# # mongo_client = MongoClient("mongo")
+# db = mongo_client["FILO"]
+# userCollection = db["user"]
+# postCollection = db["global post"]
 
 @app.route('/')
 def serve_react_app():
@@ -36,7 +34,6 @@ def serve_react_app():
     except Exception:
         return page_not_found()
 
-
 @app.route('/static/css/<path:filename>')
 def serve_static_css(filename):
     try:
@@ -47,7 +44,6 @@ def serve_static_css(filename):
         return sendResponse(filenamedir="./build/static/css", path=filename, mimetype="text/css", xcontenttypeoptions="nosniff", makeresponse=False)
     except Exception:
         return page_not_found()
-
 
 @app.route('/static/js/<path:filename>')
 def serve_static_js(filename):
@@ -60,7 +56,6 @@ def serve_static_js(filename):
     except Exception:
         return page_not_found()
 
-
 @app.route('/image/<path:picture>')
 def image(picture):
     try:
@@ -72,7 +67,6 @@ def image(picture):
     except Exception:
         return page_not_found()    
     
-
 @app.route('/static/media/<path:filename>')
 def serve_svg(filename):
     try:
@@ -85,6 +79,8 @@ def serve_svg(filename):
         return page_not_found()
 
 
+
+## Login and Register
 @app.route('/login/new_user', methods=['POST'])  
 def newUser():
     try:
@@ -115,33 +111,6 @@ def newUser():
         print(e)
         return jsonify({'message': 'An error occurred'}), 500
 
-
-@app.route('/login')
-def register():
-    try:
-        # response = make_response(send_file('./build/index.html', mimetype='text/html'))
-        # response.headers['X-Content-Type-Options'] = 'nosniff'
-        # return response
-        return sendResponse(filenamedir="./build/index.html", path=None, mimetype="text/html", xcontenttypeoptions="nosniff", makeresponse=True)
-    except Exception:
-        return page_not_found()
-
-
-@app.route("/get-user")
-def getUser():
-    try:
-        token = request.cookies.get("auth_tok")
-        print(token)
-
-        user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
-
-        return json_util.dumps(user["username"])
-    except Exception as e:
-            error_message = "An error occurred: {}".format(str(e))
-            print("***********ERROR**:", error_message)
-
-
-
 @app.route('/login/returning_user', methods=['POST'])  
 def returningUser():
     try:
@@ -171,7 +140,36 @@ def returningUser():
     except Exception as e: 
         return jsonify({'message': 'An error occurred'}), 500
 
+@app.route('/login')
+def register():
+    try:
+        # response = make_response(send_file('./build/index.html', mimetype='text/html'))
+        # response.headers['X-Content-Type-Options'] = 'nosniff'
+        # return response
+        return sendResponse(filenamedir="./build/index.html", path=None, mimetype="text/html", xcontenttypeoptions="nosniff", makeresponse=True)
+    except Exception:
+        return page_not_found()
 
+
+
+## Get User
+@app.route("/get-user")
+def getUser():
+    try:
+        token = request.cookies.get("auth_tok")
+        print(token)
+
+        user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
+
+        return json_util.dumps(user["username"])
+    except Exception as e:
+            error_message = "An error occurred: {}".format(str(e))
+            print("***********ERROR**:", error_message)
+
+
+
+
+## Post
 @app.route('/posts-upload', methods = ['POST'])
 def userPost():
     try:
@@ -193,7 +191,6 @@ def userPost():
     except Exception:
         return page_not_found()    
 
-
 @app.route("/get-posts")
 def getPost():
     try:
@@ -202,7 +199,6 @@ def getPost():
     except Exception as e:
             error_message = "An error occurred: {}".format(str(e))
             print("***********ERROR**:", error_message)
-
 
 @app.route('/post-like', methods=['POST'])
 def post_like():

@@ -22,5 +22,5 @@ RUN chmod +x /wait
 
 EXPOSE 8080
 
-CMD ["/wait", "&&", "python", "server.py"]
-# CMD /wait && python server.py
+# CMD ["/wait", "&&", "python", "server.py"]
+CMD /wait && python server.py

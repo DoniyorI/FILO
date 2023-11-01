@@ -114,7 +114,7 @@ const Posts = () => {
         <p className="text-red-500 text-xl">Error: {error}</p>
       ) : posts.length === 0 ? (
         <div className="flex justify-center items-center">
-          <p className="flex text-sand text-4xl text-center">
+          <p className="text-sand text-4xl text-center">
             No posts available!
           </p>
         </div>
