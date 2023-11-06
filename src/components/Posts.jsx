@@ -7,7 +7,7 @@ const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
 
-  const [userName, setUserName] = useState(null); // Added this state to hold the user's name
+  const [user, setUser] = useState(null); // Added this state to hold the user's name
 
   useEffect(() => {
     // Fetch user when component mounts
@@ -19,7 +19,8 @@ const Posts = () => {
         return response.json();
       })
       .then((user) => {
-        setUserName(user); // Assuming the username is stored in the 'username' property
+        setUser(user); 
+        console.log(user);
       })
       .catch((error) => {
         console.error(
@@ -43,7 +44,7 @@ const Posts = () => {
   };
 
   const handleLikes = async (postId, index) => {
-    const dataToSend = { postId, userId: userName };
+    const dataToSend = { postId, userId: user.username };
 
     try {
       await fetch("/post-like", {
@@ -62,14 +63,14 @@ const Posts = () => {
     const updatedPosts = [...posts];
     const post = updatedPosts[index];
 
-    if (post.likers.includes(userName)) {
+    if (post.likers.includes(user.username)) {
       // If the post is already liked, unlike it
-      const likerIndex = post.likers.indexOf(userName);
+      const likerIndex = post.likers.indexOf(user.username);
       post.likers.splice(likerIndex, 1);
       post.like_counter--;
     } else {
       // If the post is not yet liked, like it
-      post.likers.push(userName);
+      post.likers.push(user.username);
       post.like_counter++;
     }
 
@@ -90,6 +91,7 @@ const Posts = () => {
         })
         .then((data) => {
           setPosts(data.reverse());
+          console.log(data);
           setClicked(new Array(data.length).fill(false));
         })
         .catch((error) => {
@@ -125,11 +127,15 @@ const Posts = () => {
             className="max-w-5xl mx-auto my-1 p-3 bg-post rounded-xl text-white"
           >
             <div className="flex items-center space-x-4" id={post._id}>
+            
+            {user && user.profile_path && (
               <img
-                src={Profile}
-                alt="Profile"
+                src={require(`../assets/${user.profile_path}`)}
+                alt="profile"
                 className="w-10 h-10 rounded-full"
               />
+            )}
+
               <h2>{post.username}</h2>
             </div>
             <hr className="my-4" />
@@ -143,7 +149,7 @@ const Posts = () => {
             )}
 
             <div className="mt-2 w-5 h-5 flex items-center space-x-2">
-              {post.likers.includes(userName) ? (
+              {user && post.likers.includes(user.username) ? ( 
                 <img
                   src={redHeart}
                   onClick={() => handleClick(post._id, index)}

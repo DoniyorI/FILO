@@ -8,8 +8,9 @@ from bson.objectid import ObjectId
 
 
 #! "localhost" for server.py, "mongo" for docker
-mongo_client = MongoClient("localhost")
-# mongo_client = MongoClient("mongo")
+server = "localhost"
+server1 = "mongo"
+mongo_client = MongoClient(server)
 db = mongo_client["FILO"]
 userCollection = db["user"]
 postCollection = db["global post"]

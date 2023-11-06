@@ -23,6 +23,8 @@ app = Flask(__name__)
 # userCollection = db["user"]
 # postCollection = db["global post"]
 
+
+
 @app.route('/')
 def serve_react_app():
     try:
@@ -37,10 +39,6 @@ def serve_react_app():
 @app.route('/static/css/<path:filename>')
 def serve_static_css(filename):
     try:
-        # response = send_from_directory('./build/static/css', filename)
-        # response.headers['MIME type'] = 'text/css'
-        # response.headers['X-Content-Type-Options'] = 'nosniff'
-        # return response
         return sendResponse(filenamedir="./build/static/css", path=filename, mimetype="text/css", xcontenttypeoptions="nosniff", makeresponse=False)
     except Exception:
         return page_not_found()
@@ -48,10 +46,6 @@ def serve_static_css(filename):
 @app.route('/static/js/<path:filename>')
 def serve_static_js(filename):
     try:
-        # response = send_from_directory('./build/static/js', filename)
-        # response.headers['MIME type'] = 'text/javascript'
-        # response.headers['X-Content-Type-Options'] = 'nosniff'
-        # return response
         return sendResponse(filenamedir="./build/static/js", path=filename, mimetype="text/javascript", xcontenttypeoptions="nosniff", makeresponse=False)
     except Exception:
         return page_not_found()
@@ -59,10 +53,6 @@ def serve_static_js(filename):
 @app.route('/image/<path:picture>')
 def image(picture):
     try:
-        
-        # response = make_response(send_file(f'public/image/{picture}', mimetype="image/jpeg"))
-        # response.headers['X-Content-Type-Options'] = 'nosniff'
-        # return response
         return sendResponse(filenamedir=f"public/image{picture}", path=None, mimetype="image/jpeg", xcontenttypeoptions="nosniff", makeresponse=True)
     except Exception:
         return page_not_found()    
@@ -70,25 +60,31 @@ def image(picture):
 @app.route('/static/media/<path:filename>')
 def serve_svg(filename):
     try:
-        # response = send_from_directory('./build/static/media', filename)
-        # response.headers['mimetype'] = "image/svg+xml"
-        # response.headers['X-Content-Type-Options'] = 'nosniff'
-        # return response
         return sendResponse(filenamedir="./build/static/media", path=filename, mimetype="image/svg+xml", xcontenttypeoptions="nosniff", makeresponse=False)
     except Exception:
         return page_not_found()
 
+#TODO
+# Update teh Database when login and register to be like the DB in figma
+# Make a Get User DMS is correct
+# on /new-channel should make the channel in database
+# on /get-channel should get the channel from database
+# on /get-dm-users should get the dm users from database
+# on /get-channel-messages should get the dm messages from database
 
+# on /add-profile-image should add the profile image to the database
 
 ## Login and Register
 @app.route('/login/new_user', methods=['POST'])  
 def newUser():
     try:
         newUserDat = request.get_json()
+        
         email = newUserDat.get("email")
         username = newUserDat.get("username")
         password = newUserDat.get("password")
         passwordConfirm = newUserDat.get("confirm_password")
+        
         findDupName = userCollection.find_one({"username": username})
         if findDupName:
             return jsonify({'message': 'choose different username'}), 400
@@ -100,11 +96,33 @@ def newUser():
         
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+
+        #test DM Render
+        testDM = {
+            "_id": "1",
+            "username": "test 1",
+            "profile_path": "mainProfile.svg",
+            "messages": []
+        }
+        testChannel = {
+            "_id": "2",
+            "name": "test 2",
+            "description": "test 2",
+            "member_limit": 5,
+            "image": "Channel.svg",
+            "messages": []
+        }
+
         userCollection.insert_one({
             "email": email,
             "username": username, 
             "password": hashed_password, 
             "salt": salt, 
+            "following": [],
+            'followers': [],
+            "profile_image": "mainProfile.svg",
+            "direct_messages": [testDM],
+            "channels": [testChannel]
             })
         return make_response()
     except Exception as e:  # Catch the exception and print it for debugging
@@ -117,6 +135,7 @@ def returningUser():
         retUserdat = request.get_json()
         retusername = retUserdat.get("username")
         retuserpassword = retUserdat.get("password")
+
         if retusername == " " or retuserpassword == " ":
             return jsonify({'message': 'Username and password are required'}), 400
         checking = userCollection.find_one({"username": retusername})
@@ -143,9 +162,6 @@ def returningUser():
 @app.route('/login')
 def register():
     try:
-        # response = make_response(send_file('./build/index.html', mimetype='text/html'))
-        # response.headers['X-Content-Type-Options'] = 'nosniff'
-        # return response
         return sendResponse(filenamedir="./build/index.html", path=None, mimetype="text/html", xcontenttypeoptions="nosniff", makeresponse=True)
     except Exception:
         return page_not_found()
@@ -157,15 +173,12 @@ def register():
 def getUser():
     try:
         token = request.cookies.get("auth_tok")
-        print(token)
-
         user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
 
-        return json_util.dumps(user["username"])
+        return json_util.dumps(user)
     except Exception as e:
             error_message = "An error occurred: {}".format(str(e))
             print("***********ERROR**:", error_message)
-
 
 
 
@@ -180,6 +193,7 @@ def userPost():
         title = data.get("title")
         postCollection.insert_one({
             "username": user["username"],
+            "profile_path": user["profile_path"],
             "description": post,
             "title": title,
             "like_counter":0,
@@ -243,6 +257,38 @@ def page_not_found(error=None):
         mimetype="text/plain",
         headers={'X-Content-Type-Options': 'nosniff'}
     )
+
+
+
+##Get User DMS
+@app.route('/get_dm_users', methods=['GET'])
+def get_dm_users():
+    user_id = request.args.get('user_id')  # or use authentication to get user ID
+    if not user_id:
+        return jsonify({'error': 'User ID is required'}), 400
+
+    # Retrieve the user's direct messages
+    token = request.cookies.get("auth_tok")
+    user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    dm_users = user.get('Direct Messages', {})
+    user_dm_list = []
+
+    # Retrieve the corresponding users and their profile images
+    for dm in dm_users:
+        dm_user_id = dm.get('username')  # This should actually be user_id in the DMs
+        dm_user = userCollection.find_one({'_id': dm_user_id})
+        if dm_user:
+            user_dm_list.append({
+                'username': dm_user['username'],
+                'profile_image': dm_user.get('Profile Image', 'default_image_path'),
+                'dm_id': str(dm['_id'])
+            })
+
+    return jsonify(user_dm_list)
+
 
 
 if __name__ == "__main__":
