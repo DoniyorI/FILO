@@ -109,6 +109,7 @@ const Posts = () => {
 
     return () => clearInterval(intervalId);
   }, []);
+  // TODO: Update Posts to load images look at the way profile images are uploaded should be similar
 
   return (
     <div className="justify-center">

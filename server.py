@@ -65,14 +65,23 @@ def serve_svg(filename):
         return page_not_found()
 
 #TODO
-# Update teh Database when login and register to be like the DB in figma
-# Make a Get User DMS is correct
-# on /new-channel should make the channel in database
-# on /get-channel should get the channel from database
-# on /get-dm-users should get the dm users from database
-# on /get-channel-messages should get the dm messages from database
+# Take the Channels from user collection and make its own collection
+            # Update "/get-user" so it sill sends the channel collection like original so front end does not have to update
 
-# on /add-profile-image should add the profile image to the database
+# "/new-channel" Create New Channel Post Request should add to Channel collection and redirect to the home (Store: Channel Name, Description, Member Limit, Image(Buffering), {Date, Time, TimeZone} or Never(TRUE or FALSE))
+
+# "/upload-profile Picture" (BUFFERING)
+
+# UPDATE for images at "/posts-upload" and "/get-pots" if Needed (BUFFERING)
+
+# "/get-channel" send Channel information should receive a Channel ID to look up should send back everything of that Channel should also work with Web Sockets if the timer hits 0 should stop and no more typing so when messages are being sent and timer is 0 then dont update
+            # Messages should be updated (WEBSOCKET)
+            # Timer (WEBSOCKET)
+
+
+# Jesse Email
+# Add timing to the chat the rooms. Instead of having a room close when everyone leaves, have a room end after a certain amount of time passes. The timing must be maintained by the server and sent to each client via WebSockets. Once the timer hits 0, no one can chat in that room anymore
+# Anything else you come up with that satisfies both a live timer that is maintained by the server with the current time sent to the users via WebSockets -and- the app having some different behavior after a certain amount of time
 
 ## Login and Register
 @app.route('/login/new_user', methods=['POST'])  
@@ -258,36 +267,6 @@ def page_not_found(error=None):
         headers={'X-Content-Type-Options': 'nosniff'}
     )
 
-
-
-##Get User DMS
-@app.route('/get_dm_users', methods=['GET'])
-def get_dm_users():
-    user_id = request.args.get('user_id')  # or use authentication to get user ID
-    if not user_id:
-        return jsonify({'error': 'User ID is required'}), 400
-
-    # Retrieve the user's direct messages
-    token = request.cookies.get("auth_tok")
-    user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-
-    dm_users = user.get('Direct Messages', {})
-    user_dm_list = []
-
-    # Retrieve the corresponding users and their profile images
-    for dm in dm_users:
-        dm_user_id = dm.get('username')  # This should actually be user_id in the DMs
-        dm_user = userCollection.find_one({'_id': dm_user_id})
-        if dm_user:
-            user_dm_list.append({
-                'username': dm_user['username'],
-                'profile_image': dm_user.get('Profile Image', 'default_image_path'),
-                'dm_id': str(dm['_id'])
-            })
-
-    return jsonify(user_dm_list)
 
 
 

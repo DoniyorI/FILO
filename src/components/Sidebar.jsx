@@ -87,9 +87,8 @@ const Sidebar = ({ userId }) => {
                   alt={dm.username}
                   className="rounded-full w-full h-full object-cover"
                 />
-               <span className="absolute left-14 mb-3 mx-1 opacity-0 group-hover:opacity-100 whitespace-nowrap rounded-md bg-white py-1 px-3 text-sm shadow-lg transition-opacity duration-300 ease-in-out delay-150 text-blue-500">
-                  {dm.username}
-                </span>
+                {/* TODO: HOVER FEATURE NOT WORKING */}
+               
               </div>
             ))}
             
@@ -106,9 +105,7 @@ const Sidebar = ({ userId }) => {
                     alt={channel.name}
                     className="rounded-full w-full h-full object-cover"
                   />
-                  {/* <span className="absolute left-14 mb-3 mx-1 opacity-0 group-hover:opacity-100 whitespace-nowrap rounded-md bg-white py-1 px-3 text-sm shadow-lg transition-opacity duration-300 ease-in-out delay-150 text-blue-500">
-                  {channel.name}
-                  </span> */}
+                  {/*TODO:  HOVER FEATURE NOT WORKING */}
                   
                 </div>
               ))}
@@ -122,7 +119,7 @@ const Sidebar = ({ userId }) => {
             {" "}
             <div className="relative group h-14 w-14 rounded-full bg-[#EFEBDA] flex items-center justify-center text-2xl font-bold text-[#EFA73E] cursor-pointer">
               <div className="">+</div>
-              <span className="absolute left-14 mb-3 mx-1 opacity-0 group-hover:opacity-100 whitespace-nowrap rounded-md bg-white py-1 px-3 text-sm shadow-lg transition-opacity duration-300 ease-in-out delay-150 text-blue-500">
+              <span className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 hidden group-hover:block whitespace-nowrap rounded-md bg-white py-1 px-3 text-sm shadow-lg transition-opacity duration-300 ease-in-out delay-150 text-blue-500 z-10">
                 Create new Channel
               </span>
             </div>
