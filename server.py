@@ -202,7 +202,7 @@ def userPost():
         title = data.get("title")
         postCollection.insert_one({
             "username": user["username"],
-            "profile_path": user["profile_path"],
+            "profile_image": user["profile_image"],
             "description": post,
             "title": title,
             "like_counter":0,
