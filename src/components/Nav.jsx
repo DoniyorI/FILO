@@ -14,27 +14,6 @@ const Nav = () => {
 
   const { user, dmUsers, channels } = useContext(UserContext);
 
-  // useEffect(() => {
-  //   fetch("/get-user")
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         throw new Error("Network response was not ok " + response.statusText);
-  //       }
-  //       return response.json();
-  //     })
-  //     .then((userData) => {
-  //       console.log(userData.profile_path);
-  //       setUser(userData);
-  //     })
-  //     .catch((error) => {
-  //       console.error(
-  //         "There has been a problem with your fetch operation:",
-  //         error
-  //       );
-  //     });
-  // }, []);
-
-
   const handleMenu = () => {
     setProfileMenuOpen(false);
   };
@@ -79,9 +58,9 @@ const Nav = () => {
   return (
     // TODO: Implement search bar
     <header>
-      <nav className="nav_bg flex justify-between items-center w-full z-10 py-4 px-10 shadow-lg">
+      <nav className="nav_bg flex justify-between items-center w-full z-10 py-2 px-8 shadow-lg">
         <a href="/">
-          <img src={Logo} alt="logo" width={35} height={25} />
+          {/* <img src={Logo} alt="logo" width={35} height={25} /> */}
         </a>
         <div className="flex gap-6 px-4">
           <h1 className="text-sand text-2xl font-bold">
@@ -130,7 +109,7 @@ const Nav = () => {
           <div
             ref={modalRef}
             className="nav_bg p-4 rounded text-white "
-            style={{ minHeight: "40vh", minWidth: "80vh" }}
+            style={{ minHeight: "50vh", minWidth: "80vw" }}
           >
             <h2 className="text-amber-500 pb-10 text-center text-3xl	">
               User Profile

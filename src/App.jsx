@@ -23,8 +23,8 @@ export default function App() {
             <>
               <Sidebar />
               <Navbar />
-              {/* <Home /> */}
-              <Messages/>
+              <Home />
+              {/* <Messages/> */}
             </>
           }
         />
@@ -40,9 +40,9 @@ export default function App() {
           path="messages"
           element={
             <>
-              {/* <Sidebar />
+              <Sidebar />
               <Navbar />
-              <Messages/> */}
+              <Messages/>
             </>
           }
         />
