@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React from "react";
-// import UserContext, { useFetchUser } from './components/UserContext';
+import UserContext, { useFetchUser } from './components/UserContext';
 
 
 import Register from "./components/Register";
@@ -11,10 +11,10 @@ import Messages from "./components/Messages"
 import "./index.css";
 
 export default function App() {
-  // const { user, setUser, dmUsers, setDmUsers, channels, setChannels } = useFetchUser();
+  const { user, setUser, dmUsers, setDmUsers, channels, setChannels } = useFetchUser();
 
   return (
-    // <UserContext.Provider value={{ user, setUser, dmUsers, setDmUsers, channels, setChannels }}>
+    <UserContext.Provider value={{ user, setUser, dmUsers, setDmUsers, channels, setChannels }}>
       <BrowserRouter>
       <Routes>
         <Route
@@ -37,7 +37,7 @@ export default function App() {
           }
         />
         <Route
-          path="login"
+          path="messages"
           element={
             <>
               <Sidebar />
@@ -48,7 +48,7 @@ export default function App() {
         />
       </Routes>
     </BrowserRouter>
-    // </UserContext.Provider>
+  </UserContext.Provider>
     
   );
 }

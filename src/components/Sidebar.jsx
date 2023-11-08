@@ -1,37 +1,37 @@
 import React, { useState, useEffect, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
-// import UserContext from './UserContext';
+import UserContext from './UserContext';
 
 
 const Sidebar = ({ userId }) => {
-  // const { user, dmUsers, channels } = useContext(UserContext);
+  const { user, dmUsers, channels } = useContext(UserContext);
 
-  const [channels, setChannels] = useState([]);
-  const [dmUsers, setDmUsers] = useState([]);
-  const [user, setUser] = useState(null);
+  // const [channels, setChannels] = useState([]);
+  // const [dmUsers, setDmUsers] = useState([]);
+  // const [user, setUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetch("/get-user")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok " + response.statusText);
-        }
-        return response.json();
-      })
-      .then((userData) => {
-        setDmUsers(userData.direct_messages);
-        console.log(userData.direct_messages);
-        setChannels(userData.channels);
-        setUser(userData);
-      })
-      .catch((error) => {
-        console.error(
-          "There has been a problem with your fetch operation:",
-          error
-        );
-      });
-  }, []);
+  // useEffect(() => {
+  //   fetch("/get-user")
+  //     .then((response) => {
+  //       if (!response.ok) {
+  //         throw new Error("Network response was not ok " + response.statusText);
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((userData) => {
+  //       setDmUsers(userData.direct_messages);
+  //       console.log(userData.direct_messages);
+  //       setChannels(userData.channels);
+  //       setUser(userData);
+  //     })
+  //     .catch((error) => {
+  //       console.error(
+  //         "There has been a problem with your fetch operation:",
+  //         error
+  //       );
+  //     });
+  // }, []);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);

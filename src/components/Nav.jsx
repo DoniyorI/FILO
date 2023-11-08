@@ -2,36 +2,38 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
 import DefaultProfileImage from "../assets/mainProfile.svg"; // The default profile image
 
-// import UserContext from './UserContext';
+import UserContext from './UserContext';
 
 
 const Nav = () => {
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const profileMenuRef = useRef(null);
   const modalRef = useRef(null);
 
-  useEffect(() => {
-    fetch("/get-user")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok " + response.statusText);
-        }
-        return response.json();
-      })
-      .then((userData) => {
-        console.log(userData.profile_path);
-        setUser(userData);
-      })
-      .catch((error) => {
-        console.error(
-          "There has been a problem with your fetch operation:",
-          error
-        );
-      });
-  }, []);
+  const { user, dmUsers, channels } = useContext(UserContext);
+
+  // useEffect(() => {
+  //   fetch("/get-user")
+  //     .then((response) => {
+  //       if (!response.ok) {
+  //         throw new Error("Network response was not ok " + response.statusText);
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((userData) => {
+  //       console.log(userData.profile_path);
+  //       setUser(userData);
+  //     })
+  //     .catch((error) => {
+  //       console.error(
+  //         "There has been a problem with your fetch operation:",
+  //         error
+  //       );
+  //     });
+  // }, []);
 
 
   const handleMenu = () => {
