@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import Posts from "./Posts";
 import SendIcon from "../assets/sendIcon.svg";
+import { LuImagePlus } from "react-icons/lu";
 
 const Home = () => {
   const [isFocused, setIsFocused] = useState(false);
@@ -58,6 +59,7 @@ const Home = () => {
       console.error("Error:", error);
     }
   };
+  // TODO: Update Posts to load images look at the way profile images are uploaded should be similar
 
   return (
     <div className="home_bg min-h-screen h-full ml-20">
@@ -111,13 +113,25 @@ const Home = () => {
               />
               <hr className="p-2" />
 
-              <div className="flex justify-end">
+              <div className="flex justify-end items-center">
+                <label className="cursor-pointer">
+                  <LuImagePlus 
+                  className="w-5 h-5 inline-block text-white mr-2 hover:scale-150"
+                  />
+                  <input
+                    type="file"
+                    className="hidden"
+                    // onChange={handleFileChange}
+                    accept="image/*"
+                  />
+                </label>
                 <button
                   type="submit"
-                  className="bg-none hover:scale-150 text-white font-semibold px-4 py-2 rounded-md"
+                  className="bg-none hover:scale-150 text-white font-semibold mx-4 rounded-md justify-between"
                 >
                   <img src={SendIcon} alt="send" width={20} height={20} />
                 </button>
+
               </div>
             </div>
           )}

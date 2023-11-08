@@ -19,7 +19,7 @@ const Posts = () => {
         return response.json();
       })
       .then((user) => {
-        setUser(user); 
+        setUser(user);
         console.log(user);
       })
       .catch((error) => {
@@ -109,7 +109,6 @@ const Posts = () => {
 
     return () => clearInterval(intervalId);
   }, []);
-  // TODO: Update Posts to load images look at the way profile images are uploaded should be similar
 
   return (
     <div className="justify-center">
@@ -117,9 +116,7 @@ const Posts = () => {
         <p className="text-red-500 text-xl">Error: {error}</p>
       ) : posts.length === 0 ? (
         <div className="flex justify-center items-center">
-          <p className="text-sand text-4xl text-center">
-            No posts available!
-          </p>
+          <p className="text-sand text-4xl text-center">No posts available!</p>
         </div>
       ) : (
         posts.map((post, index) => (
@@ -127,18 +124,23 @@ const Posts = () => {
             key={index}
             className="max-w-5xl mx-auto my-1 p-3 bg-post rounded-xl text-white"
           >
-            <div className="flex items-center space-x-4" id={post._id}>
-            
-            {user && user.profile_path && (
-              <img
-                src={require(`../assets/${user.profile_path}`)}
-                alt="profile"
-                className="w-10 h-10 rounded-full"
-              />
-            )}
-
-              <h2>{post.username}</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                {user && user.profile_image && (
+                  <img
+                    src={require(`../assets/${user.profile_image}`)}
+                    alt="profile"
+                    className="w-10 h-10 rounded-full"
+                  />
+                )}
+                <h2 className="text-xl">{post.username}</h2>
+              </div>
+              {/* TODO: Add follow functionality */}
+              <button className="text-blue-300 text-md px-3 cursor-pointer hover:scale-110">
+                Follow
+              </button>
             </div>
+
             <hr className="my-4" />
             <h1 className="text-2xl text-sand font-bold">{post.title}</h1>
             <hr className="my-4" />
@@ -150,7 +152,7 @@ const Posts = () => {
             )}
 
             <div className="mt-2 w-5 h-5 flex items-center space-x-2">
-              {user && post.likers.includes(user.username) ? ( 
+              {user && post.likers.includes(user.username) ? (
                 <img
                   src={redHeart}
                   onClick={() => handleClick(post._id, index)}

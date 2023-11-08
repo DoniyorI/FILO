@@ -33,10 +33,8 @@ const Sidebar = ({ userId }) => {
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = (e) => {
-    if (e.target.id === "modal-backdrop") {
-      setIsModalOpen(false);
-    }
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   // Prevent modal close when clicking inside the modal content
@@ -71,7 +69,7 @@ const Sidebar = ({ userId }) => {
     <>
       <header>
         <aside className="sidebar_bg h-screen py-3 w-20 fixed z-10 flex flex-col">
-          <div className="flex flex-col items-center overflow-y-auto">
+          <div className="flex flex-col items-center">
             <a href="/" className="mb-6">
               <img src={Logo} alt="logo" width={50} />
             </a>
@@ -80,36 +78,38 @@ const Sidebar = ({ userId }) => {
             {dmUsers.map((dm) => (
               <div
                 key={dm._id}
-                className="group flex h-14 w-14 items-center justify-center rounded-full bg-primaryBlue mt-6 relative cursor-pointer"
+                className="group flex h-14 w-14 transform items-center justify-center rounded-full bg-primaryBlue transition-transform hover:scale-110 mt-6 relative cursor-pointer"
+                // className="group transform flex h-14 w-14 items-center justify-center rounded-full bg-primaryBlue mt-6 relative hover:scale-110 cursor-pointer"
               >
                 <img
                   src={require(`../assets/${dm.profile_path}`)}
                   alt={dm.username}
                   className="rounded-full w-full h-full object-cover"
                 />
-                {/* TODO: HOVER FEATURE NOT WORKING */}
-               
+                <span className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 hidden group-hover:block whitespace-nowrap rounded-md bg-sand py-1 px-3 text-lg text-bold text-primaryBlue shadow-lg transition-opacity duration-300 ease-in-out delay-150 z-10">
+                  {dm.username}
+                </span>
               </div>
             ))}
-            
+
             <hr className="sidebar-divider my-4 w-2/3" />
-            
+
             {/* Channels */}
-              {channels.map((channel) => (
-                <div
-                  key={channel._id}
-                  className="group flex h-14 w-14 items-center justify-center rounded-full bg-primaryBlue relative cursor-pointer"
-                >
-                  <img
-                    src={require(`../assets/${channel.image}`)} // Adjust the path as necessary
-                    alt={channel.name}
-                    className="rounded-full w-full h-full object-cover"
-                  />
-                  {/*TODO:  HOVER FEATURE NOT WORKING */}
-                  
-                </div>
-              ))}
-            
+            {channels.map((channel) => (
+              <div
+                key={channel._id}
+                className="group flex h-14 w-14 items-center justify-center rounded-full bg-primaryBlue relative cursor-pointer"
+              >
+                <img
+                  src={require(`../assets/${channel.image}`)} // Adjust the path as necessary
+                  alt={channel.name}
+                  className="rounded-full w-full h-full object-cover"
+                />
+                <span className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 hidden group-hover:block whitespace-nowrap rounded-md bg-sand py-1 px-3 text-lg text-bold text-primaryBlue shadow-lg transition-opacity duration-300 ease-in-out delay-150 z-10">
+                  {channel.name}
+                </span>
+              </div>
+            ))}
           </div>
 
           <div
@@ -117,9 +117,9 @@ const Sidebar = ({ userId }) => {
             onClick={handleOpenModal} // Open the modal on click
           >
             {" "}
-            <div className="relative group h-14 w-14 rounded-full bg-[#EFEBDA] flex items-center justify-center text-2xl font-bold text-[#EFA73E] cursor-pointer">
+            <div className="relative group h-14 w-14 rounded-full bg-sand flex items-center justify-center text-2xl font-bold text-goldenOrange cursor-pointer">
               <div className="">+</div>
-              <span className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 hidden group-hover:block whitespace-nowrap rounded-md bg-white py-1 px-3 text-sm shadow-lg transition-opacity duration-300 ease-in-out delay-150 text-blue-500 z-10">
+              <span className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 hidden group-hover:block whitespace-nowrap rounded-md bg-white py-1 px-3 text-sm shadow-lg transition-opacity duration-300 ease-in-out delay-150 text-primaryBlue z-10">
                 Create new Channel
               </span>
             </div>
@@ -138,7 +138,7 @@ const Sidebar = ({ userId }) => {
             onClick={handleModalContentClick} // Prevents event bubbling to backdrop
           >
             <h2 className="text-amber-500 pb-10 text-center text-3xl	">
-              New channel
+              New Channel
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -206,7 +206,7 @@ const Sidebar = ({ userId }) => {
                         <input
                           type="number"
                           placeholder="# of Members"
-                          className="px-4 py-2 border rounded-md"
+                          className="px-4 py-2 border rounded-md text-black"
                           value={memberLimit}
                           onChange={(e) => setMemberLimit(e.target.value)}
                           required

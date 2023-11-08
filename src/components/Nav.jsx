@@ -86,6 +86,7 @@ const Nav = () => {
   };
 
   return (
+    // TODO: Implement search bar
     <header>
       <nav className="nav_bg flex justify-between items-center w-full z-10 py-4 px-10 shadow-lg">
         <a href="/">

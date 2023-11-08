@@ -113,10 +113,16 @@ def newUser():
             "profile_path": "mainProfile.svg",
             "messages": []
         }
+        testDM2 = {
+            "_id": "2",
+            "username": "test 2",
+            "profile_path": "mainProfile.svg",
+            "messages": []
+        }
         testChannel = {
             "_id": "2",
-            "name": "test 2",
-            "description": "test 2",
+            "name": "channel test 2",
+            "description": "channel test 2",
             "member_limit": 5,
             "image": "Channel.svg",
             "messages": []
@@ -130,7 +136,7 @@ def newUser():
             "following": [],
             'followers': [],
             "profile_image": "mainProfile.svg",
-            "direct_messages": [testDM],
+            "direct_messages": [testDM, testDM2],
             "channels": [testChannel]
             })
         return make_response()
