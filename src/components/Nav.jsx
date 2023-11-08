@@ -1,48 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
-import DefaultProfileImage from "../assets/mainProfile.svg"; // The default profile image
+
+import UserContext from './UserContext';
+
 
 const Nav = () => {
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const profileMenuRef = useRef(null);
   const modalRef = useRef(null);
 
-  useEffect(() => {
-    fetch("/get-user")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok " + response.statusText);
-        }
-        return response.json();
-      })
-      .then((userData) => {
-        console.log(userData.profile_path);
-        setUser(userData);
-      })
-      .catch((error) => {
-        console.error(
-          "There has been a problem with your fetch operation:",
-          error
-        );
-      });
-  }, []);
-
-  // useEffect(() => {
-  //   document.addEventListener("click", handleDocumentClick);
-  //   return () => {
-  //     document.removeEventListener("click", handleDocumentClick);
-  //   };
-  // }, []);
-
-  // const handleDocumentClick = (e) => {
-  //   // Check if the click occurred outside the profile menu
-  //   if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
-  //     setProfileMenuOpen(false);
-  //   }
-  // };
+  const { user, dmUsers, channels } = useContext(UserContext);
 
   const handleMenu = () => {
     setProfileMenuOpen(false);
@@ -88,9 +58,9 @@ const Nav = () => {
   return (
     // TODO: Implement search bar
     <header>
-      <nav className="nav_bg flex justify-between items-center w-full z-10 py-4 px-10 shadow-lg">
+      <nav className="nav_bg flex justify-between items-center w-full z-10 py-2 px-8 shadow-lg">
         <a href="/">
-          <img src={Logo} alt="logo" width={35} height={25} />
+          {/* <img src={Logo} alt="logo" width={35} height={25} /> */}
         </a>
         <div className="flex gap-6 px-4">
           <h1 className="text-sand text-2xl font-bold">
@@ -139,7 +109,7 @@ const Nav = () => {
           <div
             ref={modalRef}
             className="nav_bg p-4 rounded text-white "
-            style={{ minHeight: "40vh", minWidth: "80vh" }}
+            style={{ minHeight: "50vh", minWidth: "80vw" }}
           >
             <h2 className="text-amber-500 pb-10 text-center text-3xl	">
               User Profile

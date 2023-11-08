@@ -62,7 +62,7 @@ const Home = () => {
   // TODO: Update Posts to load images look at the way profile images are uploaded should be similar
 
   return (
-    <div className="home_bg min-h-screen h-full ml-20">
+    <div className="home_bg min-h-screen h-full ml-16">
       <div className="flex justify-center items-center text-3xl text-white pt-2">
         <a
           href="/"
@@ -116,7 +116,7 @@ const Home = () => {
               <div className="flex justify-end items-center">
                 <label className="cursor-pointer">
                   <LuImagePlus 
-                  className="w-5 h-5 inline-block text-white mr-2 hover:scale-150"
+                  className="w-7 h-7 inline-block text-white mr-2 hover:scale-125"
                   />
                   <input
                     type="file"
@@ -127,7 +127,7 @@ const Home = () => {
                 </label>
                 <button
                   type="submit"
-                  className="bg-none hover:scale-150 text-white font-semibold mx-4 rounded-md justify-between"
+                  className="bg-none hover:scale-125 text-white font-semibold mx-4 rounded-md justify-between"
                 >
                   <img src={SendIcon} alt="send" width={20} height={20} />
                 </button>

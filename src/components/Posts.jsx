@@ -1,35 +1,14 @@
-import React, { useState, useEffect } from "react";
-import Profile from "../assets/mainProfile.svg";
+import React, { useState, useEffect, useContext } from "react";
 import heartIcon from "../assets/heart-regular.svg";
 import redHeart from "../assets/redHeart.svg";
+
+import UserContext from './UserContext';
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
-
-  const [user, setUser] = useState(null); // Added this state to hold the user's name
-
-  useEffect(() => {
-    // Fetch user when component mounts
-    fetch("/get-user")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok " + response.statusText);
-        }
-        return response.json();
-      })
-      .then((user) => {
-        setUser(user);
-        console.log(user);
-      })
-      .catch((error) => {
-        console.error(
-          "There has been a problem with your fetch operation:",
-          error
-        );
-      });
-  }, []);
-
+  const { user } = useContext(UserContext);
+  
   const [clicked, setClicked] = useState([]);
   const [formData, setFormData] = useState({
     like_counts: "",
