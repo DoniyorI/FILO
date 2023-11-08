@@ -5,17 +5,18 @@ import hashlib
 import secrets
 
 from utils.response import sendResponse, page_not_found
-from utils.config import app , userCollection
+from utils.config import app, userCollection, channelCollection
 
 
-@app.route('/login/new_user', methods=['POST'])  
 def newUser():
     try:
         newUserDat = request.get_json()
+            
         email = newUserDat.get("email")
         username = newUserDat.get("username")
         password = newUserDat.get("password")
         passwordConfirm = newUserDat.get("confirm_password")
+        
         findDupName = userCollection.find_one({"username": username})
         if findDupName:
             return jsonify({'message': 'choose different username'}), 400
@@ -27,23 +28,51 @@ def newUser():
         
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+
+        #test DM Render
+        # testDM = {
+        #     "_id": "1",
+        #     "username": "test 1",
+        #     "profile_path": "mainProfile.svg",
+        #     "messages": []
+        # }
+        # testDM2 = {
+        #     "_id": "2",
+        #     "username": "test 2",
+        #     "profile_path": "mainProfile.svg",
+        #     "messages": []
+        # }
+        # testChannel = {
+        #     "_id": "3",
+        #     "name": "channel test 2",
+        #     "description": "channel test 2",
+        #     "member_limit": 5,
+        #     "image": "Channel.svg",
+        #     "messages": []
+        # }
+        # channelCollection.insert_one(testChannel)
+
         userCollection.insert_one({
             "email": email,
             "username": username, 
             "password": hashed_password, 
             "salt": salt, 
+            "following": [],
+            'followers': [],
+            "profile_image": "mainProfile.svg",
+            "direct_messages": [],
             })
         return make_response()
     except Exception as e:  # Catch the exception and print it for debugging
         print(e)
         return jsonify({'message': 'An error occurred'}), 500
 
-@app.route('/login/returning_user', methods=['POST'])  
 def returningUser():
     try:
         retUserdat = request.get_json()
         retusername = retUserdat.get("username")
         retuserpassword = retUserdat.get("password")
+
         if retusername == " " or retuserpassword == " ":
             return jsonify({'message': 'Username and password are required'}), 400
         checking = userCollection.find_one({"username": retusername})
@@ -67,27 +96,20 @@ def returningUser():
     except Exception as e: 
         return jsonify({'message': 'An error occurred'}), 500
 
-@app.route('/login')
 def register():
     try:
-        # response = make_response(send_file('./build/index.html', mimetype='text/html'))
-        # response.headers['X-Content-Type-Options'] = 'nosniff'
-        # return response
         return sendResponse(filenamedir="./build/index.html", path=None, mimetype="text/html", xcontenttypeoptions="nosniff", makeresponse=True)
     except Exception:
         return page_not_found()
 
-
-@app.route("/get-user")
 def getUser():
     try:
         token = request.cookies.get("auth_tok")
-        print(token)
-
         user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
-
-        return json_util.dumps(user["username"])
+        channels = channelCollection.find({})
+        user["channels"] = channels
+   
+        return json_util.dumps(user)
     except Exception as e:
             error_message = "An error occurred: {}".format(str(e))
             print("***********ERROR**:", error_message)
-

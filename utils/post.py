@@ -1,13 +1,12 @@
-
-from bson import json_util
-from bson.objectid import ObjectId
 from flask import request, jsonify
 import hashlib
+from bson import json_util
+from bson.objectid import ObjectId
+
 
 from utils.config import app, userCollection, postCollection
 from utils.response import make_response, page_not_found
 
-@app.route('/posts-upload', methods = ['POST'])
 def userPost():
     try:
         token = request.cookies.get("auth_tok")
@@ -17,6 +16,7 @@ def userPost():
         title = data.get("title")
         postCollection.insert_one({
             "username": user["username"],
+            "profile_image": user["profile_image"],
             "description": post,
             "title": title,
             "like_counter":0,
@@ -28,7 +28,6 @@ def userPost():
     except Exception:
         return page_not_found()    
 
-@app.route("/get-posts")
 def getPost():
     try:
         posts = list(postCollection.find())
@@ -37,7 +36,6 @@ def getPost():
             error_message = "An error occurred: {}".format(str(e))
             print("***********ERROR**:", error_message)
 
-@app.route('/post-like', methods=['POST'])
 def post_like():
     data = request.json
     postId = data["postId"]['$oid']
@@ -46,8 +44,7 @@ def post_like():
     if not post:
         return jsonify({'error': 'Post not found'}), 404
 
-    likers = set(post['likers'])
-   
+    likers = set(post['likers'])   
     like_counter = len(likers)
 
     if userId in likers:
@@ -70,4 +67,3 @@ def post_like():
         )
 
     return jsonify({'like_counter': like_counter})
-

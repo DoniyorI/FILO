@@ -1,11 +1,6 @@
 from flask import Flask
-from pymongo import MongoClient
-from bson import json_util
-import hashlib
-import bcrypt
-import secrets
-from bson.objectid import ObjectId
 
+from pymongo import MongoClient
 
 #! "localhost" for server.py, "mongo" for docker
 server = "localhost"

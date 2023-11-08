@@ -1,6 +1,4 @@
 from flask import send_from_directory, make_response, send_file, Response
-from utils.config import app
-
 
 def sendResponse(filenamedir:str, path, mimetype:str, xcontenttypeoptions:str, makeresponse:bool):
     if makeresponse:
@@ -14,7 +12,6 @@ def sendResponse(filenamedir:str, path, mimetype:str, xcontenttypeoptions:str, m
         response.headers['X-Content-Type-Options'] = xcontenttypeoptions
         return response
 
-@app.errorhandler(404)
 def page_not_found(error=None):
     return Response(
         response='HTTP/1.1 404 Not Found',
