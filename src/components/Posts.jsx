@@ -7,7 +7,7 @@ import UserContext from './UserContext';
 const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const [clicked, setClicked] = useState([]);
   const [formData, setFormData] = useState({
