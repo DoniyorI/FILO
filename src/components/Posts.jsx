@@ -20,7 +20,7 @@ const Posts = () => {
       })
       .then((user) => {
         setUser(user);
-        console.log(user.username)
+        console.log(user.username);
         console.log(user);
       })
       .catch((error) => {
@@ -103,7 +103,6 @@ const Posts = () => {
           setError(error.toString());
         });
     };
-    
 
     fetchPosts();
 
@@ -118,30 +117,46 @@ const Posts = () => {
 
   // The function to handle the follow action
   const handleFollow = async (usernameToFollow) => {
+    // Optimistically update the local state
+    const isNowFollowing = isFollowing(usernameToFollow);
+    const updatedFollowing = isNowFollowing
+      ? user.following.filter(username => username !== usernameToFollow) // Remove the user from the following array
+      : [...user.following, usernameToFollow]; // Add the user to the following array
+  
+    setUser({
+      ...user,
+      following: updatedFollowing
+    });
+  
     try {
-      // Replace '/follow' with your actual backend endpoint
-      const response = await fetch('/follow-user', {
-        method: 'POST',
+      // Perform the backend update
+      const response = await fetch("/follow-user", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ follower: user.username, following: usernameToFollow }),
+        body: JSON.stringify({
+          followers: user.username,
+          following: usernameToFollow,
+        }),
       });
-
+  
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
-
-      // Update the local current user state to reflect the new following status
-      setUser({
-        ...user,
-        following: [...user.following, usernameToFollow],
-      });
+  
+      // No need to update the state here, as we've already done it optimistically
+  
     } catch (error) {
-      console.error('There has been a problem with your follow operation:', error);
+      // If the backend update fails, revert the state change
+      console.error("There has been a problem with your follow operation:", error);
+      setUser(prevUser => ({
+        ...prevUser,
+        // Revert to the previous following list
+        following: isNowFollowing ? [...prevUser.following, usernameToFollow] : prevUser.following.filter(username => username !== usernameToFollow),
+      }));
     }
   };
-
 
   return (
     <div className="justify-center">
@@ -169,15 +184,14 @@ const Posts = () => {
                 <h2 className="text-xl">{post.username}</h2>
               </div>
               {/* If post is yourself show Follow or following*/}
-              {user.username !== post.username && ( 
-              <button
-                onClick={() => handleFollow(post.username)}
-                className="text-blue-300 text-md px-3 cursor-pointer hover:scale-110"
-                disabled={isFollowing(post.username)}
-              >
-                {isFollowing(post.username) ? 'Following' : 'Follow'}
-              </button>
-            )}
+              {user && user.username !== post.username && (
+                <button
+                  onClick={() => handleFollow(post.username)}
+                  className="text-blue-300 text-md px-3 cursor-pointer hover:scale-110"
+                >
+                  {isFollowing(post.username) ? "Following" : "Follow"}
+                </button>
+              )}
             </div>
 
             <hr className="my-4" />

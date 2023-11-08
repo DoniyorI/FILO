@@ -72,7 +72,7 @@ def serve_svg(filename):
 
 # "/upload-profile Picture" (BUFFERING)
 
-# UPDATE for images at "/posts-upload" and "/get-pots" if Needed (BUFFERING)
+# UPDATE for images at "/posts-upload" and "/get-post" if Needed (BUFFERING)
 
 # "/get-channel" send Channel information should receive a Channel ID to look up should send back everything of that Channel should also work with Web Sockets if the timer hits 0 should stop and no more typing so when messages are being sent and timer is 0 then dont update
             # Messages should be updated (WEBSOCKET)
@@ -268,51 +268,43 @@ def post_like():
 @app.route('/follow-user', methods = ['POST'])
 def follow_user():
     data = request.get_json()
-    follower = data["follower"]
+    print(data)
+    follower = data["followers"]
+    print(follower)
     toFollow = data['following']
+    print(toFollow)
 
     followerColl = userCollection.find_one({'username': follower})
     toFollowColl = userCollection.find_one({"username": toFollow})
+    if not followerColl or not toFollowColl:
+        return jsonify({"success": False, "message": "One or both users not found"}), 404
 
-    followingSet = followerColl["following"]
-    toFollowSet = toFollowColl["follower"]
+    followingSet = set(followerColl.get("following", []))
+    toFollowSet = set(toFollowColl.get("followers", []))
 
     if toFollow in followingSet:
         followingSet.remove(toFollow)
-        userCollection.update_one(
-            {"username": follower}, 
-            {
-                "$set": { "following": followingSet},
-            }
-        )
-
-        toFollowSet.remove(follower)
-        userCollection.update_one(
-            {"username": toFollow}, 
-            {
-                "$set": { "follower": toFollowSet},
-            }
-        )
+        toFollowSet.remove(follower)    
+        print(f"following will be :{toFollowSet}")
+        print(f"followers will be :{followingSet}")
     else:
         followingSet.add(toFollow)
-        userCollection.update_one(
-            {"username": follower}, 
-            {
-                "$set": { "following": followingSet},
-            }
-        )
         toFollowSet.add(follower)
-        userCollection.update_one(
-            {"username": toFollow}, 
-            {
-                "$set": { "follower": toFollowSet},
-            }
-        )
-
-
-
-
-
+        print(f"following will be :{toFollowSet}")
+        print(f"followers will be :{followingSet}")
+    
+    # Update the follower's 'following' list
+    userCollection.update_one(
+        {"username": follower},
+        {"$set": {"following": list(followingSet)}}
+    )
+    
+    userCollection.update_one(
+        {"username": toFollow},
+        {"$set": {"followers": list(toFollowSet)}}
+    )
+    
+    return jsonify({"success": True, "message": "Follow status updated"}), 200
 
 
 @app.errorhandler(404)
