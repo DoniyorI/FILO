@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
-import DefaultProfileImage from "../assets/mainProfile.svg"; // The default profile image
 
 import UserContext from './UserContext';
 

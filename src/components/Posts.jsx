@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import Profile from "../assets/mainProfile.svg";
 import heartIcon from "../assets/heart-regular.svg";
 import redHeart from "../assets/redHeart.svg";
 

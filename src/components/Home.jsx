@@ -116,7 +116,7 @@ const Home = () => {
               <div className="flex justify-end items-center">
                 <label className="cursor-pointer">
                   <LuImagePlus 
-                  className="w-5 h-5 inline-block text-white mr-2 hover:scale-150"
+                  className="w-7 h-7 inline-block text-white mr-2 hover:scale-125"
                   />
                   <input
                     type="file"
@@ -127,7 +127,7 @@ const Home = () => {
                 </label>
                 <button
                   type="submit"
-                  className="bg-none hover:scale-150 text-white font-semibold mx-4 rounded-md justify-between"
+                  className="bg-none hover:scale-125 text-white font-semibold mx-4 rounded-md justify-between"
                 >
                   <img src={SendIcon} alt="send" width={20} height={20} />
                 </button>
