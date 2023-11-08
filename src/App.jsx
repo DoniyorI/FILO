@@ -1,31 +1,21 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import React, { useState, useEffect } from "react";
-// import BarLoader from "react-spinners/BarLoader";
+import React from "react";
+// import UserContext, { useFetchUser } from './components/UserContext';
+
 
 import Register from "./components/Register";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Nav";
 import Home from "./components/Home";
+import Messages from "./components/Messages"
 import "./index.css";
 
 export default function App() {
-  const [loading, setLoading] = useState(true);
-  const [registerLoading, setRegisterLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 5000);
-  }, []);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setRegisterLoading(false);
-    }, 5000);
-  }, []);
+  // const { user, setUser, dmUsers, setDmUsers, channels, setChannels } = useFetchUser();
 
   return (
-    <BrowserRouter>
+    // <UserContext.Provider value={{ user, setUser, dmUsers, setDmUsers, channels, setChannels }}>
+      <BrowserRouter>
       <Routes>
         <Route
           path="/"
@@ -34,6 +24,7 @@ export default function App() {
               <Sidebar />
               <Navbar />
               <Home />
+              {/* <Messages/> */}
             </>
           }
         />
@@ -45,7 +36,19 @@ export default function App() {
             </>
           }
         />
+        <Route
+          path="login"
+          element={
+            <>
+              <Sidebar />
+              <Navbar />
+              <Messages/>
+            </>
+          }
+        />
       </Routes>
     </BrowserRouter>
+    // </UserContext.Provider>
+    
   );
 }

@@ -1,6 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
 import DefaultProfileImage from "../assets/mainProfile.svg"; // The default profile image
+
+// import UserContext from './UserContext';
+
 
 const Nav = () => {
   const [user, setUser] = useState(null);
@@ -30,19 +33,6 @@ const Nav = () => {
       });
   }, []);
 
-  // useEffect(() => {
-  //   document.addEventListener("click", handleDocumentClick);
-  //   return () => {
-  //     document.removeEventListener("click", handleDocumentClick);
-  //   };
-  // }, []);
-
-  // const handleDocumentClick = (e) => {
-  //   // Check if the click occurred outside the profile menu
-  //   if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
-  //     setProfileMenuOpen(false);
-  //   }
-  // };
 
   const handleMenu = () => {
     setProfileMenuOpen(false);

@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
+// import UserContext from './UserContext';
+
 
 const Sidebar = ({ userId }) => {
+  // const { user, dmUsers, channels } = useContext(UserContext);
+
   const [channels, setChannels] = useState([]);
   const [dmUsers, setDmUsers] = useState([]);
   const [user, setUser] = useState(null);
@@ -75,6 +79,9 @@ const Sidebar = ({ userId }) => {
             </a>
 
             {/* Direct Messages */}
+
+            {/* when user's image is clicked, redirect to the messaging and also send that user's name to the server */}
+
             {dmUsers.map((dm) => (
               <div
                 key={dm._id}
