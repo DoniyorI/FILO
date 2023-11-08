@@ -10,15 +10,17 @@ import hashlib
 import bcrypt
 import secrets
 from bson.objectid import ObjectId
-
+from flask_socketio import SocketIO
 from utils.response import sendResponse
 from utils.config import app, userCollection, postCollection, channelCollection
+
 # from utils.static_routes import *
 app = Flask(__name__)
+socketio = SocketIO(app, transports=['websocket']) #disables long polling for socketIO
 
 # #! "localhost" for server.py, "mongo" for docker
 # mongo_client = MongoClient("localhost")
-# # mongo_client = MongoClient("mongo")
+mongo_client = MongoClient("mongo")
 # db = mongo_client["FILO"]
 # userCollection = db["user"]
 # postCollection = db["global post"]
@@ -198,8 +200,15 @@ def getUser():
             print("***********ERROR**:", error_message)
 
 
+# /postImage-upload
 
-## Post
+# /postImage-delete
+
+# /wholePost-delete
+
+# /create-channel
+
+
 @app.route('/posts-upload', methods = ['POST'])
 def userPost():
     try:
@@ -208,6 +217,9 @@ def userPost():
         data = request.get_json()
         post = data.get("description")
         title = data.get("title")
+        imgState = data.get("imageState")
+        imagePath = data.get("imagePath")
+
         postCollection.insert_one({
             "username": user["username"],
             "profile_image": user["profile_image"],
@@ -216,7 +228,8 @@ def userPost():
             "like_counter":0,
             "likers":[],
             "comments": [],
-            "image_id":None
+            "imageState":imgState,
+            "imagePath": imagePath
         })
         return make_response()
     except Exception:
@@ -225,7 +238,7 @@ def userPost():
 @app.route("/get-posts")
 def getPost():
     try:
-        posts = list(postCollection.find())
+        posts = list(postCollection.find()) 
         return json_util.dumps(posts)  
     except Exception as e:
             error_message = "An error occurred: {}".format(str(e))
@@ -268,11 +281,8 @@ def post_like():
 @app.route('/follow-user', methods = ['POST'])
 def follow_user():
     data = request.get_json()
-    print(data)
     follower = data["followers"]
-    print(follower)
     toFollow = data['following']
-    print(toFollow)
 
     followerColl = userCollection.find_one({'username': follower})
     toFollowColl = userCollection.find_one({"username": toFollow})
@@ -303,7 +313,7 @@ def follow_user():
         {"username": toFollow},
         {"$set": {"followers": list(toFollowSet)}}
     )
-    
+
     return jsonify({"success": True, "message": "Follow status updated"}), 200
 
 
