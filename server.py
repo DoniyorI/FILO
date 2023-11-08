@@ -10,15 +10,17 @@ import hashlib
 import bcrypt
 import secrets
 from bson.objectid import ObjectId
-
+from flask_socketio import SocketIO
 from utils.response import sendResponse
-from utils.config import app, userCollection, postCollection
+from utils.config import app, userCollection, postCollection, channelCollection
+
 # from utils.static_routes import *
 app = Flask(__name__)
+socketio = SocketIO(app, transports=['websocket']) #disables long polling for socketIO
 
 # #! "localhost" for server.py, "mongo" for docker
 # mongo_client = MongoClient("localhost")
-# # mongo_client = MongoClient("mongo")
+mongo_client = MongoClient("mongo")
 # db = mongo_client["FILO"]
 # userCollection = db["user"]
 # postCollection = db["global post"]
@@ -72,7 +74,7 @@ def serve_svg(filename):
 
 # "/upload-profile Picture" (BUFFERING)
 
-# UPDATE for images at "/posts-upload" and "/get-pots" if Needed (BUFFERING)
+# UPDATE for images at "/posts-upload" and "/get-post" if Needed (BUFFERING)
 
 # "/get-channel" send Channel information should receive a Channel ID to look up should send back everything of that Channel should also work with Web Sockets if the timer hits 0 should stop and no more typing so when messages are being sent and timer is 0 then dont update
             # Messages should be updated (WEBSOCKET)
@@ -107,26 +109,27 @@ def newUser():
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
 
         #test DM Render
-        testDM = {
-            "_id": "1",
-            "username": "test 1",
-            "profile_path": "mainProfile.svg",
-            "messages": []
-        }
-        testDM2 = {
-            "_id": "2",
-            "username": "test 2",
-            "profile_path": "mainProfile.svg",
-            "messages": []
-        }
-        testChannel = {
-            "_id": "2",
-            "name": "channel test 2",
-            "description": "channel test 2",
-            "member_limit": 5,
-            "image": "Channel.svg",
-            "messages": []
-        }
+        # testDM = {
+        #     "_id": "1",
+        #     "username": "test 1",
+        #     "profile_path": "mainProfile.svg",
+        #     "messages": []
+        # }
+        # testDM2 = {
+        #     "_id": "2",
+        #     "username": "test 2",
+        #     "profile_path": "mainProfile.svg",
+        #     "messages": []
+        # }
+        # testChannel = {
+        #     "_id": "3",
+        #     "name": "channel test 2",
+        #     "description": "channel test 2",
+        #     "member_limit": 5,
+        #     "image": "Channel.svg",
+        #     "messages": []
+        # }
+        # channelCollection.insert_one(testChannel)
 
         userCollection.insert_one({
             "email": email,
@@ -136,8 +139,7 @@ def newUser():
             "following": [],
             'followers': [],
             "profile_image": "mainProfile.svg",
-            "direct_messages": [testDM, testDM2],
-            "channels": [testChannel]
+            "direct_messages": [],
             })
         return make_response()
     except Exception as e:  # Catch the exception and print it for debugging
@@ -189,15 +191,24 @@ def getUser():
     try:
         token = request.cookies.get("auth_tok")
         user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
-
+        channels = channelCollection.find({})
+        user["channels"] = channels
+   
         return json_util.dumps(user)
     except Exception as e:
             error_message = "An error occurred: {}".format(str(e))
             print("***********ERROR**:", error_message)
 
 
+# /postImage-upload
 
-## Post
+# /postImage-delete
+
+# /wholePost-delete
+
+# /create-channel
+
+
 @app.route('/posts-upload', methods = ['POST'])
 def userPost():
     try:
@@ -206,6 +217,9 @@ def userPost():
         data = request.get_json()
         post = data.get("description")
         title = data.get("title")
+        imgState = data.get("imageState")
+        imagePath = data.get("imagePath")
+
         postCollection.insert_one({
             "username": user["username"],
             "profile_image": user["profile_image"],
@@ -214,7 +228,8 @@ def userPost():
             "like_counter":0,
             "likers":[],
             "comments": [],
-            "image_id":None
+            "imageState":imgState,
+            "imagePath": imagePath
         })
         return make_response()
     except Exception:
@@ -223,7 +238,7 @@ def userPost():
 @app.route("/get-posts")
 def getPost():
     try:
-        posts = list(postCollection.find())
+        posts = list(postCollection.find()) 
         return json_util.dumps(posts)  
     except Exception as e:
             error_message = "An error occurred: {}".format(str(e))
@@ -263,6 +278,44 @@ def post_like():
 
     return jsonify({'like_counter': like_counter})
 
+@app.route('/follow-user', methods = ['POST'])
+def follow_user():
+    data = request.get_json()
+    follower = data["followers"]
+    toFollow = data['following']
+
+    followerColl = userCollection.find_one({'username': follower})
+    toFollowColl = userCollection.find_one({"username": toFollow})
+    if not followerColl or not toFollowColl:
+        return jsonify({"success": False, "message": "One or both users not found"}), 404
+
+    followingSet = set(followerColl.get("following", []))
+    toFollowSet = set(toFollowColl.get("followers", []))
+
+    if toFollow in followingSet:
+        followingSet.remove(toFollow)
+        toFollowSet.remove(follower)    
+        print(f"following will be :{toFollowSet}")
+        print(f"followers will be :{followingSet}")
+    else:
+        followingSet.add(toFollow)
+        toFollowSet.add(follower)
+        print(f"following will be :{toFollowSet}")
+        print(f"followers will be :{followingSet}")
+    
+    # Update the follower's 'following' list
+    userCollection.update_one(
+        {"username": follower},
+        {"$set": {"following": list(followingSet)}}
+    )
+    
+    userCollection.update_one(
+        {"username": toFollow},
+        {"$set": {"followers": list(toFollowSet)}}
+    )
+
+    return jsonify({"success": True, "message": "Follow status updated"}), 200
+
 
 @app.errorhandler(404)
 def page_not_found(error=None):
@@ -272,7 +325,6 @@ def page_not_found(error=None):
         mimetype="text/plain",
         headers={'X-Content-Type-Options': 'nosniff'}
     )
-
 
 
 

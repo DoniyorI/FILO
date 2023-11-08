@@ -8,7 +8,7 @@ const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
   const { user } = useContext(UserContext);
-  
+
   const [clicked, setClicked] = useState([]);
   const [formData, setFormData] = useState({
     like_counts: "",
@@ -89,6 +89,53 @@ const Posts = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  const isFollowing = (username) => {
+    return user.following.includes(username);
+  };
+
+  // The function to handle the follow action
+  const handleFollow = async (usernameToFollow) => {
+    // Optimistically update the local state
+    const isNowFollowing = isFollowing(usernameToFollow);
+    const updatedFollowing = isNowFollowing
+      ? user.following.filter(username => username !== usernameToFollow) // Remove the user from the following array
+      : [...user.following, usernameToFollow]; // Add the user to the following array
+  
+    setUser({
+      ...user,
+      following: updatedFollowing
+    });
+  
+    try {
+      // Perform the backend update
+      const response = await fetch("/follow-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          followers: user.username,
+          following: usernameToFollow,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      // No need to update the state here, as we've already done it optimistically
+  
+    } catch (error) {
+      // If the backend update fails, revert the state change
+      console.error("There has been a problem with your follow operation:", error);
+      setUser(prevUser => ({
+        ...prevUser,
+        // Revert to the previous following list
+        following: isNowFollowing ? [...prevUser.following, usernameToFollow] : prevUser.following.filter(username => username !== usernameToFollow),
+      }));
+    }
+  };
+
   return (
     <div className="justify-center">
       {error ? (
@@ -114,10 +161,15 @@ const Posts = () => {
                 )}
                 <h2 className="text-xl">{post.username}</h2>
               </div>
-              {/* TODO: Add follow functionality */}
-              <button className="text-blue-300 text-md px-3 cursor-pointer hover:scale-110">
-                Follow
-              </button>
+              {/* If post is yourself show Follow or following*/}
+              {user && user.username !== post.username && (
+                <button
+                  onClick={() => handleFollow(post.username)}
+                  className="text-blue-300 text-md px-3 cursor-pointer hover:scale-110"
+                >
+                  {isFollowing(post.username) ? "Following" : "Follow"}
+                </button>
+              )}
             </div>
 
             <hr className="my-4" />

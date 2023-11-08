@@ -14,5 +14,6 @@ mongo_client = MongoClient(server)
 db = mongo_client["FILO"]
 userCollection = db["user"]
 postCollection = db["global post"]
+channelCollection = db["channel"]
 
 app = Flask(__name__)
