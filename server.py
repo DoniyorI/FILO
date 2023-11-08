@@ -12,7 +12,7 @@ import secrets
 from bson.objectid import ObjectId
 
 from utils.response import sendResponse
-from utils.config import app, userCollection, postCollection
+from utils.config import app, userCollection, postCollection, channelCollection
 # from utils.static_routes import *
 app = Flask(__name__)
 
@@ -107,26 +107,27 @@ def newUser():
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
 
         #test DM Render
-        testDM = {
-            "_id": "1",
-            "username": "test 1",
-            "profile_path": "mainProfile.svg",
-            "messages": []
-        }
-        testDM2 = {
-            "_id": "2",
-            "username": "test 2",
-            "profile_path": "mainProfile.svg",
-            "messages": []
-        }
-        testChannel = {
-            "_id": "2",
-            "name": "channel test 2",
-            "description": "channel test 2",
-            "member_limit": 5,
-            "image": "Channel.svg",
-            "messages": []
-        }
+        # testDM = {
+        #     "_id": "1",
+        #     "username": "test 1",
+        #     "profile_path": "mainProfile.svg",
+        #     "messages": []
+        # }
+        # testDM2 = {
+        #     "_id": "2",
+        #     "username": "test 2",
+        #     "profile_path": "mainProfile.svg",
+        #     "messages": []
+        # }
+        # testChannel = {
+        #     "_id": "3",
+        #     "name": "channel test 2",
+        #     "description": "channel test 2",
+        #     "member_limit": 5,
+        #     "image": "Channel.svg",
+        #     "messages": []
+        # }
+        # channelCollection.insert_one(testChannel)
 
         userCollection.insert_one({
             "email": email,
@@ -136,8 +137,7 @@ def newUser():
             "following": [],
             'followers': [],
             "profile_image": "mainProfile.svg",
-            "direct_messages": [testDM, testDM2],
-            "channels": [testChannel]
+            "direct_messages": [],
             })
         return make_response()
     except Exception as e:  # Catch the exception and print it for debugging
@@ -189,7 +189,9 @@ def getUser():
     try:
         token = request.cookies.get("auth_tok")
         user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
-
+        channels = channelCollection.find({})
+        user["channels"] = channels
+   
         return json_util.dumps(user)
     except Exception as e:
             error_message = "An error occurred: {}".format(str(e))
@@ -263,6 +265,55 @@ def post_like():
 
     return jsonify({'like_counter': like_counter})
 
+@app.route('/follow-user', methods = ['POST'])
+def follow_user():
+    data = request.get_json()
+    follower = data["follower"]
+    toFollow = data['following']
+
+    followerColl = userCollection.find_one({'username': follower})
+    toFollowColl = userCollection.find_one({"username": toFollow})
+
+    followingSet = followerColl["following"]
+    toFollowSet = toFollowColl["follower"]
+
+    if toFollow in followingSet:
+        followingSet.remove(toFollow)
+        userCollection.update_one(
+            {"username": follower}, 
+            {
+                "$set": { "following": followingSet},
+            }
+        )
+
+        toFollowSet.remove(follower)
+        userCollection.update_one(
+            {"username": toFollow}, 
+            {
+                "$set": { "follower": toFollowSet},
+            }
+        )
+    else:
+        followingSet.add(toFollow)
+        userCollection.update_one(
+            {"username": follower}, 
+            {
+                "$set": { "following": followingSet},
+            }
+        )
+        toFollowSet.add(follower)
+        userCollection.update_one(
+            {"username": toFollow}, 
+            {
+                "$set": { "follower": toFollowSet},
+            }
+        )
+
+
+
+
+
+
 
 @app.errorhandler(404)
 def page_not_found(error=None):
@@ -272,7 +323,6 @@ def page_not_found(error=None):
         mimetype="text/plain",
         headers={'X-Content-Type-Options': 'nosniff'}
     )
-
 
 
 

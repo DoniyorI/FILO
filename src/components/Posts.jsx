@@ -20,6 +20,7 @@ const Posts = () => {
       })
       .then((user) => {
         setUser(user);
+        console.log(user.username)
         console.log(user);
       })
       .catch((error) => {
@@ -102,6 +103,7 @@ const Posts = () => {
           setError(error.toString());
         });
     };
+    
 
     fetchPosts();
 
@@ -109,6 +111,37 @@ const Posts = () => {
 
     return () => clearInterval(intervalId);
   }, []);
+
+  const isFollowing = (username) => {
+    return user.following.includes(username);
+  };
+
+  // The function to handle the follow action
+  const handleFollow = async (usernameToFollow) => {
+    try {
+      // Replace '/follow' with your actual backend endpoint
+      const response = await fetch('/follow-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ follower: user.username, following: usernameToFollow }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      // Update the local current user state to reflect the new following status
+      setUser({
+        ...user,
+        following: [...user.following, usernameToFollow],
+      });
+    } catch (error) {
+      console.error('There has been a problem with your follow operation:', error);
+    }
+  };
+
 
   return (
     <div className="justify-center">
@@ -135,10 +168,16 @@ const Posts = () => {
                 )}
                 <h2 className="text-xl">{post.username}</h2>
               </div>
-              {/* TODO: Add follow functionality */}
-              <button className="text-blue-300 text-md px-3 cursor-pointer hover:scale-110">
-                Follow
+              {/* If post is yourself show Follow or following*/}
+              {user.username !== post.username && ( 
+              <button
+                onClick={() => handleFollow(post.username)}
+                className="text-blue-300 text-md px-3 cursor-pointer hover:scale-110"
+                disabled={isFollowing(post.username)}
+              >
+                {isFollowing(post.username) ? 'Following' : 'Follow'}
               </button>
+            )}
             </div>
 
             <hr className="my-4" />
