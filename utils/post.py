@@ -32,16 +32,17 @@ def userPost():
             decoded_bytes = base64.b64decode(encoded)
             
             # Ensure the upload folder exists
-            upload_folder = "src/post-image"
+            upload_folder = "public/image"
             if not os.path.exists(upload_folder):
                 os.makedirs(upload_folder)
             
-            filename = os.path.join(upload_folder, imageName)
-            
+            # filename = os.path.join(upload_folder, imageName) 
+            filename = f"public/image/{imageName}"
+
             with open(filename, 'wb') as image_file:
                 image_file.write(decoded_bytes)
             
-            image_path = imageName
+            image_path = filename
 
         postCollection.insert_one({
             "username": user["username"],

@@ -5,7 +5,7 @@ from utils.response import *
 from utils.userInteract import *
 from utils.channels import *
 
-from flask import Flask
+from flask import Flask, abort
 from utils.config import app
 import os
 app = Flask(__name__)
@@ -22,9 +22,18 @@ def doCSS(filename):
 def doJSS(filename):
     return serve_static_js(filename)
 
-@app.route('/image/<path:picture>')
-def doImage(picture):
-    return image(picture)    
+
+@app.route('/public/image/<filename>')
+def serve_image(filename):
+    try:
+        # Assuming your images are stored in a folder named 'public/image' within your Flask application directory
+        return send_from_directory('public/image', filename)
+    except FileNotFoundError:
+        abort(404)
+
+# @app.route('/public/image/<path:picture>')
+# def doImage(picture):
+#     return image(picture)    
 
 @app.route('/static/media/<path:filename>')
 def doSVG(filename):
@@ -92,7 +101,7 @@ def doFollowUser():
     return follow_user()
 
 @app.errorhandler(404)
-def doPNF():
+def doPNF(error=None):
     return page_not_found()
 
 if __name__ == "__main__":

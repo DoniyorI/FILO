@@ -185,7 +185,7 @@ const Posts = () => {
             {post.image_path && (
               <div>
                  <img
-                    src={require(`../post-image/${post.image_path}`)}
+                    src={post.image_path}
                     alt="profile"
                     className="h-32"
                   />
