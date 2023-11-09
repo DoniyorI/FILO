@@ -153,9 +153,9 @@ const Posts = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-10 h-10 rounded-full overflow-hidden">
-                  {user && user.profile_image && (
+                  {post && post.profile_image && (
                     <img
-                      src={user.profile_image}
+                      src={post.profile_image}
                       alt="profile"
                       className="w-full h-full object-cover cursor-pointer"
                     />
