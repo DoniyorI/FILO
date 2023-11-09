@@ -25,7 +25,7 @@ def userPost():
             new_count = imgCount + 1
             imgCounterCollection.update_one({}, {'$set': {"count": new_count}})
     
-            imagename = str(new_count) + ".jpg"  # Assuming the image is a JPEG
+            imageName = str(new_count) + ".jpg"  # Assuming the image is a JPEG
 
             # Decode the image data
             _, encoded = imgData.split(",", 1)
@@ -36,12 +36,12 @@ def userPost():
             if not os.path.exists(upload_folder):
                 os.makedirs(upload_folder)
             
-            filename = os.path.join(upload_folder, imagename)
+            filename = os.path.join(upload_folder, imageName)
             
             with open(filename, 'wb') as image_file:
                 image_file.write(decoded_bytes)
             
-            image_path = filename
+            image_path = imageName
 
         postCollection.insert_one({
             "username": user["username"],

@@ -189,12 +189,6 @@ const Posts = () => {
                     alt="profile"
                     className="h-32"
                   />
-                {/* <img
-                  src={require(`../assets/${user.profile_image}`)}
-                  alt="Post"
-                  className="h-32" 
-                /> */}
-                <p>Hello</p>
                 <hr className="my-2" />
               </div>
             )}
