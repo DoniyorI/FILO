@@ -4,6 +4,7 @@
 
 body {
   background-color: #393d48;
+  overflow: hidden;
 }
 
 /* REGISTER */

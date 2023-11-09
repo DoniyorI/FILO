@@ -1,54 +1,57 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React from "react";
-import UserContext, { useFetchUser } from './components/UserContext';
-
+import UserContext, { useFetchUser } from "./components/UserContext";
 
 import Register from "./components/Register";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Nav";
 import Home from "./components/Home";
-import Messages from "./components/Messages"
+import Messages from "./components/Messages";
+import SidebarMsg from "./components/SidebarMsg";
 import "./index.css";
 
 export default function App() {
-  const { user, setUser, dmUsers, setDmUsers, channels, setChannels } = useFetchUser();
+  const { user, setUser, dmUsers, setDmUsers, channels, setChannels } =
+    useFetchUser();
 
   return (
-    <UserContext.Provider value={{ user, setUser, dmUsers, setDmUsers, channels, setChannels }}>
+    <UserContext.Provider
+      value={{ user, setUser, dmUsers, setDmUsers, channels, setChannels }}
+    >
       <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <Sidebar />
-              <Navbar />
-              <Home />
-              {/* <Messages/> */}
-            </>
-          }
-        />
-        <Route
-          path="login"
-          element={
-            <>
-              <Register />
-            </>
-          }
-        />
-        <Route
-          path="messages"
-          element={
-            <>
-              <Sidebar />
-              <Navbar />
-              <Messages/>
-            </>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
-  </UserContext.Provider>
-    
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <Navbar />
+                {/* <Sidebar /> */}
+                {/* <Home /> */}
+                <Messages />
+                {/* <SidebarMsg /> */}
+              </>
+            }
+          />
+          <Route
+            path="login"
+            element={
+              <>
+                <Register />
+              </>
+            }
+          />
+          <Route
+            path="messages"
+            element={
+              <>
+                <Navbar />
+                {/* <Sidebar /> */}
+                <Messages />
+              </>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </UserContext.Provider>
   );
 }
