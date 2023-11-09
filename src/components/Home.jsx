@@ -2,15 +2,21 @@ import React, { useRef, useEffect, useState } from "react";
 import Posts from "./Posts";
 import SendIcon from "../assets/sendIcon.svg";
 import { LuImagePlus } from "react-icons/lu";
+import { MdCancel } from "react-icons/md"; 
+
 
 const Home = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
+  const [imageBase64, setImageBase64] = useState('');
   const [formData, setFormData] = useState({
     new_title: "",
     new_description: "",
   });
   const formRef = useRef();
+  const removeImage = () => {
+    setImageBase64('');
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -30,17 +36,27 @@ const Home = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImageBase64(e.target.result);
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
   const handleNewPost = async (event) => {
     event.preventDefault();
 
     const dataToSend = {
       title: formData.new_title,
       description: formData.new_description,
+      image: imageBase64, // add the image base64 to the data to send
     };
 
     try {
-      console.log("dataToSend: ");
-      console.log(dataToSend);
+      console.log("dataToSend: ", dataToSend);
       const response = await fetch("/posts-upload", {
         method: "POST",
         headers: {
@@ -114,23 +130,40 @@ const Home = () => {
               <hr className="p-2" />
 
               <div className="flex justify-end items-center">
-                <label className="cursor-pointer">
-                  <LuImagePlus 
-                  className="w-7 h-7 inline-block text-white mr-2 hover:scale-125"
-                  />
-                  <input
-                    type="file"
-                    className="hidden"
-                    // onChange={handleFileChange}
-                    accept="image/*"
-                  />
-                </label>
+              <label className="cursor-pointer">
+              <LuImagePlus 
+                className="w-7 h-7 inline-block text-white mr-2 hover:scale-125"
+              />
+              <input
+                type="file"
+                className="hidden"
+                onChange={handleImageChange}
+                accept="image/*"
+              />
+            </label>
+            {imageBase64 && (
+              <div className="relative w-full flex justify-center">
+              <div className="relative" style={{ height: '100px' }}>
+                {/* The image itself */}
+                <img src={imageBase64} alt="Preview" style={{ height: '100px' }} className="object-contain" />
+                {/* The button to remove the image */}
                 <button
-                  type="submit"
-                  className="bg-none hover:scale-125 text-white font-semibold mx-4 rounded-md justify-between"
+                  type="button"
+                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                  onClick={removeImage}
+                  style={{ transform: 'translate(50%, -50%)' }} // Adjust position to be on the edge
                 >
-                  <img src={SendIcon} alt="send" width={20} height={20} />
+                  <MdCancel />
                 </button>
+              </div>
+            </div>
+            )}
+            <button
+              type="submit"
+              className="bg-none hover:scale-125 text-white font-semibold mx-4 rounded-md justify-between"
+            >
+              <img src={SendIcon} alt="send" width={20} height={20} />
+            </button>
 
               </div>
             </div>

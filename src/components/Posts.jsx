@@ -182,6 +182,23 @@ const Posts = () => {
               </div>
             )}
 
+            {post.image_path && (
+              <div>
+                 <img
+                    src={require(`../post-image/${post.image_path}`)}
+                    alt="profile"
+                    className="h-32"
+                  />
+                {/* <img
+                  src={require(`../assets/${user.profile_image}`)}
+                  alt="Post"
+                  className="h-32" 
+                /> */}
+                <p>Hello</p>
+                <hr className="my-2" />
+              </div>
+            )}
+
             <div className="mt-2 w-5 h-5 flex items-center space-x-2">
               {user && post.likers.includes(user.username) ? (
                 <img

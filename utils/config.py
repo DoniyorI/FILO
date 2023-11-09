@@ -10,5 +10,7 @@ db = mongo_client["FILO"]
 userCollection = db["user"]
 postCollection = db["global post"]
 channelCollection = db["channel"]
+imgCounterCollection = db["counter"]
+imgCounterCollection.insert_one({"count": 0})
 
 app = Flask(__name__)

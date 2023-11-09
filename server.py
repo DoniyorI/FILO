@@ -3,9 +3,11 @@ from utils.auth_routes import *
 from utils.post import *
 from utils.response import *
 from utils.userInteract import *
+from utils.channels import *
 
 from flask import Flask
 from utils.config import app
+import os
 app = Flask(__name__)
 
 @app.route('/')
@@ -63,6 +65,15 @@ def doRegister():
 @app.route("/get-user")
 def doGetUser():
     return getUser()
+
+@app.route("/create-channel", methods = ["POST"])
+def doNewChannel():
+    return newChannel()
+    
+
+@app.route("/channel-message", methods = ["POST"])
+def doChannelMessage():
+    return channelMessage()
 
 @app.route('/posts-upload', methods = ['POST'])
 def doUserPost():
