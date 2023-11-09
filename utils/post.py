@@ -17,7 +17,7 @@ def userPost():
         data = request.get_json()
         post = data.get("description")
         title = data.get("title")
-        imgData = data.get("image") #this is base 64 of an image store on drisk based on post _id (OBJECTID)
+        imgData = data.get("image") 
         image_path = ""
 
         if imgData != "":
@@ -43,7 +43,6 @@ def userPost():
                 image_file.write(decoded_bytes)
             
             image_path = filename
-
         postCollection.insert_one({
             "username": user["username"],
             "profile_image": user["profile_image"],

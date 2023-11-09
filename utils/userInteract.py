@@ -1,6 +1,8 @@
 from flask import request, jsonify
+import os
+import base64
 
-from utils.config import userCollection
+from utils.config import userCollection, imgCounterCollection
 
 def follow_user():
     data = request.get_json()
@@ -41,3 +43,51 @@ def follow_user():
     )
     
     return jsonify({"success": True, "message": "Follow status updated"}), 200
+
+def new_profile():
+    data = request.get_json()
+    username = data.get("username")
+    print(username)
+    imgData = data.get("image")
+    print("image Data" + str(imgData))
+
+    if not imgData:
+        return jsonify({'success': False, 'error': 'No image data provided'})
+
+    try:
+        # Ensure the upload folder exists
+        upload_folder = "public/image"
+        os.makedirs(upload_folder, exist_ok=True)
+
+        imgCount = imgCounterCollection.find_one({})["count"]
+        new_count = imgCount + 1
+        imgCounterCollection.update_one({}, {'$set': {"count": new_count}})
+        imageName = f"{new_count}.jpg"  # Assuming the image is a JPEG
+        print(imageName)
+
+
+        # Decode the image data
+        _, encoded = imgData.split(",", 1)
+        decoded_bytes = base64.b64decode(encoded)
+        print("Image is decoded .......")
+
+        filename = os.path.join(upload_folder, imageName)
+
+        with open(filename, 'wb') as image_file:
+            image_file.write(decoded_bytes)
+
+        image_path = filename
+
+        # Save the image path and username to the database
+        print("Image is trying to upload .......")
+        userCollection.update_one(
+            {"username": username},
+            {"$set": {"profile_image": image_path}}
+        )
+        print("Image is uploaded .......")
+
+        return jsonify({'success': True, 'image_path': image_path, 'username': username})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+

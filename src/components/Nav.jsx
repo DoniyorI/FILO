@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
 
-import UserContext from './UserContext';
-
+import UserContext from "./UserContext";
 
 const Nav = () => {
-  // const [user, setUser] = useState(null);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -55,6 +53,58 @@ const Nav = () => {
     setProfileMenuOpen(false); // Close dropdown menu
   };
 
+  const [newImage, setNewImage] = useState(null);
+  const [saveChanges, setSaveChanges] = useState(false);
+
+  const handleChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        // Update the new image state
+        setNewImage(e.target.result);
+        // Set the saveChanges flag to true
+        setSaveChanges(true);
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const handleCancel = () => {
+    // Reset the newImage state and close the modal
+    setNewImage(null);
+    setIsModalOpen(false);
+  };
+
+  const handleSave = () => {
+    if (saveChanges && newImage) {
+      const payload = {
+        username: user.username,
+        image: newImage, // Send the base64-encoded image data directly
+      };
+  
+      fetch('/new-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            console.log("Profile uploaded successfully");
+            // Reset the saveChanges flag
+            setSaveChanges(false);
+            window.location.href = "/";
+          } else {
+            console.error("Error uploading profile:", data.error);
+          }
+        });
+    }
+
+    // Close the modal
+    setIsModalOpen(false);
+  };
   return (
     // TODO: Implement search bar
     <header>
@@ -68,14 +118,14 @@ const Nav = () => {
           </h1>
           <div ref={profileMenuRef}>
             {user && user.profile_image && (
+              <div className="w-10 h-10 rounded-full overflow-hidden">
               <img
-                src={require(`../assets/${user.profile_image}`)}
-                alt="profile"
-                width={35}
-                height={35}
                 onClick={handleProfileIconClick}
-                className="cursor-pointer rounded-full"
+                src={user.profile_image}
+                alt="profile"
+                className="w-full h-full object-cover cursor-pointer"
               />
+            </div>
             )}
             {isProfileMenuOpen && (
               <div className="absolute top-16 right-6 bg-primaryBlue text-sand shadow-md p-2 border-2 border-sand rounded-md">
@@ -119,25 +169,38 @@ const Nav = () => {
                 {/* Image Container */}
                 <div className="w-full flex justify-center p-10">
                   <div className="relative">
-                    {user && user.profile_image && (
-                      <img
-                        src={require(`../assets/${user.profile_image}`)}
-                        alt="profile"
-                        className="w-52 h-auto cursor-pointer rounded-full"
-                      />
+                    {newImage ? ( // Display the new image if available
+                      <div className="w-52 h-52 rounded-full overflow-hidden">
+                        <img
+                          src={newImage}
+                          alt="profile"
+                          className="w-full h-full object-cover cursor-pointer"
+                        />
+                      </div>
+                    ) : (
+                      user &&
+                      user.profile_image && ( // Display the user's existing profile image
+                        <div className="w-52 h-52 rounded-full overflow-hidden">
+                          <img
+                            src={user.profile_image}
+                            alt="profile"
+                            className="w-full h-full object-cover cursor-pointer"
+                          />
+                        </div>
+                      )
                     )}
                     {/* Upload Icon Overlay */}
                     <input
                       type="file"
                       id="profile-upload"
+                      onChange={handleChange}
                       className="hidden"
-                      // onChange={} // A function to handle the file upload
                     />
+
                     {/* Upload Icon Overlay */}
                     <label
                       htmlFor="profile-upload"
-                      className="absolute bottom-2 right-3 bg-blue-300 text-white rounded-full 
-                            flex items-center justify-center w-10 h-10 cursor-pointer"
+                      className="absolute bottom-2 right-3 bg-blue-300 text-white rounded-full flex items-center justify-center w-10 h-10 cursor-pointer"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -221,6 +284,32 @@ const Nav = () => {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="flex justify-center mt-4">
+              {/* Render the Save and Cancel buttons based on the saveChanges flag */}
+              {saveChanges ? (
+                <>
+                  <button
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md mr-4"
+                    onClick={handleSave}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="bg-gray-400 text-white px-4 py-2 rounded-md"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="bg-gray-400 text-white px-4 py-2 rounded-md"
+                  onClick={handleCancel}
+                >
+                  Cancel
+                </button>
+              )}
             </div>
           </div>
         </div>

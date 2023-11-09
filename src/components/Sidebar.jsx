@@ -5,9 +5,6 @@ import UserContext from "./UserContext";
 const Sidebar = ({ userId }) => {
   const { user, dmUsers, channels } = useContext(UserContext);
 
-  // const [channels, setChannels] = useState([]);
-  // const [dmUsers, setDmUsers] = useState([]);
-  // const [user, setUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
@@ -30,20 +27,69 @@ const Sidebar = ({ userId }) => {
   const [time, setTime] = useState("");
   const [timeZone, setTimeZone] = useState("");
   const [never, setNever] = useState(false);
+  const [channelImage, setChannelImage] = useState(null);
 
   if (!handleOpenModal) return null;
 
+  const handleChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setChannelImage(e.target.result);
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle the form submission logic
-    console.log("Form submitted");
-    console.log(channelName);
-    console.log(description);
-    console.log(memberLimit);
-    console.log(date);
-    console.log(time);
-    console.log(timeZone);
-    console.log(never);
+    console.log("channelName: ", channelName);
+    console.log("description: ", description);
+    console.log("memberLimit: ", memberLimit);
+    console.log("date: ", date);
+    console.log("time: ", time);
+    console.log("timeZone: ", timeZone);
+    console.log("channelImage: ", channelImage);
+    console.log("never: ", never);
+
+    fetch('/create-channel', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json', // Set the content type to JSON
+      },
+      body: JSON.stringify({
+        username: user.username,
+        channel_name: channelName,
+        description: description,
+        member_limit: memberLimit,
+        date: date,
+        end: time,
+        time_zone: timeZone,
+        image_path: channelImage, // Assuming newImage contains the image data
+        never: never,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          console.log("New channel created successfully");
+          // Reset the form and navigate to the desired page
+          setChannelName("");
+          setDescription("");
+          setMemberLimit("");
+          setDate("");
+          setTime("");
+          setTimeZone("");
+          setNever(false);
+          setChannelImage(null);
+          window.location.href = "/";
+        } else {
+          console.error("Error creating channel:", data.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error creating channel:", error);
+      });
   };
 
   return (
@@ -84,7 +130,7 @@ const Sidebar = ({ userId }) => {
                 className="group flex h-12 w-12 transform items-center justify-center rounded-full bg-goldenOrange transition-transform hover:scale-110 my-3 relative cursor-pointer"
               >
                 <img
-                  src={require(`../assets/${channel.image}`)}
+                  src={channel.image_path}
                   alt={channel.name}
                   className="rounded-full w-full h-full object-cover"
                 />
@@ -149,44 +195,54 @@ const Sidebar = ({ userId }) => {
                 <div className="flex flex-col items-center w-1/3 border-r">
                   {/* Image Container */}
                   <div className="w-full flex justify-center p-10 mb-10">
-                  <div className="relative">
-                    {user && user.profile_image && (
-                      <img
-                        src={require(`../assets/${user.profile_image}`)}
-                        alt="profile"
-                        className="w-44 h-auto cursor-pointer rounded-full"
+                    <div className="relative">
+                      {channelImage ? ( // Display the new channel image if available
+                        <div className="w-44 h-44 rounded-full overflow-hidden mb-4">
+                          <img
+                            src={channelImage}
+                            alt="uploaded-channel-image"
+                            className="w-full h-full object-cover cursor-pointer"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-44 h-44 rounded-full overflow-hidden mb-4">
+                          <img
+                            src={"public/image/channel.svg"}
+                            alt="default-channel-image"
+                            className="w-full h-full object-cover cursor-pointer"
+                          />
+                        </div>
+                      )}
+                      {/* Upload Icon Overlay */}
+                      <input
+                        type="file"
+                        id="channel-image-upload"
+                        className="hidden"
+                        onChange={handleChange}
                       />
-                    )}
-                    {/* Upload Icon Overlay */}
-                    <input
-                      type="file"
-                      id="profile-upload"
-                      className="hidden"
-                      // onChange={} // A function to handle the file upload
-                    />
-                    {/* Upload Icon Overlay */}
-                    <label
-                      htmlFor="profile-upload"
-                      className="absolute bottom-2 right-3 bg-blue-300 text-white rounded-full 
-                            flex items-center justify-center w-10 h-10 cursor-pointer"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        className="w-6 h-6"
+                      {/* Upload Icon Overlay */}
+                      <label
+                        htmlFor="channel-image-upload"
+                        className="absolute bottom-2 right-3 bg-blue-300 text-white rounded-full 
+                        flex items-center justify-center w-10 h-10 cursor-pointer"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                    </label>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          className="w-6 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                      </label>
+                    </div>
                   </div>
-                </div>
                   <div className="flex items-center space-x-2">
                     <input
                       type="number"

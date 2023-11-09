@@ -152,13 +152,15 @@ const Posts = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                {user && user.profile_image && (
-                  <img
-                    src={require(`../assets/${user.profile_image}`)}
-                    alt="profile"
-                    className="w-10 h-10 rounded-full"
-                  />
-                )}
+                <div className="w-10 h-10 rounded-full overflow-hidden">
+                  {user && user.profile_image && (
+                    <img
+                      src={user.profile_image}
+                      alt="profile"
+                      className="w-full h-full object-cover cursor-pointer"
+                    />
+                  )}
+                </div>
                 <h2 className="text-xl">{post.username}</h2>
               </div>
               {/* If post is yourself show Follow or following*/}

@@ -100,6 +100,11 @@ def doPostLike():
 def doFollowUser():
     return follow_user()
 
+@app.route('/new-profile', methods = ['POST'])
+def doNewProfile():
+    return new_profile()
+
+
 @app.errorhandler(404)
 def doPNF(error=None):
     return page_not_found()
