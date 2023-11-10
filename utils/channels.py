@@ -1,6 +1,8 @@
 from flask import jsonify, request
+from bson import json_util
 import os
 import base64
+import json
 
 from utils.config import channelCollection, imgCounterCollection
 
@@ -48,8 +50,8 @@ def newChannel():
         image_path = filename
 
     members = [creator]
-    testMessage = [{"username": "Jimmy", "message": "hi", "time": "10:45"},
-                   {"username": "Chad", "message": "hello", "time": "12:18"}]
+    # testMessage = [{"username": "Jimmy", "message": "hi", "time": "10:45"},
+                #    {"username": "Chad", "message": "hello", "time": "12:18"}]
 
     channelCollection.insert_one({
         "channel_name": channel_name,
@@ -61,7 +63,7 @@ def newChannel():
         "members": members,
         "time": time,
         "time_zone": timeZone,
-        "messages": testMessage
+        "messages": []
     })
 
     return jsonify({"success": True, "message": "New channel created"}), 200
@@ -86,3 +88,35 @@ def channelMessage():
         {"$set": {"messages": messageList}}
     )
     return jsonify({"success": True, "message": f"New message from {username} added"}), 200
+
+def getChannel():
+    channel_name = request.args.get('channel_name')
+    username = request.args.get('username')
+    print(channel_name)
+    print(username)
+
+    channel = channelCollection.find_one({"channel_name": channel_name})
+
+    if not channel:
+        return jsonify({"error": "Channel not found"}), 404
+
+    # Convert MongoDB document to JSON
+    channel_json = json.loads(json_util.dumps(channel))
+    
+    return jsonify(channel_json)
+
+    # memberList = channel.get("members", [])
+    # member_limit = channel.get("member_limit", 0)
+
+    # if username in memberList:
+    #     return jsonify(channel)
+    # elif len(memberList) < member_limit and username not in memberList:
+    #     memberList.append(username) # Changed add to append for list
+    #     # channelCollection.update_one(
+    #     #     {"channel_name": channel_name},
+    #     #     {"$set": {"members": memberList}}
+    #     # )
+    #     return jsonify(channel)
+    
+    # else:
+    #     return jsonify({"error": "channel is full"}), 400

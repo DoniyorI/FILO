@@ -1,10 +1,12 @@
 import React, { useState, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
 import UserContext from "./UserContext";
+import { useNavigate } from 'react-router-dom';
+
 
 const Sidebar = ({ userId }) => {
+  const navigate = useNavigate();
   const { user, dmUsers, channels } = useContext(UserContext);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
@@ -93,30 +95,56 @@ const Sidebar = ({ userId }) => {
   };
 
   // function to get the data when a channel is clicked:
-  const handleChannelClick = (channelId, channelName) => {
-    const data = {
+  // const handleChannelClick = (channelId, channelName) => {
+  //   const data = {
+  //     channel_name: channelName,
+  //     username: user.username,
+  //   };
+  // // Send the data to the /get-channel path
+  //   fetch('/get-channel', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify(data),
+  //   })
+  //     .then((response) => response.json())
+  //     .then((responseJson) => {
+  //       // Log that the data was sent and the response (if any)
+  //       console.log("Data sent to /get-channel:", data);
+  //       console.log("Response from /get-channel:", responseJson);
+  //       // You can handle the response here if needed
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error sending data to /get-channel:", error);
+  //     });
+  // }
+  const handleChannelClick = (channelName, username) => {
+    const queryParams = new URLSearchParams({
       channel_name: channelName,
-      username: user.username,
-    };
-  // Send the data to the /get-channel path
-    fetch('/get-channel', {
-      method: 'POST',
+      username: username
+    });
+    console.log("channelName:", channelName);
+    console.log("username:", username);
+    console.log("queryParams:", queryParams.toString());
+  
+    fetch(`/get-channel?${queryParams.toString()}`, { // Modified line
+      method: 'GET', // Changed to GET
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
     })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        // Log that the data was sent and the response (if any)
-        console.log("Data sent to /get-channel:", data);
-        console.log("Response from /get-channel:", responseJson);
-        // You can handle the response here if needed
-      })
-      .catch((error) => {
-        console.error("Error sending data to /get-channel:", error);
-      });
+    .then((response) => response.json())
+    .then((channelData) => {
+      // Redirect to the new path with the channel data
+      navigate(`/messages/${channelData.channel_name}`, { state: { channelData } });
+    })
+    .catch((error) => {
+      console.error("Error fetching channel data:", error);
+    });
   }
+  
+  
 
   return (
     <>
@@ -155,15 +183,15 @@ const Sidebar = ({ userId }) => {
                 key={channel._id}
                 className="group flex h-12 w-12 transform items-center justify-center rounded-full bg-goldenOrange transition-transform hover:scale-110 my-3 relative cursor-pointer"
                 // when the channel is clicked, call on the handleChannel function:
-                onClick={() => handleChannelClick(channel._id, channel.name)}
+                onClick={() => handleChannelClick(channel.channel_name, user.username)}
               >
                 <img
                   src={channel.image_path}
-                  alt={channel.name}
+                  alt={channel.channel_name}
                   className="rounded-full w-full h-full object-cover"
                 />
                 <span className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 hidden group-hover:block whitespace-nowrap rounded-md bg-sand py-1 px-3 text-lg text-bold text-primaryBlue shadow-lg transition-opacity duration-300 ease-in-out delay-150 z-10">
-                  {channel.name}
+                  {channel.channel_name}
                 </span>
               </div>
             ))}

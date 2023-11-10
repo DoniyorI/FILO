@@ -16,8 +16,6 @@ const [user, setUser] = useState(null);
 const [dmUsers, setDmUsers] = useState([]);
 const [channels, setChannels] = useState([]);
 
-
-
 useEffect(() => {
     const fetchUserData = async () => {
         try {

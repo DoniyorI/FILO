@@ -1,16 +1,45 @@
 import React, { useState, useEffect, useContext } from "react";
-
-import { IoSend } from "react-icons/io5";
-// import SendIcon from "../assets/sendIcon.svg";
-import SidebarMsg from "../components/SidebarMsg";
-import { BsInfoCircle } from "react-icons/bs";
-
+import { useLocation, Navigate } from "react-router-dom";
 import UserContext from "./UserContext";
+import { IoSend } from "react-icons/io5";
+
 
 function Messages() {
   const { user, dmUsers, channels } = useContext(UserContext);
-
   const [expanded, setExpanded] = useState(false);
+  const location = useLocation();
+
+  // Check if channelData exists in the location state
+  const channelData = location.state?.channelData;
+  console.log(channelData);
+
+  // Redirect or show a message if channelData is not available
+  // if (!channelData) {
+  //   // Option 1: Redirect to a default page (e.g., home page or channels list)
+  //   return <Navigate to="/" />;
+
+  //   // Option 2: Show a message or a loading state
+  //   // return <div>Channel data not available. Please select a channel.</div>;
+  // }
+
+  // Extracting properties from channelData
+  const channelName = channelData.channel_name;
+  const channelDescription = channelData.description;
+  const channelMembers = channelData.members;
+  const channelTime = channelData.time;
+  const channelMessages = channelData.messages;
+  const channelLimit = channelData.member_limit;
+
+  console.log(channelName);
+  console.log(channelDescription);
+  console.log(channelMembers);
+  console.log(channelTime);
+  console.log(channelMessages);
+  console.log(channelLimit);
+
+  // Rest of your component code...
+
+
 
   // Mock data for members
   const members = [
@@ -21,28 +50,12 @@ function Messages() {
     "User 5",
     "User 6",
     "User 7",
-    "User 8",
-    "User 9",
-    "User 10",
-    "User 11",
-    "User 1",
-    "User 2",
-    "User 3",
-    "User 4",
-    "User 5",
-    "User 6",
-    "User 7",
-    "User 8",
-    "User 9",
-    "User 10",
-    "User 11",
   ];
 
   // Function to handle expanding the description
   const toggleExpand = () => {
     setExpanded(!expanded);
   };
-  
 
   // how do I get the data from the user (_id) database? useEffect?
 
@@ -59,7 +72,7 @@ function Messages() {
             <div className="bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full m-2">
               {/* IMG */}
             </div>
-            <h2 className="p-2">CHANNEL NAME</h2>
+            <h2 className="p-2">CHANNEL NAME {channelName}</h2>
           </nav>
           <hr className="w-[98%] bg-gray-200 mt-14 mx-auto" />
         </div>
@@ -70,16 +83,10 @@ function Messages() {
             <div className="text-white">
               <h2 className="font-bold">Description:</h2>
               <p
-                className={`text-sm ${
-                  expanded ? "line-clamp-none" : "line-clamp-5"
-                }`}
+                className='time-sm'
               >
-                Lorem ipsum dolor sit amet, no nam vidit noluisse theophrastus,
-                veri accusan adolescens mei in, offendit...Lorem ipsum dolor sit
-                amet, no nam vidit noluisse theophrastus, veri accusan
-                adolescens mei in, offendit...Lorem ipsum dolor sit amet, no nam
-                vidit noluisse theophrastus, veri accusan adolescens mei in,
-                offendit...
+                {channelDescription}
+                
                 {!expanded && (
                   <span
                     className="text-blue-600 cursor-pointer"
@@ -93,7 +100,7 @@ function Messages() {
 
             <div className="mt-4 text-white">
               <h2 className="text-xl font-bold py-5">
-                Members: ...LIVE COUNTER{" "}
+                Members: {channelMembers.length}/{channelLimit}
               </h2>
               <div className="overflow-auto h-[40vh]">
                 {members.map((member, index) => (
@@ -107,34 +114,32 @@ function Messages() {
           </div>
 
           <div className="flex flex-col justify-center items-center w-full text-center">
-            <p className="text-xl z-30 text-bold text-white">Remaining Session Time: </p>
+            <p className="text-xl z-30 text-bold text-white">
+              Remaining Session Time:
+            </p>
             <div className="w-[80%] p-2 bg-goldenOrange text-white">
-              <p className="text-lg ">TIME</p>
+              <p className="text-lg ">{channelTime}</p>
             </div>
           </div>
         </div>
 
         {/* Scrollable Messages Section */}
         <div className="overflow-y-auto mr-[17%]">
-          {/* Sample Message */}
-          <div className="flex items-start p-4 ">
-            {" "}
-            {/* Changed from items-center to items-start */}
-            <div className="flex-shrink-0 bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full mr-3">
-              {/* Sender Icon */}
+          {channelMessages.map((message, index) => (
+            <div key={index} className="flex items-start p-4 ">
+              <div className="flex-shrink-0 bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full mr-3">
+                {message.profile_path}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate text-white">
+                  {message.username}
+                </p>
+                <p className="text-md break-words text-white">
+                  {message.message}
+                </p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate text-white">
-                Sender Name
-              </p>
-              <p className="text-md break-words text-white">
-                This is a very long sample message that might cause issues if
-                it's too long for the container, but now it should wrap or
-                truncate properly.
-              </p>
-            </div>
-          </div>
-          {/* More messages can be added here */}
+          ))}
         </div>
       </section>
 
@@ -160,5 +165,3 @@ function Messages() {
 }
 
 export default Messages;
-
-

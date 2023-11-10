@@ -24,11 +24,9 @@ export default function App() {
             path="/"
             element={
               <>
-                <Home />  
                 <Sidebar/>
-                <SidebarMsg />
                 <Navbar />
-                <Messages />
+                <Home />                
               </>
             }
           />
@@ -41,11 +39,10 @@ export default function App() {
             }
           />
           <Route
-            path="messages"
+            path="messages/:channel_name"
             element={
               <>
-                {/* <Sidebar/> */}
-                {/* <SidebarMsg/> */}
+                <SidebarMsg/>
                 <Navbar />
                 <Messages />
               </>

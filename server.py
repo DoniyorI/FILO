@@ -104,10 +104,13 @@ def doFollowUser():
 def doNewProfile():
     return new_profile()
 
-
 @app.errorhandler(404)
 def doPNF(error=None):
     return page_not_found()
+
+@app.route("/get-channel")
+def doGetChannel():
+    return getChannel()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
