@@ -92,6 +92,32 @@ const Sidebar = ({ userId }) => {
       });
   };
 
+  // function to get the data when a channel is clicked:
+  const handleChannelClick = (channelId, channelName) => {
+    const data = {
+      channel_name: channelName,
+      username: user.username,
+    };
+  // Send the data to the /get-channel path
+    fetch('/get-channel', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        // Log that the data was sent and the response (if any)
+        console.log("Data sent to /get-channel:", data);
+        console.log("Response from /get-channel:", responseJson);
+        // You can handle the response here if needed
+      })
+      .catch((error) => {
+        console.error("Error sending data to /get-channel:", error);
+      });
+  }
+
   return (
     <>
       <header>
@@ -128,6 +154,8 @@ const Sidebar = ({ userId }) => {
               <div
                 key={channel._id}
                 className="group flex h-12 w-12 transform items-center justify-center rounded-full bg-goldenOrange transition-transform hover:scale-110 my-3 relative cursor-pointer"
+                // when the channel is clicked, call on the handleChannel function:
+                onClick={() => handleChannelClick(channel._id, channel.name)}
               >
                 <img
                   src={channel.image_path}

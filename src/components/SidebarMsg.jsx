@@ -5,6 +5,7 @@ import UserContext from "./UserContext";
 
 const SidebarMsg = () => {
   // const { user, dmUsers, channels } = useContext(UserContext);
+
   return (
     <>
       <div className="w-1/6 h-screen sidebar_bg z-10 fixed">

@@ -24,8 +24,8 @@ export default function App() {
             path="/"
             element={
               <>
-                {/* <Home />  */}
-                {/* <Sidebar /> */}
+                <Home />  
+                <Sidebar/>
                 <SidebarMsg />
                 <Navbar />
                 <Messages />

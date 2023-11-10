@@ -42,6 +42,7 @@ function Messages() {
   const toggleExpand = () => {
     setExpanded(!expanded);
   };
+  
 
   // how do I get the data from the user (_id) database? useEffect?
 
