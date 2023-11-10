@@ -24,11 +24,11 @@ export default function App() {
             path="/"
             element={
               <>
-                <Navbar />
+                {/* <Home />  */}
                 {/* <Sidebar /> */}
-                {/* <Home /> */}
+                <SidebarMsg />
+                <Navbar />
                 <Messages />
-                {/* <SidebarMsg /> */}
               </>
             }
           />
@@ -44,8 +44,9 @@ export default function App() {
             path="messages"
             element={
               <>
+                {/* <Sidebar/> */}
+                {/* <SidebarMsg/> */}
                 <Navbar />
-                {/* <Sidebar /> */}
                 <Messages />
               </>
             }

@@ -22,58 +22,70 @@ function Messages() {
   // MORE IMPORTANT LO2: For Channels should use /get-Channel  Send the Channel ID they clicked to backend.
   // using webSockets should countdown
   return (
-    <div className="home_bg flex">
-      {/* SIDEBAR */}
-      <div className="sidebar_bg w-1/6 h-screen">
-        <h1 className="text-xl text-goldenOrange flex justify-center items-center pt-4">
-          Direct Messages
-        </h1>
-        <div className="flex pl-4 pt-4">
-          <div className="w-12 h-12 rounded-full bg-primaryBlue border-[1px] border-goldenOrange"></div>
-          <h1 className="flex items-center pl-4 text-md">Jimmy</h1>
-        </div>
+    <>
+      {/* Main Content Area */}
+      <section className="home_bg flex flex-col h-screen ml-[16.666667vw]">
         <div>
-          <hr class="w-[14rem] h-[2px] mx-auto mb-4 mt-20 bg-black border-0 rounded" />
-        </div>
-        <div>
-          <div className="flex justify-center items-center">
-            <div className="w-[13rem] h-12 rounded-3xl bg-sand flex">
-              <div className="flex bg-goldenOrange w-12 h-full rounded-full justify-center items-center text-3xl text-sand">
-                #
-              </div>
-              <h1 className="flex items-center text-center pl-1 text-red-500 text-md">
-                {"<"}CHANNEL NAME{">"}
-              </h1>
+          <nav className="fixed top-12 z-10 w-full text-goldenOrange text-2xl flex items-center pl-4">
+            <div className="bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full m-2">
+              {/* IMG */}
             </div>
-          </div>
+            <h2 className="p-2">CHANNEL NAME</h2>
+          </nav>
+          <hr className="w-[98%] bg-gray-200 mt-14 mx-auto" />
         </div>
-      </div>
 
-      {/* 2ND SECTION CHAT FIELD */}
-      <div className="w-2/3 bg-purple-600 h-screen overflow-y-auto">
-        <div>
-          <nav className="text-goldenOrange text-2xl flex items-center pl-4">
-            <div className="bg-sand w-12 h-12 border-[1px] border-goldenOrange rounded-full m-2"></div>
-            <h1 className="p-2">CHANNEL NAME</h1>
-          </nav>{" "}
-          <div class="flex items-center justify-center">
-            <hr class="w-[95%] bg-gray-200 border-[1px] rounded"></hr>
-          </div>
+        {/* Side bar on right for channel information */}
+        <div className="bg-sand w-[15%] fixed mt-14 right-0 h-full z-20">
+          {/* Sidebar content goes here */}
         </div>
-        {/* TODO: FIX THE INPUT SIZE FIELD */}
-        <div className="fixed bottom-0">
-          <form className="bg-white w-full">
-            <input className="flex w-full" />
+          {/* Scrollable Messages Section */}
+          <div className="overflow-y-auto mr-[17%]">
+            {/* Sample Message */}
+            <div className="flex items-start p-4 "> {/* Changed from items-center to items-start */}
+              <div className="flex-shrink-0 bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full mr-3">
+                {/* Sender Icon */}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate text-white">Sender Name</p>
+                <p className="text-md break-words text-white">This is a very long sample message that might cause issues if it's too long for the container, but now it should wrap or truncate properly.</p>
+              </div>
+            </div>
+            {/* More messages can be added here */}
+          </div>
+      </section>
+
+      {/* Fixed Message Input Section */}
+      <div className="bg-yellow-400 h-screen">
+        <div className="w-[65%] bottom-3 fixed ml-[18.5vw] mr-[15%]">
+          <form className="bg-white rounded-2xl ">
+            <input
+              placeholder="Enter a Message"
+              className="w-full rounded-2xl px-2 pr-8"
+            />
+            <button
+              type="submit"
+              className="absolute right-2 bottom-1 hover:scale-110"
+            >
+              <IoSend width={10} height={10} className="text-primaryDark" />
+            </button>
           </form>
         </div>
       </div>
-      {/* CHANNEL INFO */}
-      <div className="bg-red-500 w-1/6 relative">
-        {/* BUTTON TO GET INFO ON THE CHANNEL */}
+    </>
+
+  );
+}
+
+export default Messages;
+
+{
+  /* <div className="sidebar_bg w-1/6 relative">
+
         <button className="absolute top-2 right-2">
           <BsInfoCircle className="w-7 h-7" />
         </button>
-        {/* CHANNEL DESCRIPTION */}
+
         <div className="pl-2 pt-6">
           <h1 className="text-goldenOrange text-xl font-semibold flex">
             Description:
@@ -85,22 +97,33 @@ function Messages() {
             officiis odio vel! Itaque, exercitationem.
           </p>
         </div>
-        {/* MEMBERS LIST SECTION */}
         <div className="pl-2 pt-8">
           <h1 className="text-goldenOrange text-xl font-semibold flex">
             Members #
           </h1>
+
           <div className="pt-2 flex items-center">
             <div className="w-12 h-12 bg-primaryBlue rounded-full border-[1px] border-goldenOrange"></div>
             <h1 className="pl-4 text-xl text-sand">User 1</h1>
           </div>
+          <div className="relative">
+            <div className="text-center absolute inset-x-0 bottom-0">
+              <h1 className="text-sand text-md">Remaining Session Timer</h1>
+              <div className="flex items-center justify-center">
+                <div className="flex justify-center items-center w-32 h-8 bg-goldenOrange">
+                  <time
+                    className="text-sand text-sm text-center"
+                    // dateTime="2011-11-18T14:54:39.929"
+                  >
+                    2011-11-18T14:54:39.929
+                  </time>
+                </div>
+              </div>
+            </div>
+          </div> 
         </div>
-      </div>
-    </div>
-  );
+      </div>*/
 }
-
-export default Messages;
 
 {
   /* <div className="w-1/5 h-screen sidebar_bg text-white right-0 fixed">
