@@ -5,10 +5,35 @@ from utils.response import *
 from utils.userInteract import *
 from utils.channels import *
 
+import datetime
 from flask import Flask, abort
-from utils.config import app
+from flask_socketio import SocketIO, emit, namespace, send, join_room, leave_room
+
+from utils.config import app, channelCollection
 import os
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = os.urandom(32)
+
+socketio = SocketIO(app, transports=['websocket'])
+
+
+@socketio.on("request countdown")
+def doCountDown(data):
+    channel_name = data["channel_name"]
+    channel = channelCollection.find_one({"channel_name": channel_name})
+
+    end_time = channel["end_Time"]
+
+    closeServerTime = datetime.datetime(int(end_time[0]), int(end_time[1]), int(end_time[2]), int(end_time[3]), int(end_time[4]))
+
+    # endTime = datetime.datetime.strptime(closeServerTime, "%Y/%m/%d/%H/%M")
+
+    currTime = datetime.datetime.now()
+
+    timeRemaining = closeServerTime-currTime #12345 days, 19:18.12345678
+
+    emit("countdown_update", {"timeRemaining": timeRemaining})
 
 @app.route('/')
 def do():
@@ -21,7 +46,6 @@ def doCSS(filename):
 @app.route('/static/js/<path:filename>')
 def doJSS(filename):
     return serve_static_js(filename)
-
 
 @app.route('/public/image/<filename>')
 def serve_image(filename):
@@ -79,7 +103,6 @@ def doGetUser():
 def doNewChannel():
     return newChannel()
     
-
 @app.route("/channel-message", methods = ["POST"])
 def doChannelMessage():
     return channelMessage()

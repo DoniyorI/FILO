@@ -3,6 +3,7 @@ from bson import json_util
 import os
 import base64
 import json
+import datetime
 
 from utils.config import channelCollection, imgCounterCollection
 
@@ -13,15 +14,27 @@ def newChannel():
     channel_name = data.get("channel_name")
     description = data.get("description")
     member_limit = data.get("member_limit")
-    date = ""
-    time = ""
-    timeZone = ""
+    time = data.get("time")
+    date = data.get("date")
+    timeZone = data.get("time_zone")
     never = data.get("never")
+    
+    print(datetime.datetime.now())
+    print(never)
 
-    if not never:
-        time = data.get("time")
-        date = data.get("date")
-        timeZone = data.get("time_zone")
+    print(time)
+    print(date)
+    print(timeZone)
+    if never == True:
+        time = ""
+        date = ""
+        timeZone = ""
+    else:
+        endTime = []
+        splitdate = date.split("-")
+        splittime = time.split(":")
+        endTime=[splitdate[0],splitdate[1],splitdate[2],splittime[0],splittime[1]]
+
 
     imgData = data.get("image_path")
     image_path = "public/image/Channel.svg"
@@ -50,8 +63,8 @@ def newChannel():
         image_path = filename
 
     members = [creator]
-    # testMessage = [{"username": "Jimmy", "message": "hi", "time": "10:45"},
-                #    {"username": "Chad", "message": "hello", "time": "12:18"}]
+    testMessage = [{"username": "Jimmy", "message": "hi", "time": "10:45"},
+                   {"username": "Chad", "message": "hello", "time": "12:18"}]
 
     channelCollection.insert_one({
         "channel_name": channel_name,
@@ -61,33 +74,34 @@ def newChannel():
         "member_limit": member_limit,
         "never": never,
         "members": members,
-        "time": time,
+        "time": endTime,
         "time_zone": timeZone,
-        "messages": []
+        "messages": testMessage
     })
 
     return jsonify({"success": True, "message": "New channel created"}), 200
 
 
 
-def channelMessage():
-    data = request.get_json()
-    channel_name = data["channel_name"]
-    time = data["time"]
-    username = data["username"]
-    message = data["message"]
-    messageEntry = {"username": username, "message": message, "time": time}
-    
-    channel = channelCollection.find_one({"channel_name": channel_name})
-    
-    messageList = channel["messages"]
-    messageList.append(messageEntry)
 
-    channelCollection.update_one(
-        {"channel_name": channel_name},
-        {"$set": {"messages": messageList}}
-    )
-    return jsonify({"success": True, "message": f"New message from {username} added"}), 200
+# def channelMessage():
+#     data = request.get_json()
+#     channel_name = data["channel_name"]
+#     time = data["time"]
+#     username = data["username"]
+#     message = data["message"]
+#     messageEntry = {"username": username, "message": message, "time": time}
+    
+#     channel = channelCollection.find_one({"channel_name": channel_name})
+    
+#     messageList = channel["messages"]
+#     messageList.append(messageEntry)
+
+#     channelCollection.update_one(
+#         {"channel_name": channel_name},
+#         {"$set": {"messages": messageList}}
+#     )
+#     return jsonify({"success": True, "message": f"New message from {username} added"}), 200
 
 def getChannel():
     channel_name = request.args.get('channel_name')

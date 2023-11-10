@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
 import UserContext from "./UserContext";
 import { useNavigate } from 'react-router-dom';
+import io from 'socket.io-client'; // for web-sockets
 
 
 const Sidebar = ({ userId }) => {
@@ -120,10 +121,34 @@ const Sidebar = ({ userId }) => {
   //     });
   // }
   const handleChannelClick = (channelName, username) => {
+
+    
     const queryParams = new URLSearchParams({
       channel_name: channelName,
       username: username
     });
+
+    // Establish a WebSocket connection
+    // const socket = io('ws://example.com:8080'); // Replace with your WebSocket server URL
+
+    // socket.on('connect', () => {
+    //   // Send a request for time data to the server
+    //   socket.emit('get-time-data', {
+    //     channel_name: channelName,
+    //     username: username
+    //   });
+    // });
+
+    // // Listen for time data from the server
+    // socket.on('time-data', (data) => {
+    //   // Update the component's state with the received time data
+    //   setChannelData(data);
+    // });
+
+    // // Redirect to the new path with the channel data
+    // navigate(`/messages/${channelName}`, { state: { channelData } });
+
+    // socket.disconnect(); // Disconnect the WebSocket when done
     console.log("channelName:", channelName);
     console.log("username:", username);
     console.log("queryParams:", queryParams.toString());
@@ -184,6 +209,7 @@ const Sidebar = ({ userId }) => {
                 className="group flex h-12 w-12 transform items-center justify-center rounded-full bg-goldenOrange transition-transform hover:scale-110 my-3 relative cursor-pointer"
                 // when the channel is clicked, call on the handleChannel function:
                 onClick={() => handleChannelClick(channel.channel_name, user.username)}
+
               >
                 <img
                   src={channel.image_path}
