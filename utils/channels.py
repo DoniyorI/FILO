@@ -107,9 +107,8 @@ def newChannel():
 
 def getChannel():
     channel_name = request.args.get('channel_name')
-    username = request.args.get('username')
+    # username = request.args.get('username')
     print(channel_name)
-    print(username)
 
     channel = channelCollection.find_one({"channel_name": channel_name})
 

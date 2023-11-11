@@ -94,34 +94,38 @@ const Sidebar = ({ userId }) => {
       });
   };
 
+  const handleChannelClick = (channelName) => {
+    navigate(`/messages/${channelName}`);
+}
+
  
-  const handleChannelClick = (channelName, username) => {
+  // const handleChannelClick = (channelName, username) => {
 
     
-    const queryParams = new URLSearchParams({
-      channel_name: channelName,
-      username: username
-    });
+  //   const queryParams = new URLSearchParams({
+  //     channel_name: channelName,
+  //     username: username
+  //   });
 
-    console.log("channelName:", channelName);
-    console.log("username:", username);
-    console.log("queryParams:", queryParams.toString());
+  //   console.log("channelName:", channelName);
+  //   console.log("username:", username);
+  //   console.log("queryParams:", queryParams.toString());
   
-    fetch(`/get-channel?${queryParams.toString()}`, { // Modified line
-      method: 'GET', // Changed to GET
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then((response) => response.json())
-    .then((channelData) => {
-      // Redirect to the new path with the channel data
-      navigate(`/messages/${channelData.channel_name}`, { state: { channelData } });
-    })
-    .catch((error) => {
-      console.error("Error fetching channel data:", error);
-    });
-  }
+  //   fetch(`/get-channel?${queryParams.toString()}`, { // Modified line
+  //     method: 'GET', // Changed to GET
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   })
+  //   .then((response) => response.json())
+  //   .then((channelData) => {
+  //     // Redirect to the new path with the channel data
+  //     navigate(`/messages/${channelData.channel_name}`, { state: { channelData } });
+  //   })
+  //   .catch((error) => {
+  //     console.error("Error fetching channel data:", error);
+  //   });
+  // }
   
   return (
     <>

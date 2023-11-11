@@ -39,7 +39,7 @@ export default function App() {
             }
           />
           <Route
-            path="messages/:channel_name"
+            path="/messages/:channelName"
             element={
               <>
                 <SidebarMsg/>
