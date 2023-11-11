@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
 import UserContext from "./UserContext";
 import { useNavigate } from 'react-router-dom';
-import io from 'socket.io-client'; // for web-sockets
 
 
 const Sidebar = ({ userId }) => {
@@ -66,7 +65,7 @@ const Sidebar = ({ userId }) => {
         description: description,
         member_limit: memberLimit,
         date: date,
-        end: time,
+        time: time,
         time_zone: timeZone,
         image_path: channelImage, // Assuming newImage contains the image data
         never: never,
@@ -95,31 +94,7 @@ const Sidebar = ({ userId }) => {
       });
   };
 
-  // function to get the data when a channel is clicked:
-  // const handleChannelClick = (channelId, channelName) => {
-  //   const data = {
-  //     channel_name: channelName,
-  //     username: user.username,
-  //   };
-  // // Send the data to the /get-channel path
-  //   fetch('/get-channel', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify(data),
-  //   })
-  //     .then((response) => response.json())
-  //     .then((responseJson) => {
-  //       // Log that the data was sent and the response (if any)
-  //       console.log("Data sent to /get-channel:", data);
-  //       console.log("Response from /get-channel:", responseJson);
-  //       // You can handle the response here if needed
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error sending data to /get-channel:", error);
-  //     });
-  // }
+ 
   const handleChannelClick = (channelName, username) => {
 
     
@@ -128,27 +103,6 @@ const Sidebar = ({ userId }) => {
       username: username
     });
 
-    // Establish a WebSocket connection
-    // const socket = io('ws://example.com:8080'); // Replace with your WebSocket server URL
-
-    // socket.on('connect', () => {
-    //   // Send a request for time data to the server
-    //   socket.emit('get-time-data', {
-    //     channel_name: channelName,
-    //     username: username
-    //   });
-    // });
-
-    // // Listen for time data from the server
-    // socket.on('time-data', (data) => {
-    //   // Update the component's state with the received time data
-    //   setChannelData(data);
-    // });
-
-    // // Redirect to the new path with the channel data
-    // navigate(`/messages/${channelName}`, { state: { channelData } });
-
-    // socket.disconnect(); // Disconnect the WebSocket when done
     console.log("channelName:", channelName);
     console.log("username:", username);
     console.log("queryParams:", queryParams.toString());
@@ -169,8 +123,6 @@ const Sidebar = ({ userId }) => {
     });
   }
   
-  
-
   return (
     <>
       <header>

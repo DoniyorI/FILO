@@ -1,44 +1,163 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useLocation, Navigate } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import UserContext from "./UserContext";
 import { IoSend } from "react-icons/io5";
-
+import { io } from 'socket.io-client'; // for web-sockets
 
 function Messages() {
   const { user, dmUsers, channels } = useContext(UserContext);
   const [expanded, setExpanded] = useState(false);
   const location = useLocation();
 
-  // Check if channelData exists in the location state
-  const channelData = location.state?.channelData;
-  console.log(channelData);
+  const params = useParams(); // Extract the parameters from the URL
+  const channelNameFromURL = params.channelName; // Assuming your route parameter is named 'channelName'
+  const [isChannelTime, setIsChannelTime] = useState("");
 
-  // Redirect or show a message if channelData is not available
-  // if (!channelData) {
-  //   // Option 1: Redirect to a default page (e.g., home page or channels list)
-  //   return <Navigate to="/" />;
 
-  //   // Option 2: Show a message or a loading state
-  //   // return <div>Channel data not available. Please select a channel.</div>;
-  // }
+  // State to store the channel data
+  const [channelData, setChannelData] = useState(location.state?.channelData || null);
 
-  // Extracting properties from channelData
+  // Fetch Channel Data function
+  useEffect(() => {
+    const fetchChannelData = async (channelName) => {
+      const queryParams = new URLSearchParams({
+        channel_name: channelName,
+        username: user?.username // Assuming 'user' has a 'username' property
+      });
+      try {
+        const response = await fetch(`/get-channel?${queryParams.toString()}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("****************");
+        console.log(data);
+        console.log("****************");
+        setChannelData(data); // Update the state with the fetched data
+  
+          // const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+          // const protocol = window.location.protocol === "ws:";
+  
+          
+          // Construct the Socket.IO server URL
+          // const socketUrl = `${protocol}//${window.location.host}`;
+        
+          // Initialize the Socket.IO client
+          const socket = io("ws://localhost:8080/messages/d", {
+            path: '/socket.io',
+            transports: ['websocket'],
+          })
+          const T = { channel_name: channelName, username: user.username }
+          socket.on('request_countdown', (T) => {
+            setIsChannelTime(T.timeRemaining);
+          });
+      
+          // socket.on('countdown_update', (data) => {
+          //   setIsChannelTime(data.timeRemaining);
+          // });
+          return () => {
+            socket.disconnect();
+          };
+      
+        
+      } catch (error) {
+        console.error("Error fetching channel data:", error);
+      }
+    };
+    
+  }, [channelNameFromURL]);
+  
+  const fetchChannelData = async (channelName) => {
+    const queryParams = new URLSearchParams({
+      channel_name: channelName,
+      username: user?.username // Assuming 'user' has a 'username' property
+    });
+    try {
+      const response = await fetch(`/get-channel?${queryParams.toString()}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("****************");
+      console.log(data);
+      console.log("****************");
+      setChannelData(data); // Update the state with the fetched data
+
+        // const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        // const protocol = window.location.protocol === "ws:";
+
+        
+        // Construct the Socket.IO server URL
+        // const socketUrl = `${protocol}//${window.location.host}`;
+      
+        // Initialize the Socket.IO client
+        const socket = io("ws://localhost:8080/messages/d", {
+          path: '/socket.io',
+          transports: ['websocket'],
+        })
+        const T = { channel_name: channelName, username: user.username }
+        socket.on('request_countdown', (T) => {
+          setIsChannelTime(T.timeRemaining);
+        });
+    
+        // socket.on('countdown_update', (data) => {
+        //   setIsChannelTime(data.timeRemaining);
+        // });
+        return () => {
+          socket.disconnect();
+        };
+    
+      
+    } catch (error) {
+      console.error("Error fetching channel data:", error);
+    }
+  };
+
+  // Effect to fetch channel data if not available
+  useEffect(() => {
+    if (!channelData) {
+      fetchChannelData(channelNameFromURL);
+    }
+  }, [channelNameFromURL]);
+
+  // Check if channelData exists in the state
+  if (!channelData) {
+    // Display loading or a placeholder content
+    return <div>Loading...</div>;
+  }
+
+  // Channel data details
   const channelName = channelData.channel_name;
   const channelDescription = channelData.description;
   const channelMembers = channelData.members;
-  const channelTime = channelData.time;
   const channelMessages = channelData.messages;
   const channelLimit = channelData.member_limit;
 
   console.log(channelName);
   console.log(channelDescription);
   console.log(channelMembers);
-  console.log(channelTime);
+  console.log(isChannelTime);
   console.log(channelMessages);
   console.log(channelLimit);
 
-  // Rest of your component code...
 
+
+
+//   useEffect(() => {
+//     // This condition is now inside useEffect
+//     if (channelName) {
+//         const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+//         const socketUrl = `${protocol}//${window.location.host}`;
+//         const socket = io(socketUrl, {
+//             path: '/socket.io',
+//             transports: ['websocket'],
+//         });
+//         const data = { channel_name: channelName, username: user.username };
+//         socket.on('request_countdown', (data) => {
+//             setIsChannelTime(data.timeRemaining);
+//         });
+//     }
+// }, [someCondition, channelName, user.username]); // Dependencies array
 
 
   // Mock data for members
@@ -118,7 +237,7 @@ function Messages() {
               Remaining Session Time:
             </p>
             <div className="w-[80%] p-2 bg-goldenOrange text-white">
-              <p className="text-lg ">{channelTime}</p>
+              <p className="text-lg ">Time: {isChannelTime || "00:00:00"}</p>
             </div>
           </div>
         </div>

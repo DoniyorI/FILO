@@ -11,29 +11,70 @@ from flask_socketio import SocketIO, emit, namespace, send, join_room, leave_roo
 
 from utils.config import app, channelCollection
 import os
-app = Flask(__name__)
+
+app = Flask(__name__, static_folder='build', static_url_path='')
 
 app.config['SECRET_KEY'] = os.urandom(32)
 
-socketio = SocketIO(app, transports=['websocket'])
+socketio = SocketIO(app, cors_allowed_origins="*", transports=['websocket'])
 
-
-@socketio.on("request countdown")
-def doCountDown(data):
-    channel_name = data["channel_name"]
+@socketio.on("request_countdown")
+def doCountDown(T):
+    print("000000000000")
+    print(T)
+    channel_name = T["channel_name"]
     channel = channelCollection.find_one({"channel_name": channel_name})
 
     end_time = channel["end_Time"]
-
     closeServerTime = datetime.datetime(int(end_time[0]), int(end_time[1]), int(end_time[2]), int(end_time[3]), int(end_time[4]))
-
     # endTime = datetime.datetime.strptime(closeServerTime, "%Y/%m/%d/%H/%M")
-
     currTime = datetime.datetime.now()
-
     timeRemaining = closeServerTime-currTime #12345 days, 19:18.12345678
+    emit("countdown_update", {"timeRemaining": str(timeRemaining)}, broadcast=True)
+    
+    # def send_countdown():
+    #     currTime = datetime.datetime.now()
+    #     timeRemaining = closeServerTime - currTime
+    #     emit("countdown_update", {"timeRemaining": str(timeRemaining)})
+    # send_countdown()
 
-    emit("countdown_update", {"timeRemaining": timeRemaining})
+# @socketio.on('join')
+# def on_join(data):
+#     channel_name = data['channelName']
+#     join_room(channel_name)
+#     # Start a background task for countdown if not already started
+
+# @socketio.on('leave')
+# def on_leave(data):
+#     channel_name = data['channelName']
+#     leave_room(channel_name)
+
+# # Background task for countdown
+
+# def countdown_task(channel_name):
+#     while True:
+#         # Calculate time remaining
+#         channel = channelCollection.find_one({"channel_name": channel_name})
+#         end_time = channel
+#         closeServerTime = datetime.datetime(int(end_time[0]), int(end_time[1]), int(end_time[2]), int(end_time[3]), int(end_time[4]))
+    
+#         currTime = datetime.datetime.now()
+#         timeRemaining = closeServerTime-currTime #12345 days, 19:18.12345678
+
+#         # ...
+#         socketio.emit('countdown_update', {'timeRemaining': timeRemaining}, room=channel_name)
+#         socketio.sleep(1)  # Sleep for a second
+
+# # Start countdown task for a channel
+# @socketio.on('countdown_update')
+# def start_countdown(channel_name):
+#     print("0000000000000")
+#     socketio.start_background_task(countdown_task, channel_name)
+
+@app.route("/messages/<path:filename>")
+def doNothing(filename):
+    print(filename)
+    return serve_react_app()
 
 @app.route('/')
 def do():

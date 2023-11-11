@@ -30,10 +30,12 @@ def newChannel():
         date = ""
         timeZone = ""
     else:
+        print(time)
         endTime = []
-        splitdate = date.split("-")
-        splittime = time.split(":")
-        endTime=[splitdate[0],splitdate[1],splitdate[2],splittime[0],splittime[1]]
+        splitDate = date.split("-")
+        splitTime = time.split(":")
+        endTime=[splitDate[0],splitDate[1],splitDate[2],splitTime[0],splitTime[1]]
+        print(endTime)
 
 
     imgData = data.get("image_path")
