@@ -37,7 +37,7 @@ def handle_join_channel(timeData):
         timeRemaining = closeServerTime-currTime #12345 days, 19:18.12345678
         if timeRemaining.total_seconds() <= 0:
             timeRemaining = 0
-            emit('request_countdown', {"timeRemaining": str(timeRemaining)}, room=channel_name, broadcast=True)
+            emit('request_countdown', {"timeRemaining": "TIME IS UP"}, room=channel_name, broadcast=True)
             break
 
         emit('request_countdown', {"timeRemaining": str(timeRemaining)}, room=channel_name, broadcast=True)
