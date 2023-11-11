@@ -5,6 +5,7 @@ import UserContext from "./UserContext";
 
 const SidebarMsg = () => {
   // const { user, dmUsers, channels } = useContext(UserContext);
+  
 
   return (
     <>

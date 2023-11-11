@@ -7,9 +7,15 @@ import { io } from "socket.io-client"; // for web-sockets
 function Messages() {
   const { user, dmUsers, channels } = useContext(UserContext);
   const { channelName } = useParams();
+  console.log(channelName)
   const [channelData, setChannelData] = useState(null);
   const [error, setError] = useState(null);
   const [isChannelTime, setIsChannelTime] = useState(null);
+
+  const [message, setMessage] = useState('');
+  const [socket, setSocket] = useState(null);
+
+
 
   useEffect(() => {
     fetch(`/get-channel?channel_name=${channelName}`)
@@ -31,19 +37,22 @@ function Messages() {
       return; // Return early or show a loading state until user is available
     }
 
-    const timeData = { channel_name: channelName, username: user.username };
+    const timeData = { channel_name: channelName, username: user.username};
     const socket = io.connect("http://127.0.0.1:8080", {
       transports: ["websocket"],
     });
 
-    socket.on("connect", () => {
-      console.log("Connected to the server");
+    const newSocket = io.connect("http://127.0.0.1:8080", {
+      transports: ["websocket"],
     });
+
+    setSocket(newSocket);
 
     socket.emit("join_channel", timeData);
     socket.on("request_countdown", (response) => {
       setIsChannelTime(response.timeRemaining);
-      console.log(response.timeRemaining);
+      setMessage(response.message)
+      console.lod(response)
     });
 
     return () => {
@@ -51,6 +60,14 @@ function Messages() {
       socket.disconnect();
     };
   }, [channelName, user]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (socket) {
+      socket.emit("new_message", { channel_name: channelName, username: user.username, message: message });
+      setMessage('');
+    }
+  };
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -63,6 +80,7 @@ function Messages() {
   const channelMembers = channelData.members;
   const channelMessages = channelData.messages;
   const channelLimit = channelData.member_limit;
+  const channelImage = channelData.image_path;
 
   console.log(channelName);
   console.log(channelDescription);
@@ -70,7 +88,7 @@ function Messages() {
   console.log(channelMessages);
   console.log(channelLimit);
 
-  const { description, members, messages, member_limit } = channelData;
+  // const { description, members, messages, member_limit } = channelData;
 
   // Mock data for members (if needed)
   const mockMembers = ["User 1", "User 2", "User 3", "User 4", "User 5"];
@@ -81,10 +99,11 @@ function Messages() {
       <section className="home_bg flex flex-col h-screen ml-[16.666667vw]">
         <div>
           <nav className="fixed top-12 z-10 w-full text-goldenOrange text-2xl flex items-center pl-4">
-            <div className="bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full m-2">
+            <div className="bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full m-3">
+              <img src={channelImage} alt="channel image" className="w-full h-full" />
               {/* IMG */}
             </div>
-            <h2 className="p-2">CHANNEL NAME {channelName}</h2>
+            <h2 className="p-2">{channelName}</h2>
           </nav>
           <hr className="w-[98%] bg-gray-200 mt-14 mx-auto" />
         </div>
@@ -102,7 +121,7 @@ function Messages() {
                 Members: {channelMembers.length}/{channelLimit}
               </h2>
               <div className="overflow-auto h-[40vh]">
-                {members.map((member, index) => (
+                {channelMembers.map((member, index) => (
                   <div key={index} className="flex items-center">
                     <div className="bg-primaryBlue w-11 h-11 border-[1px] border-goldenOrange rounded-full m-2"></div>
                     <div className="text-lg text-white">{member}</div>
@@ -145,10 +164,12 @@ function Messages() {
       {/* Fixed Message Input Section */}
       <div className="bg-yellow-400 h-screen">
         <div className="w-[65%] bottom-3 fixed ml-[18.5vw] mr-[15%]">
-          <form className="bg-white rounded-2xl ">
+          <form className="bg-white rounded-2xl" onSubmit={handleSubmit}>
             <input
               placeholder="Enter a Message"
-              className="w-full rounded-2xl px-3  pr-8 py-1"
+              className="w-full rounded-2xl px-3 pr-8 py-1"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
             />
             <button
               type="submit"

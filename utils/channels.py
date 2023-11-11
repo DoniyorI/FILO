@@ -21,7 +21,6 @@ def newChannel():
     
     print(datetime.datetime.now())
     print(never)
-
     print(time)
     print(date)
     print(timeZone)

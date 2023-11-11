@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // import "./Register.css";
 
 const App = () => {
   const [isFlipped, setIsFlipped] = useState(false);
+
+  const handleRegistrationSuccess = () => {
+    setIsFlipped(false); // Flip back to the login form
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center reg_background ">
@@ -12,7 +16,10 @@ const App = () => {
         }`}
       >
         <LoginForm onRegisterClick={() => setIsFlipped(true)} />
-        <RegisterForm onLoginClick={() => setIsFlipped(false)} />
+        <RegisterForm
+          onLoginClick={() => setIsFlipped(false)}
+          onRegistrationSuccess={handleRegistrationSuccess}
+        />
       </div>
     </div>
   );
@@ -23,7 +30,11 @@ const LoginForm = ({ onRegisterClick }) => {
     username_exists: "",
     password_exists: "",
   });
+  const [isError, setIsError] = useState(false);
+  const [isErrorMessage, setIsErrorMessage] = useState("");
+  // const [submitAttempted, setSubmitAttempted] = useState(false);
   const { username_exists, password_exists } = formData;
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -32,8 +43,16 @@ const LoginForm = ({ onRegisterClick }) => {
       [name]: value,
     });
   };
+
+  useEffect(() => {
+    if (!isError) {
+      setIsErrorMessage("");
+    }
+  }, [isError]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setSubmitAttempted(true);
 
     // Create an object with the data you want to send to the server
     const dataToSend = {
@@ -57,13 +76,20 @@ const LoginForm = ({ onRegisterClick }) => {
         // Registration was successful, you can handle the response here
         // e.g., redirect or display a success message
       } else {
-        // Registration failed, handle the error here
-        // e.g., display an error message
+        const responseData = await response.json();
+        console.error("Login failed:", responseData);
+        setIsError(true);
+        setIsErrorMessage(
+          responseData.message || "An error occurred during Login."
+        );
       }
     } catch (error) {
-      // ...
+      console.error("An error occurred:", error);
+      setIsError(true);
+      setIsErrorMessage("An error occurred during Login.");
     }
   };
+
   return (
     <div className="login_form flex flex-col justify-center px-8 rounded-xl">
       {/* <h1 className="text-4xl text-center font-bold color ">Welcome Back</h1>  */}
@@ -95,6 +121,11 @@ const LoginForm = ({ onRegisterClick }) => {
             max="12"
           />
         </div>
+        {isError && (
+          <div className="absolute bottom-[102px] text-red-500 text-sm text-center w-full">
+            {isErrorMessage || "An error occurred. Please fix"}
+          </div>
+        )}
         <button
           className="bg-primaryDark w-full p-2 mt-5 button-color shadow-lg text-white rounded-lg "
           type="submit"
@@ -118,7 +149,7 @@ const LoginForm = ({ onRegisterClick }) => {
   );
 };
 
-const RegisterForm = ({ onLoginClick }) => {
+const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
   const [formData, setFormData] = useState({
     email_new: "",
     username_new: "",
@@ -126,9 +157,13 @@ const RegisterForm = ({ onLoginClick }) => {
     confirm_password_new: "",
   });
 
+  const [isError, setIsError] = useState(false);
+  const [isErrorMessage, setIsErrorMessage] = useState("");
+  const [isEmailValid, setIsEmailValid] = useState(true);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
   const { email_new, username_new, password_new, confirm_password_new } =
     formData;
-  const [passwordsMatch, setPasswordsMatch] = useState(true); // State to track password matching
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -136,47 +171,57 @@ const RegisterForm = ({ onLoginClick }) => {
       ...formData,
       [name]: value,
     });
-    setPasswordsMatch(true);
+
+    if (name === "email_new") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      setIsEmailValid(emailRegex.test(value));
+    }
   };
+
+  useEffect(() => {
+    if (!isError) {
+      setIsErrorMessage("");
+    }
+  }, [isError]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setSubmitAttempted(true);
 
-    if (password_new !== confirm_password_new) {
-      setPasswordsMatch(false);
+    if (!isEmailValid) {
+      console.error("Invalid email");
       return;
     }
 
-    // Create an object with the data you want to send to the server
     const dataToSend = {
       email: email_new,
       username: username_new,
       password: password_new,
       confirm_password: confirm_password_new,
     };
-    console.log(dataToSend);
 
     try {
       const response = await fetch("/login/new_user", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToSend),
       });
 
       if (response.ok) {
-        console.log(dataToSend);
-        window.location.href = "/login";
-
-        // Registration was successful, you can handle the response here
-        // e.g., redirect or display a success message
+        // window.location.href = "/login";
+        onRegistrationSuccess();
       } else {
-        // Registration failed, handle the error here
-        // e.g., display an error message
+        const responseData = await response.json();
+        console.error("Registration failed:", responseData);
+        setIsError(true);
+        setIsErrorMessage(
+          responseData.message || "An error occurred during registration."
+        );
       }
     } catch (error) {
-      // ...
+      console.error("An error occurred:", error);
+      setIsError(true);
+      setIsErrorMessage("An error occurred during registration.");
     }
   };
 
@@ -188,25 +233,27 @@ const RegisterForm = ({ onLoginClick }) => {
       <form className="w-5/12 mx-auto py-4" onSubmit={handleSubmit}>
         <div className="mb-2 w-full flex flex-col justify-center items-center gap-2">
           <input
-            className="p-2 border rounded-lg"
+            className={`p-2 border rounded-lg ${
+              !isEmailValid ? "border-red-500" : ""
+            }`}
             id="email_new"
             type="text"
             placeholder="Email"
             name="email_new"
             value={email_new}
             onChange={handleChange}
-            required
+            // required
           />
           <input
-            className="p-2 border rounded-lg"
+            className="p-2 border rounded-lg "
             id="username_new"
             type="text"
             placeholder="Username"
             name="username_new"
             value={username_new}
             onChange={handleChange}
-            required
             max="12"
+            // required
           />
           <input
             className="p-2 border rounded-lg"
@@ -216,7 +263,7 @@ const RegisterForm = ({ onLoginClick }) => {
             name="password_new"
             value={password_new}
             onChange={handleChange}
-            required
+            // required
           />
           <input
             className="p-2 border rounded-lg"
@@ -226,22 +273,27 @@ const RegisterForm = ({ onLoginClick }) => {
             name="confirm_password_new"
             value={confirm_password_new}
             onChange={handleChange}
-            required
+            // required
           />
-          <div
-            className={`absolute bottom-[102px] text-red-500 text-sm text-center w-full ${
-              passwordsMatch ? "hidden" : "block"
-            }`}
-          >
-            Passwords do not match.
-          </div>
+          {isError && (
+            <div className="absolute bottom-[102px] text-red-500 text-sm text-center w-full ">
+              {isErrorMessage || "An error occurred. Please fix"}
+            </div>
+          )}
+          {!isError && !isEmailValid && (
+            <div className="absolute bottom-[102px] text-red-500 text-sm text-center w-full ">
+              Please enter a valid email address.
+            </div>
+          )}
         </div>
+        {/* Submit button */}
         <button
-          className="bg-primaryDark w-full p-2 mt-5 button-color shadow-lg text-white rounded-lg"
+          className="bg-primaryDark w-full p-2 mt-4 button-color shadow-lg text-white rounded-lg"
           type="submit"
         >
           Register
         </button>
+       
       </form>
 
       <div className="text-center mt-2">

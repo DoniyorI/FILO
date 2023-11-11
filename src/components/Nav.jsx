@@ -1,16 +1,29 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import { useNavigate } from 'react-router-dom';
+import UserContext, { useFetchUser } from './UserContext';
+
+
 import Logo from "../assets/FILO_Logo.png";
 
-import UserContext from "./UserContext";
 
 const Nav = () => {
+  const navigate = useNavigate();
+  const { user, setUser, dmUsers, setDmUsers, channels, setChannels, error } = useFetchUser();
+
+  useEffect(() => {
+      if (error) {
+          navigate('/login');
+      }
+  }, [error, navigate]);
+
+
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const profileMenuRef = useRef(null);
   const modalRef = useRef(null);
 
-  const { user, dmUsers, channels } = useContext(UserContext);
+  // const { user, dmUsers, channels } = useContext(UserContext);
 
   const handleMenu = () => {
     setProfileMenuOpen(false);
@@ -105,6 +118,24 @@ const Nav = () => {
     // Close the modal
     setIsModalOpen(false);
   };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/logout', {
+        method: 'POST',
+        credentials: 'include', // to ensure cookies are sent
+      });
+      if (response.ok) {
+        // Handle successful logout
+        // e.g., redirect to login page or update UI state
+      } else {
+        // Handle logout failure
+      }
+    } catch (error) {
+      // Handle any errors
+    }
+  };
+  
   return (
     // TODO: Implement search bar
     <header>
@@ -144,7 +175,7 @@ const Nav = () => {
                   </li>
                   <li
                     className="hover:scale-110 hover:underline cursor-pointer"
-                    onClick={handleMenu}
+                    onClick={handleLogout}
                   >
                     Logout
                   </li>

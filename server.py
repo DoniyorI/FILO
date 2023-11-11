@@ -6,41 +6,73 @@ from utils.userInteract import *
 from utils.channels import *
 
 import datetime
-from flask import Flask, abort
-from flask_socketio import SocketIO, emit, namespace, send, join_room, leave_room
+from flask import Flask, abort, make_response, jsonify
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 from utils.config import app, channelCollection
 import os
 
 app = Flask(__name__)
 
-# app.config['SECRET_KEY'] = os.urandom(32)
+app.config['SECRET_KEY'] = os.urandom(32)
 
 socketio = SocketIO(app, cors_allowed_origins="*", transports=['websocket'])
 
 
 @socketio.on('join_channel')
 def handle_join_channel(timeData):
-    while(True):
+    # while(True):
         # print("00000000000000")
-        channel_name = timeData['channel_name']
-        username = timeData['username']
+        # channel_name = timeData['channel_name']
+        try:
+            channel_name = timeData['channel_name']
+            username = timeData['username']
+            
+            join_room(channel_name)
 
-        join_room(channel_name)
+            channel = channelCollection.find_one({"channel_name": channel_name})
+            message = channel['message']
 
-        channel = channelCollection.find_one({"channel_name": channel_name})
+            end_time = channel["time"]
+            closeServerTime = datetime.datetime(int(end_time[0]), int(end_time[1]), int(end_time[2]), int(end_time[3]), int(end_time[4]))
+            # endTime = datetime.datetime.strptime(closeServerTime, "%Y/%m/%d/%H/%M")
+            currTime = datetime.datetime.now()
+            timeDifference = closeServerTime - currTime
+            # print(type(timeRemaining))
+            years, days = divmod(timeDifference.days, 365)
+            hours, remainder = divmod(timeDifference.seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            # print(timeRemaining)
+            if timeDifference.total_seconds() <= 0:
+                timeRemainingStr = "TIME IS UP"
+            else:
+                timeParts = []
+                if years > 0:
+                    timeParts.append(f"{years} Years")
+                if days > 0 or years > 0:  # Display days if there are any days or years
+                    timeParts.append(f"{days} Days")
+                timeParts.append(f"{hours}:{minutes:02d}:{seconds:02d}")  # Pad minutes and seconds with leading zeros
+                timeRemainingStr = ", ".join(timeParts)
 
-        end_time = channel["time"]
-        closeServerTime = datetime.datetime(int(end_time[0]), int(end_time[1]), int(end_time[2]), int(end_time[3]), int(end_time[4]))
-        # endTime = datetime.datetime.strptime(closeServerTime, "%Y/%m/%d/%H/%M")
-        currTime = datetime.datetime.now()
-        timeRemaining = closeServerTime-currTime #12345 days, 19:18.12345678
-        if timeRemaining.total_seconds() <= 0:
-            timeRemaining = 0
-            emit('request_countdown', {"timeRemaining": "TIME IS UP"}, room=channel_name, broadcast=True)
-            break
+            emit('request_countdown', {"timeRemaining": timeRemainingStr, 'message': message }, room=channel_name, broadcast=True)
+            socketio.sleep(1)
+            
+        except KeyError as e:
+            print(f"Error joining channel: {e}")
+        # Handle the error appropriately
 
-        emit('request_countdown', {"timeRemaining": str(timeRemaining)}, room=channel_name, broadcast=True)
+@socketio.on('new_message')
+def handle_new_message(data):
+    channel_name = data['channel_name']
+    username = data['username']
+    message = data['message']
+    print(message)
+
+    # You might want to add any server-side processing of the message here
+    # For example, saving the message to a database, logging, etc.
+
+    # Broadcast the message to all clients in the channel
+    emit('message_received', {'username': username, 'message': message}, room=channel_name, broadcast=True)
 
 @socketio.on('leave_channel')
 def handle_leave_channel(data):
@@ -115,6 +147,12 @@ def doReturningUser():
 def doRegister():
     return register()
 
+@app.route('/logout', methods=['POST'])
+def logout():
+    response = make_response(jsonify({"message": "Logged out successfully"}))
+    response.set_cookie('auth_token', '', expires=0)  # Setting the cookie to expire immediately
+    return response
+
 @app.route("/get-user")
 def doGetUser():
     return getUser()
@@ -156,4 +194,4 @@ def doGetChannel():
     return getChannel()
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True,port=8080)
+    socketio.run(app, port=8080)

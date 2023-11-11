@@ -1,8 +1,9 @@
-from flask import request, make_response, jsonify
+from flask import request, make_response, jsonify, redirect
 from bson import json_util
 import bcrypt
 import hashlib
 import secrets
+import re
 
 from utils.response import sendResponse, page_not_found
 from utils.config import app, userCollection, channelCollection
@@ -12,45 +13,46 @@ def newUser():
     try:
         newUserDat = request.get_json()
             
-        email = newUserDat.get("email")
-        username = newUserDat.get("username")
-        password = newUserDat.get("password")
-        passwordConfirm = newUserDat.get("confirm_password")
-        
-        findDupName = userCollection.find_one({"username": username})
-        if findDupName:
-            return jsonify({'message': 'choose different username'}), 400
-        if username == " " or password == " ":
-            return jsonify({'message': 'Username and password are required'}), 400
+        email = newUserDat.get("email", "")
+        username = newUserDat.get("username", "")
+        password = newUserDat.get("password", "")
+        passwordConfirm = newUserDat.get("confirm_password", "")
 
-        if password != passwordConfirm:  # Use != instead of is not
-            return jsonify({'message': 'Passwords do not match'}), 400
+        print("***************************************")
+        print(password)
+        print(passwordConfirm)
+
+        if email == "" or username == "" or password == "" or passwordConfirm == "":
+            print("EMPTY FIELDS")
+            return jsonify({'message': "Fields can't be left empty."}), 400
+
+        findDupName = userCollection.find_one({"username": username})
+        findDupEmail = userCollection.find_one({"email": email})
+        
+        if findDupEmail: # Checks Duplicate Emails
+            return jsonify({"message": "Email already in use. Please choose another one."}), 400
+        
+        if findDupName: # Checks for Duplicate Username
+            return jsonify({"message": "Username already exist. Please try another name."}), 400
+        
+        if password != passwordConfirm: # Checks if Passwords are the Same
+            return jsonify({"message": "Passwords do not match."}), 400
+        
+        # if len(password) < 8:
+        #     return jsonify({"message": "Password has to be at least 8 characters."}), 400
+
+        # if not re.search(r"\d", password): # at least one number
+        #     return jsonify({"message": "Password must contain at least one number."}), 400
+
+        # if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password): # at least one special character
+        #     return jsonify({"message": "Password must contain at least one special character."}), 400
+        
+        # if not re.search(r"[A-Z]", password): # at least one uppercase latter
+        #     return jsonify({"message": "Password must contain at least one uppercase letter."}), 400
+
         
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-
-        #test DM Render
-        # testDM = {
-        #     "_id": "1",
-        #     "username": "test 1",
-        #     "profile_path": "mainProfile.svg",
-        #     "messages": []
-        # }
-        # testDM2 = {
-        #     "_id": "2",
-        #     "username": "test 2",
-        #     "profile_path": "mainProfile.svg",
-        #     "messages": []
-        # }
-        # testChannel = {
-        #     "_id": "3",
-        #     "name": "channel test 2",
-        #     "description": "channel test 2",
-        #     "member_limit": 5,
-        #     "image": "Channel.svg",
-        #     "messages": []
-        # }
-        # channelCollection.insert_one(testChannel)
 
         userCollection.insert_one({
             "email": email,
@@ -59,9 +61,10 @@ def newUser():
             "salt": salt, 
             "following": [],
             'followers': [],
-            "profile_image": "public/image/mainProfile.svg",
+            "profile_image": "mainProfile.svg",
             "direct_messages": [],
             })
+        # print(userCollection)
         return make_response()
     except Exception as e:  # Catch the exception and print it for debugging
         print(e)
@@ -69,30 +72,34 @@ def newUser():
 
 def returningUser():
     try:
-        retUserdat = request.get_json()
-        retusername = retUserdat.get("username")
-        retuserpassword = retUserdat.get("password")
+        requestData = request.get_json()
+        username = requestData.get("username")
+        userPassword = requestData.get("password")
 
-        if retusername == " " or retuserpassword == " ":
+        if not username or not userPassword:
             return jsonify({'message': 'Username and password are required'}), 400
-        checking = userCollection.find_one({"username": retusername})
-        salt = checking["salt"]
-        hasheduserpasswd = bcrypt.hashpw(retuserpassword.encode(),salt)
-        if retusername == checking["username"]:
-            if hasheduserpasswd == checking["password"]:
-                token1 = secrets.token_hex()
-                result = hashlib.sha256(token1.encode("utf-8")).hexdigest()
+
+        userRecord = userCollection.find_one({"username": username})
+
+        if userRecord:
+            salt = userRecord["salt"]
+            hashedPassword = bcrypt.hashpw(userPassword.encode(), salt)
+
+            if hashedPassword == userRecord["password"]:
+                token = secrets.token_hex()
+                hashedToken = hashlib.sha256(token.encode("utf-8")).hexdigest()
                 response = make_response()
-                response.set_cookie("auth_tok",value = token1,max_age=3600,httponly=True)
+                response.set_cookie("auth_tok", value=token, max_age=3600, httponly=True)
                 userCollection.update_one(
-                    {"username": retusername},
-                    {"$set":{"token":result}}
+                    {"username": username},
+                    {"$set": {"token": hashedToken}}
                 )
                 return response
             else:
-                return jsonify({'message': 'password is incorrect'}), 400
+                return jsonify({'message': 'Invalid username or password'}), 400
         else:
-            return jsonify({'message': 'Username is incorrect'}), 400
+            return jsonify({'message': 'Invalid username or password'}), 400
+
     except Exception as e: 
         return jsonify({'message': 'An error occurred'}), 500
 
@@ -105,11 +112,19 @@ def register():
 def getUser():
     try:
         token = request.cookies.get("auth_tok")
-        user = userCollection.find_one({"token": hashlib.sha256(token.encode("utf-8")).hexdigest()})
-        channels = channelCollection.find({})
-        user["channels"] = channels
-   
-        return json_util.dumps(user)
+        if token:
+            hashed_token = hashlib.sha256(token.encode("utf-8")).hexdigest()
+            user = userCollection.find_one({"token": hashed_token})
+
+            if user:
+                channels = list(channelCollection.find({}))
+                user["channels"] = channels
+                return json_util.dumps(user)
+            else:
+                return redirect("/login"), 302
+        else:
+            return jsonify({"message": "No token found"}), 401
     except Exception as e:
-            error_message = "An error occurred: {}".format(str(e))
-            print("***********ERROR**:", error_message)
+        error_message = f"An error occurred: {e}"
+        print("***********ERROR**:", error_message)
+        return jsonify({"message": error_message}), 500

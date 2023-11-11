@@ -1,8 +1,7 @@
 import React, { useState, useContext } from "react";
 import Logo from "../assets/FILO_Logo.png";
 import UserContext from "./UserContext";
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ userId }) => {
   const navigate = useNavigate();
@@ -54,10 +53,10 @@ const Sidebar = ({ userId }) => {
     console.log("channelImage: ", channelImage);
     console.log("never: ", never);
 
-    fetch('/create-channel', {
-      method: 'POST',
+    fetch("/create-channel", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json', // Set the content type to JSON
+        "Content-Type": "application/json", // Set the content type to JSON
       },
       body: JSON.stringify({
         username: user.username,
@@ -96,12 +95,10 @@ const Sidebar = ({ userId }) => {
 
   const handleChannelClick = (channelName) => {
     navigate(`/messages/${channelName}`);
-}
+  };
 
- 
   // const handleChannelClick = (channelName, username) => {
 
-    
   //   const queryParams = new URLSearchParams({
   //     channel_name: channelName,
   //     username: username
@@ -110,7 +107,7 @@ const Sidebar = ({ userId }) => {
   //   console.log("channelName:", channelName);
   //   console.log("username:", username);
   //   console.log("queryParams:", queryParams.toString());
-  
+
   //   fetch(`/get-channel?${queryParams.toString()}`, { // Modified line
   //     method: 'GET', // Changed to GET
   //     headers: {
@@ -126,7 +123,7 @@ const Sidebar = ({ userId }) => {
   //     console.error("Error fetching channel data:", error);
   //   });
   // }
-  
+
   return (
     <>
       <header>
@@ -164,8 +161,9 @@ const Sidebar = ({ userId }) => {
                 key={channel._id}
                 className="group flex h-12 w-12 transform items-center justify-center rounded-full bg-goldenOrange transition-transform hover:scale-110 my-3 relative cursor-pointer"
                 // when the channel is clicked, call on the handleChannel function:
-                onClick={() => handleChannelClick(channel.channel_name, user.username)}
-
+                onClick={() =>
+                  handleChannelClick(channel.channel_name, user.username)
+                }
               >
                 <img
                   src={channel.image_path}
@@ -339,7 +337,6 @@ const Sidebar = ({ userId }) => {
                         required={!never}
                       >
                         <option value="">Select Time Zone</option>
-                        <option value="PST">PST</option>
                         <option value="EST">EST</option>
                       </select>
                     </div>
