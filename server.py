@@ -18,10 +18,9 @@ app.config['SECRET_KEY'] = os.urandom(32)
 
 socketio = SocketIO(app, cors_allowed_origins="*", transports=['websocket'])
 
-
 @socketio.on('join_channel')
 def handle_join_channel(timeData):
-    # while(True):
+    while(True):
         # print("00000000000000")
         # channel_name = timeData['channel_name']
         try:
@@ -31,7 +30,9 @@ def handle_join_channel(timeData):
             join_room(channel_name)
 
             channel = channelCollection.find_one({"channel_name": channel_name})
-            message = channel['message']
+            messages = channel.get("messages", [])
+            members = channel.get("members", [])
+            image_path = channel.get("image_path", "")
 
             end_time = channel["time"]
             closeServerTime = datetime.datetime(int(end_time[0]), int(end_time[1]), int(end_time[2]), int(end_time[3]), int(end_time[4]))
@@ -45,6 +46,8 @@ def handle_join_channel(timeData):
             # print(timeRemaining)
             if timeDifference.total_seconds() <= 0:
                 timeRemainingStr = "TIME IS UP"
+                emit('request_countdown', {"timeRemaining": timeRemainingStr, "messages":messages, "members": members, "image_path": image_path }, room=channel_name, broadcast=True)
+                break
             else:
                 timeParts = []
                 if years > 0:
@@ -54,11 +57,13 @@ def handle_join_channel(timeData):
                 timeParts.append(f"{hours}:{minutes:02d}:{seconds:02d}")  # Pad minutes and seconds with leading zeros
                 timeRemainingStr = ", ".join(timeParts)
 
-            emit('request_countdown', {"timeRemaining": timeRemainingStr, 'message': message }, room=channel_name, broadcast=True)
+            emit('request_countdown', {"timeRemaining": timeRemainingStr, "messages":messages, "members": members, "image_path": image_path }, room=channel_name, broadcast=True)
             socketio.sleep(1)
             
         except KeyError as e:
             print(f"Error joining channel: {e}")
+            print("someone left the channel")
+            break
         # Handle the error appropriately
 
 @socketio.on('new_message')
@@ -66,13 +71,23 @@ def handle_new_message(data):
     channel_name = data['channel_name']
     username = data['username']
     message = data['message']
-    print(message)
 
-    # You might want to add any server-side processing of the message here
-    # For example, saving the message to a database, logging, etc.
+    message_data = {
+        'username': username,
+        'message': message,
+        'time': str(datetime.datetime.now().timestamp())  # Convert datetime to timestamp
+    }
 
-    # Broadcast the message to all clients in the channel
-    emit('message_received', {'username': username, 'message': message}, room=channel_name, broadcast=True)
+    # Update the channel document to add the message
+    channelCollection.update_one(
+        {'channel_name': channel_name},
+        {'$push': {'messages': message_data}}
+    )
+
+    channel = channelCollection.find_one({"channel_name": channel_name})
+    messages = channel["messages"]
+
+    emit('message_received', {'messages': messages, 'message': message}, room=channel_name, broadcast=True)
 
 @socketio.on('leave_channel')
 def handle_leave_channel(data):
@@ -194,4 +209,4 @@ def doGetChannel():
     return getChannel()
 
 if __name__ == "__main__":
-    socketio.run(app, port=8080)
+    socketio.run(app, host='0.0.0.0', port=8080)

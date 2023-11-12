@@ -1,21 +1,19 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { useNavigate } from 'react-router-dom';
-import UserContext, { useFetchUser } from './UserContext';
-
+import { useNavigate } from "react-router-dom";
+import UserContext, { useFetchUser } from "./UserContext";
 
 import Logo from "../assets/FILO_Logo.png";
 
-
 const Nav = () => {
   const navigate = useNavigate();
-  const { user, setUser, dmUsers, setDmUsers, channels, setChannels, error } = useFetchUser();
+  const { user, setUser, dmUsers, setDmUsers, channels, setChannels, error } =
+    useFetchUser();
 
   useEffect(() => {
-      if (error) {
-          navigate('/login');
-      }
+    if (error) {
+      navigate("/login");
+    }
   }, [error, navigate]);
-
 
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -94,11 +92,11 @@ const Nav = () => {
         username: user.username,
         image: newImage, // Send the base64-encoded image data directly
       };
-  
-      fetch('/new-profile', {
-        method: 'POST',
+
+      fetch("/new-profile", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       })
@@ -121,9 +119,9 @@ const Nav = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/logout', {
-        method: 'POST',
-        credentials: 'include', // to ensure cookies are sent
+      const response = await fetch("/logout", {
+        method: "POST",
+        credentials: "include", // to ensure cookies are sent
       });
       if (response.ok) {
         // Handle successful logout
@@ -135,7 +133,7 @@ const Nav = () => {
       // Handle any errors
     }
   };
-  
+
   return (
     // TODO: Implement search bar
     <header>
@@ -150,16 +148,16 @@ const Nav = () => {
           <div ref={profileMenuRef}>
             {user && user.profile_image && (
               <div className="w-10 h-10 rounded-full overflow-hidden">
-              <img
-                onClick={handleProfileIconClick}
-                src={user.profile_image}
-                alt="profile"
-                className="w-full h-full object-cover cursor-pointer"
-              />
-            </div>
+                <img
+                  onClick={handleProfileIconClick}
+                  src={user.profile_image}
+                  alt="profile"
+                  className="w-full h-full object-cover cursor-pointer"
+                />
+              </div>
             )}
             {isProfileMenuOpen && (
-              <div className="absolute top-16 right-6 bg-primaryBlue text-sand shadow-md p-2 border-2 border-sand rounded-md">
+              <div className="absolute z-50 top-16 right-6 bg-primaryBlue text-sand shadow-md p-2 border-2 border-sand rounded-md">
                 <ul className="text-center">
                   <li
                     className="hover:scale-110 hover:underline cursor-pointer"
@@ -255,11 +253,20 @@ const Nav = () => {
                 <div className="w-full flex justify-between px-2 text-2xl pb-10">
                   <div className="flex-1 flex justify-center items-center border-r">
                     <div className="text-center">
-                      <div className="font-semibold">Following</div>
-                      <div>
-                        {user && Array.isArray(user.following)
-                          ? user.following.length
-                          : "Loading..."}
+                      <div className="font-semibold">Following: {user.following.length}</div>
+                      <div className="overflow-auto h-[10vh]">
+                      {user.following.map((following, index) => (
+                          <div key={index} className="flex items-center">
+                            <div className="bg-primaryBlue w-7 h-7 border-[1px] border-goldenOrange rounded-full m-2">
+                              <img
+                                src={following.profile_image}
+                                alt="profile"
+                                className="w-full h-full object-cover cursor-pointer"
+                              />
+                            </div>
+                            <div className="text-sm text-white">{following.username}</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -267,11 +274,20 @@ const Nav = () => {
                   {/* Followers Column */}
                   <div className="flex-1 flex justify-center items-center">
                     <div className="text-center">
-                      <div className="font-semibold">Followers</div>
-                      <div>
-                        {user && Array.isArray(user.followers)
-                          ? user.followers.length
-                          : "Loading..."}
+                      <div className="font-semibold">Followers: {user.followers.length}</div>
+                      <div className="overflow-auto h-[10vh]">
+                        {user.followers.map((follower, index) => (
+                          <div key={index} className="flex items-center">
+                            <div className="bg-primaryBlue w-7 h-7 border-[1px] border-goldenOrange rounded-full m-2">
+                              <img
+                                src={follower.profile_image}
+                                alt="profile"
+                                className="w-full h-full object-cover cursor-pointer"
+                              />
+                            </div>
+                            <div className="text-sm text-white">{follower.username}</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>

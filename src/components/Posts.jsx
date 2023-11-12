@@ -137,7 +137,7 @@ const Posts = () => {
   };
 
   return (
-    <div className="justify-center">
+    <div className="justify-center overflow-y-scroll">
       {error ? (
         <p className="text-red-500 text-xl">Error: {error}</p>
       ) : posts.length === 0 ? (
@@ -152,7 +152,7 @@ const Posts = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-full overflow-hidden">
+                <div className="w-10 h-10 rounded-full">
                   {post && post.profile_image && (
                     <img
                       src={post.profile_image}

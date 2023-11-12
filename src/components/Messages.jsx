@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useParams } from "react-router-dom";
 import UserContext from "./UserContext";
 import { IoSend } from "react-icons/io5";
@@ -6,16 +6,20 @@ import { io } from "socket.io-client"; // for web-sockets
 
 function Messages() {
   const { user, dmUsers, channels } = useContext(UserContext);
-  const { channelName } = useParams();
-  console.log(channelName)
-  const [channelData, setChannelData] = useState(null);
   const [error, setError] = useState(null);
-  const [isChannelTime, setIsChannelTime] = useState(null);
 
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [socket, setSocket] = useState(null);
 
+  const { channelName } = useParams();
+  const [isChannelTime, setIsChannelTime] = useState(null);
 
+  const [isChannelData, setIsChannelData] = useState(null);
+  const [channelDescription, setIsChannelDescription] = useState(null);
+  const [channelMembers, setIsChannelMembers] = useState(null);
+  const [channelMessages, setIsChannelMessages] = useState(null);
+  const [channelLimit, setIsChannelLimit] = useState(null);
+  const [channelImage, setIsChannelImage] = useState(null);
 
   useEffect(() => {
     fetch(`/get-channel?channel_name=${channelName}`)
@@ -25,22 +29,36 @@ function Messages() {
         }
         return response.json();
       })
-      .then((data) => setChannelData(data))
+      .then((data) => {
+        setIsChannelData(data);
+        setIsChannelDescription(data.description);
+        setIsChannelMembers(data.members);
+        setIsChannelMessages(data.messages);
+        setIsChannelLimit(data.member_limit);
+        setIsChannelImage(data.image_path);
+      })
       .catch((error) => {
         console.error("There was a problem with the fetch operation:", error);
         setError(error);
       });
   }, [channelName]);
 
+  console.log(channelName);
+  console.log(channelDescription);
+  console.log(channelMembers);
+  console.log(channelMessages);
+  console.log(channelLimit);
+
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [channelMessages]);
+
   useEffect(() => {
     if (!user) {
-      return; // Return early or show a loading state until user is available
+      return;
     }
-
-    const timeData = { channel_name: channelName, username: user.username};
-    const socket = io.connect("http://127.0.0.1:8080", {
-      transports: ["websocket"],
-    });
 
     const newSocket = io.connect("http://127.0.0.1:8080", {
       transports: ["websocket"],
@@ -48,45 +66,65 @@ function Messages() {
 
     setSocket(newSocket);
 
-    socket.emit("join_channel", timeData);
-    socket.on("request_countdown", (response) => {
+    newSocket.emit("join_channel", {
+      channel_name: channelName,
+      username: user.username,
+    });
+
+    newSocket.on("request_countdown", (response) => {
       setIsChannelTime(response.timeRemaining);
-      setMessage(response.message)
-      console.lod(response)
+      setIsChannelMessages(response.messages);
+      setIsChannelMembers(response.members);
+      setIsChannelImage(response.image_path);
+    });
+
+    newSocket.on("message_received", (response) => {
+      setIsChannelMessages(response.messages);
+    });
+    newSocket.on("time_up", () => {
+      console.log("Channel time is up");
+      // Example: Disable message sending or show alert
     });
 
     return () => {
-      socket.emit("leave_channel", timeData);
-      socket.disconnect();
+      newSocket.emit("leave_channel", {
+        channel_name: channelName,
+        username: user.username,
+      });
+      newSocket.disconnect();
     };
   }, [channelName, user]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (socket) {
-      socket.emit("new_message", { channel_name: channelName, username: user.username, message: message });
-      setMessage('');
+    if (socket && message.trim()) {
+      // Check if socket is connected and message is not just whitespace
+      socket.emit("new_message", {
+        channel_name: channelName,
+        username: user.username,
+        message: message,
+      });
+      setMessage(""); // Clear the message input field
     }
   };
+
+  useEffect(() => {
+    if (isChannelData) {
+      setIsChannelDescription(isChannelData.description);
+      setIsChannelMembers(isChannelData.members);
+      setIsChannelMessages(isChannelData.messages);
+      setIsChannelLimit(isChannelData.member_limit);
+      setIsChannelImage(isChannelData.image_path);
+    }
+  }, [isChannelData]);
 
   if (error) {
     return <div>Error: {error.message}</div>;
   }
 
-  if (!channelData) {
+  if (!isChannelData) {
     return <div>Loading...</div>;
   }
-  const channelDescription = channelData.description;
-  const channelMembers = channelData.members;
-  const channelMessages = channelData.messages;
-  const channelLimit = channelData.member_limit;
-  const channelImage = channelData.image_path;
-
-  console.log(channelName);
-  console.log(channelDescription);
-  console.log(channelMembers);
-  console.log(channelMessages);
-  console.log(channelLimit);
 
   // const { description, members, messages, member_limit } = channelData;
 
@@ -95,21 +133,19 @@ function Messages() {
 
   return (
     <>
-      {/* Main Content Area */}
-      <section className="home_bg flex flex-col h-screen ml-[16.666667vw]">
-        <div>
-          <nav className="fixed top-12 z-10 w-full text-goldenOrange text-2xl flex items-center pl-4">
-            <div className="bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full m-3">
-              <img src={channelImage} alt="channel image" className="w-full h-full" />
-              {/* IMG */}
-            </div>
-            <h2 className="p-2">{channelName}</h2>
-          </nav>
-          <hr className="w-[98%] bg-gray-200 mt-14 mx-auto" />
+      <nav className="fixed top-12 z-10 w-full text-goldenOrange text-2xl flex items-center pl-4 ml-[16.666667vw]">
+        <div className="bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full m-3">
+          <img
+            src={channelImage}
+            alt="channel image"
+            className="w-full h-full"
+          />
         </div>
+        <h2 className="p-2">{channelName}</h2>
+      </nav>
 
-        {/* Side bar on right for channel information */}
-        <div className="nav_bg w-[15%] fixed mt-14 right-0 h-full z-20 overflow-hidden ">
+      <section>
+        <div className="nav_bg w-[15%] fixed mt-14 right-0 h-screen z-20 overflow-hidden ">
           <div className="p-4">
             <div className="text-white">
               <h2 className="font-bold">Description:</h2>
@@ -120,10 +156,16 @@ function Messages() {
               <h2 className="text-xl font-bold py-5">
                 Members: {channelMembers.length}/{channelLimit}
               </h2>
-              <div className="overflow-auto h-[40vh]">
+              <div className="overflow-auto h-[50vh]">
                 {channelMembers.map((member, index) => (
                   <div key={index} className="flex items-center">
-                    <div className="bg-primaryBlue w-11 h-11 border-[1px] border-goldenOrange rounded-full m-2"></div>
+                    <div className="bg-primaryBlue w-11 h-11 border-[1px] border-goldenOrange rounded-full m-2">
+                      <img
+                        src={member.profile_image}
+                        alt="profile"
+                        className="w-full h-full object-cover cursor-pointer"
+                      />
+                    </div>
                     <div className="text-lg text-white">{member}</div>
                   </div>
                 ))}
@@ -140,13 +182,28 @@ function Messages() {
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Scrollable Messages Section */}
-        <div className="overflow-y-auto mr-[17%]">
+      {/* Main Content Area */}
+
+      <section
+        className="home_bg flex flex-col h-screen ml-[16.666667vw] relative"
+        style={{ height: "calc(100vh - 60px)" }}
+      >
+        <hr className="w-[98%] bg-gray-200 mt-14 mx-auto" />
+        <div className="flex flex-col overflow-y-auto mr-[17%] mb-10 ">
           {channelMessages.map((message, index) => (
-            <div key={index} className="flex items-start p-4 ">
+            <div
+              key={index}
+              className="flex items-start p-4"
+              ref={messagesEndRef}
+            >
               <div className="flex-shrink-0 bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full mr-3">
-                {message.profile_path}
+                <img
+                  src={message.profile_image}
+                  alt="profile"
+                  className="w-full h-full object-cover cursor-pointer"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate text-white">
@@ -159,27 +216,26 @@ function Messages() {
             </div>
           ))}
         </div>
-      </section>
 
-      {/* Fixed Message Input Section */}
-      <div className="bg-yellow-400 h-screen">
-        <div className="w-[65%] bottom-3 fixed ml-[18.5vw] mr-[15%]">
-          <form className="bg-white rounded-2xl" onSubmit={handleSubmit}>
+        <div className="absolute bottom-2 w-[95%] pr-[15%] mx-3">
+          <form
+            className="bg-white rounded-2xl flex items-center justify-between"
+            onSubmit={handleSubmit}
+          >
             <input
               placeholder="Enter a Message"
-              className="w-full rounded-2xl px-3 pr-8 py-1"
+              className="flex-grow rounded-2xl px-2 py-1"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             />
-            <button
-              type="submit"
-              className="absolute right-2 bottom-1 hover:scale-110 py-1"
-            >
-              <IoSend height={14} className="text-primaryDark" />
+            <button type="submit" className="hover:scale-110 px-1">
+              <IoSend width={20} className="text-goldenOrange" />
             </button>
           </form>
         </div>
-      </div>
+      </section>
+
+      {/* Fixed Message Input Section */}
     </>
   );
 }

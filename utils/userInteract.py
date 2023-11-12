@@ -17,32 +17,36 @@ def follow_user():
     if not followerColl or not toFollowColl:
         return jsonify({"success": False, "message": "One or both users not found"}), 404
 
-    followingSet = set(followerColl.get("following", []))
-    toFollowSet = set(toFollowColl.get("followers", []))
+    # Extracting profile images
+    followerProfileImage = followerColl.get("profile_image")
+    toFollowProfileImage = toFollowColl.get("profile_image")
 
-    if toFollow in followingSet:
-        followingSet.remove(toFollow)
-        toFollowSet.remove(follower)    
-        print(f"following will be :{toFollowSet}")
-        print(f"followers will be :{followingSet}")
+    # Using lists instead of sets
+    followingList = followerColl.get("following", [])
+    toFollowList = toFollowColl.get("followers", [])
+
+    isFollowing = any(user['username'] == toFollow for user in followingList)
+    isFollower = any(user['username'] == follower for user in toFollowList)
+
+    if isFollowing:
+        # Remove toFollow from follower's following list and vice versa
+        followingList = [user for user in followingList if user['username'] != toFollow]
+        toFollowList = [user for user in toFollowList if user['username'] != follower]
     else:
-        followingSet.add(toFollow)
-        toFollowSet.add(follower)
-        print(f"following will be :{toFollowSet}")
-        print(f"followers will be :{followingSet}")
-    
-    # Update the follower's 'following' list
-    userCollection.update_one(
-        {"username": follower},
-        {"$set": {"following": list(followingSet)}}
-    )
-    
-    userCollection.update_one(
-        {"username": toFollow},
-        {"$set": {"followers": list(toFollowSet)}}
-    )
+        # Add toFollow to follower's following list and vice versa
+        followingList.append({"username": toFollow, "profile_image": toFollowProfileImage})
+        toFollowList.append({"username": follower, "profile_image": followerProfileImage})
+
+    print(f"following will be :{followingList}")
+    print(f"followers will be :{toFollowList}")
+
+    # Update the follower's 'following' list and toFollow's 'followers' list
+    userCollection.update_one({"username": follower}, {"$set": {"following": followingList}})
+    userCollection.update_one({"username": toFollow}, {"$set": {"followers": toFollowList}})
     
     return jsonify({"success": True, "message": "Follow status updated"}), 200
+
+
 
 def new_profile():
     data = request.get_json()

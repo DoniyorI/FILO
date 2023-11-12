@@ -64,8 +64,8 @@ def newChannel():
         image_path = filename
 
     members = [creator]
-    testMessage = [{"username": "Jimmy", "message": "hi", "time": "10:45"},
-                   {"username": "Chad", "message": "hello", "time": "12:18"}]
+    # testMessage = [{"username": "Jimmy", "message": "hi", "time": "10:45"},
+    #                {"username": "Chad", "message": "hello", "time": "12:18"}]
 
     channelCollection.insert_one({
         "channel_name": channel_name,
@@ -77,7 +77,7 @@ def newChannel():
         "members": members,
         "time": endTime,
         "time_zone": timeZone,
-        "messages": testMessage
+        "messages": []
     })
 
     return jsonify({"success": True, "message": "New channel created"}), 200
@@ -110,6 +110,7 @@ def getChannel():
     print(channel_name)
 
     channel = channelCollection.find_one({"channel_name": channel_name})
+    print("********************YOU ARE HERE**********************")
 
     if not channel:
         return jsonify({"error": "Channel not found"}), 404
