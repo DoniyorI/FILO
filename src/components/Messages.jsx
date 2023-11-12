@@ -132,7 +132,7 @@ function Messages() {
   const mockMembers = ["User 1", "User 2", "User 3", "User 4", "User 5"];
 
   return (
-    <>
+    <div className="">
       <nav className="fixed top-12 z-10 w-full text-goldenOrange text-2xl flex items-center pl-4 ml-[16.666667vw]">
         <div className="bg-sand w-11 h-11 border-[1px] border-goldenOrange rounded-full m-3">
           <img
@@ -236,7 +236,7 @@ function Messages() {
       </section>
 
       {/* Fixed Message Input Section */}
-    </>
+    </div>
   );
 }
 

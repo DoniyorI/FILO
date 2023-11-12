@@ -127,7 +127,7 @@ const Sidebar = ({ userId }) => {
   return (
     <>
       <header>
-        <aside className="sidebar_bg h-screen py-3 w-16 fixed z-10 flex flex-col">
+        <aside className="sidebar_bg h-screen py-3 w-16 fixed z-50 flex flex-col">
           <div className="flex flex-col items-center">
             <a href="/" className="">
               <img src={Logo} alt="logo" width={50} />

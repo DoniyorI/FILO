@@ -137,9 +137,9 @@ const Nav = () => {
   return (
     // TODO: Implement search bar
     <header>
-      <nav className="nav_bg flex justify-between items-center w-full z-10 py-2 px-8 shadow-lg">
+      <nav className="nav_bg flex justify-between items-center w-full z-10 py-2 px-8 shadow-lg"> 
         <a href="/">
-          {/* <img src={Logo} alt="logo" width={35} height={25} /> */}
+          {/* <img src={Logo} alt="logo" width={35} height={25} /> */} 
         </a>
         <div className="flex gap-6 px-4">
           <h1 className="text-sand text-2xl font-bold">

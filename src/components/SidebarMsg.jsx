@@ -10,7 +10,7 @@ const SidebarMsg = () => {
 
   return (
     <>
-      <div className="w-1/6 h-screen sidebar_bg z-10 fixed">
+      <div className="w-1/6 h-screen sidebar_bg z-50 fixed">
         <div className="">
           <a href="/" className="m-2 flex items-center">
             <img src={Logo} alt="logo" width={50} className="mx-2" />
