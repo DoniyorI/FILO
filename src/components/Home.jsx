@@ -78,7 +78,7 @@ const Home = () => {
   // TODO: Update Posts to load images look at the way profile images are uploaded should be similar
 
   return (
-    <div className="home_bg min-h-screen ml-16 overflow-y-scroll">
+    <div className="home_bg min-h-screen ml-16">
       <div className="flex justify-center items-center text-3xl text-white pt-2">
         <a
           href="/"

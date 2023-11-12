@@ -90,22 +90,22 @@ const Posts = () => {
   }, []);
 
   const isFollowing = (username) => {
-    return user.following.includes(username);
+    return user.following.some(followingUser => followingUser.username === username);
   };
-
   // The function to handle the follow action
   const handleFollow = async (usernameToFollow) => {
-    // Optimistically update the local state
     const isNowFollowing = isFollowing(usernameToFollow);
-    const updatedFollowing = isNowFollowing
-      ? user.following.filter(username => username !== usernameToFollow) // Remove the user from the following array
-      : [...user.following, usernameToFollow]; // Add the user to the following array
   
+    let updatedFollowing;
+    if (isNowFollowing) {
+      updatedFollowing = user.following.filter(followingUser => followingUser.username !== usernameToFollow);
+    } else {
+      updatedFollowing = [...user.following, { username: usernameToFollow }];
+    }
     setUser({
       ...user,
       following: updatedFollowing
     });
-  
     try {
       // Perform the backend update
       const response = await fetch("/follow-user", {
