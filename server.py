@@ -5,7 +5,7 @@ from utils.response import *
 from utils.userInteract import *
 from utils.channels import *
 
-import datetime
+from datetime import datetime, timedelta
 from flask import Flask, abort, make_response, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
@@ -33,17 +33,23 @@ def handle_join_channel(timeData):
             messages = channel.get("messages", [])
             members = channel.get("members", [])
             image_path = channel.get("image_path", "")
+            utc_time = datetime.utcnow()
+            currTime = utc_time - timedelta(hours=5)
 
+            print(currTime)
             end_time = channel["time"]
-            closeServerTime = datetime.datetime(int(end_time[0]), int(end_time[1]), int(end_time[2]), int(end_time[3]), int(end_time[4]))
+            closeServerTime = datetime(int(end_time[0]), int(end_time[1]), int(end_time[2]), int(end_time[3]), int(end_time[4]))
             # endTime = datetime.datetime.strptime(closeServerTime, "%Y/%m/%d/%H/%M")
-            currTime = datetime.datetime.now()
             timeDifference = closeServerTime - currTime
             # print(type(timeRemaining))
             years, days = divmod(timeDifference.days, 365)
             hours, remainder = divmod(timeDifference.seconds, 3600)
             minutes, seconds = divmod(remainder, 60)
+
             # print(timeRemaining)
+            # print(currTime)
+            # print(closeServerTime)
+            # print(timeDifference)
             if timeDifference.total_seconds() <= 0:
                 timeRemainingStr = "TIME IS UP"
                 emit('request_countdown', {"timeRemaining": timeRemainingStr, "messages":messages, "members": members, "image_path": image_path }, room=channel_name, broadcast=True)
@@ -75,7 +81,7 @@ def handle_new_message(data):
     message_data = {
         'username': username,
         'message': message,
-        'time': str(datetime.datetime.now().timestamp())  # Convert datetime to timestamp
+        'time': str(datetime.now().timestamp())  # Convert datetime to timestamp
     }
 
     # Update the channel document to add the message

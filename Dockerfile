@@ -8,6 +8,8 @@ RUN npm install
 
 COPY . .
 
+COPY public/ /root/public/
+
 RUN npm run build
 
   
@@ -23,6 +25,7 @@ COPY --from=builder /app/build /root/build
 # Copy the utils directory and other necessary files
 
 COPY utils/ /root/utils/
+COPY public/ /root/public/
 
 COPY server.py /root/
 

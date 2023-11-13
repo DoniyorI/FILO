@@ -2,11 +2,19 @@ import React, { useState, useContext } from "react";
 import FILO from "../assets/FiLo_Word.svg";
 import Logo from "../assets/FILO_Logo.png";
 import UserContext, { useFetchUser } from "./UserContext";
+import { useNavigate } from "react-router-dom";
+
 
 const SidebarMsg = () => {
+  const navigate = useNavigate();
+
   // const { user, dmUsers, channels } = useContext(UserContext);
   const { user, setUser, dmUsers, setDmUsers, channels, setChannels, error } =
     useFetchUser();
+
+  const handleChannelClick = (channelName) => {
+    navigate(`/messages/${channelName}`);
+  };
 
   return (
     <>
@@ -22,19 +30,29 @@ const SidebarMsg = () => {
           
           <div className="w-12 h-12 rounded-full bg-primaryBlue border-[1px] border-goldenOrange"></div>
           {/* <h1 className="flex items-center pl-4 text-md">Jimmy</h1> */}
-        {/* </div> */} 
+        {/* </div> */}
         <div>
           <hr class="w-[80%] h-[1px] mx-auto my-4 bg-black border-0 rounded" />
         </div>
 
         {/* <h1 className="flex items-center text-center pl-1 text-red-500 text-md"> */}
         {channels.map((channel) => (
-          <div class="flex py-2 mx-4">
+          <div
+            class="flex py-2 mx-4 cursor-pointer"
+            key={channel._id}
+            onClick={() =>
+              handleChannelClick(channel.channel_name, user.username)
+            }
+          >
             <div class="h-12 w-full rounded-3xl bg-sand flex items-center pr-2 text-center">
               <div class="flex h-full w-12 items-center justify-center rounded-full bg-goldenOrange text-center text-xl text-white">
-                <img src={channel.image_path} alt="Channel Image" />
+                <img
+                  src={channel.image_path}
+                  alt="Channel Image"
+                  className="rounded-full w-full h-full object-cover"
+                />
               </div>
-              <h1 class="px-2">{channel.channel_name}</h1>
+              <span class="px-2">{channel.channel_name}</span>
             </div>
           </div>
         ))}

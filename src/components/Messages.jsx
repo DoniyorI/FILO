@@ -21,6 +21,8 @@ function Messages() {
   const [channelLimit, setIsChannelLimit] = useState(null);
   const [channelImage, setIsChannelImage] = useState(null);
 
+  const [showFullDescription, setShowFullDescription] = useState(false);
+
   useEffect(() => {
     fetch(`/get-channel?channel_name=${channelName}`)
       .then((response) => {
@@ -149,10 +151,24 @@ function Messages() {
           <div className="p-4">
             <div className="text-white">
               <h2 className="font-bold">Description:</h2>
-              <p className="time-sm">{channelDescription}</p>
+              <p
+                className={`time-sm ${
+                  showFullDescription ? "" : "line-clamp-4"
+                }`}
+              >
+                {channelDescription}
+              </p>
+              {channelDescription.length > 100 && ( // Assuming 100 characters as the threshold
+                <button
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                  className="text-blue-500"
+                >
+                  {showFullDescription ? "Less" : "More"}
+                </button>
+              )}
             </div>
 
-            <div className="mt-4 text-white">
+            {/* <div className="mt-4 text-white">
               <h2 className="text-xl font-bold py-5">
                 Members: {channelMembers.length}/{channelLimit}
               </h2>
@@ -170,7 +186,7 @@ function Messages() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex flex-col justify-center items-center w-full text-center">
@@ -217,22 +233,24 @@ function Messages() {
           ))}
         </div>
 
-        <div className="absolute bottom-2 w-[95%] pr-[15%] mx-3">
-          <form
-            className="bg-white rounded-2xl flex items-center justify-between"
-            onSubmit={handleSubmit}
-          >
-            <input
-              placeholder="Enter a Message"
-              className="flex-grow rounded-2xl px-2 py-1"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-            <button type="submit" className="hover:scale-110 px-1">
-              <IoSend width={20} className="text-goldenOrange" />
-            </button>
-          </form>
-        </div>
+        {isChannelTime !== "TIME IS UP" && (
+          <div className="absolute bottom-2 w-[95%] pr-[15%] mx-3">
+            <form
+              className="bg-white rounded-2xl flex items-center justify-between"
+              onSubmit={handleSubmit}
+            >
+              <input
+                placeholder="Enter a Message"
+                className="flex-grow rounded-2xl px-2 py-1"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              <button type="submit" className="hover:scale-110 px-1">
+                <IoSend width={20} className="text-goldenOrange" />
+              </button>
+            </form>
+          </div>
+        )}
       </section>
 
       {/* Fixed Message Input Section */}

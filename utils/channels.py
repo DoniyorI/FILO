@@ -19,11 +19,6 @@ def newChannel():
     timeZone = data.get("time_zone")
     never = data.get("never")
     
-    print(datetime.datetime.now())
-    print(never)
-    print(time)
-    print(date)
-    print(timeZone)
     if never == True:
         time = ""
         date = ""
@@ -38,11 +33,14 @@ def newChannel():
 
 
     imgData = data.get("image_path")
-    image_path = "public/image/Channel.svg"
+    image_path = "public/image/Channel.png"
 
     if imgData:
         # Process image data and save it with a unique name
         imgCount = imgCounterCollection.find_one({})["count"]
+        if not imgCount:
+            imgCounterCollection.insert_one({"count": 0})
+
         new_count = imgCount + 1
         imgCounterCollection.update_one({}, {'$set': {"count": new_count}})
         imageName = str(new_count) + ".jpg"  # Assuming the image is a JPEG

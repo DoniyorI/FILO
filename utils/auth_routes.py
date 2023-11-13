@@ -61,7 +61,7 @@ def newUser():
             "salt": salt, 
             "following": [],
             'followers': [],
-            "profile_image": "public/image/mainProfile.svg",
+            "profile_image": "public/image/mainProfile.png",
             "direct_messages": [],
             })
         # print(userCollection)

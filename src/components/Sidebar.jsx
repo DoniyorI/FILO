@@ -243,7 +243,7 @@ const Sidebar = ({ userId }) => {
                       ) : (
                         <div className="w-44 h-44 rounded-full overflow-hidden mb-4">
                           <img
-                            src={"public/image/channel.svg"}
+                            src={"public/image/Channel.png"}
                             alt="default-channel-image"
                             className="w-full h-full object-cover cursor-pointer"
                           />
