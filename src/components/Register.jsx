@@ -234,7 +234,7 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
         <div className="mb-2 w-full flex flex-col justify-center items-center gap-2">
           <input
             className={`p-2 border rounded-lg ${
-              !isEmailValid ? "border-red-500" : ""
+              !isEmailValid && submitAttempted ? "border-red-500" : ""
             }`}
             id="email_new"
             type="text"
@@ -280,7 +280,7 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
               {isErrorMessage || "An error occurred. Please fix"}
             </div>
           )}
-          {!isError && !isEmailValid && (
+          {!isError && !isEmailValid && submitAttempted && (
             <div className="absolute bottom-[102px] text-red-500 text-sm text-center w-full ">
               Please enter a valid email address.
             </div>
@@ -290,10 +290,10 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
         <button
           className="bg-primaryDark w-full p-2 mt-4 button-color shadow-lg text-white rounded-lg"
           type="submit"
+          // disabled={submitAttempted}
         >
           Register
         </button>
-       
       </form>
 
       <div className="text-center mt-2">
