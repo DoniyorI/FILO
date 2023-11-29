@@ -9,6 +9,11 @@ from utils.response import sendResponse, page_not_found
 from utils.config import app, userCollection, channelCollection
 
 
+def is_valid_email(email):
+    # Regular expression for basic email validation
+    email_pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.match(email_pattern, email)
+
 def newUser():
     try:
         newUserDat = request.get_json()
@@ -24,19 +29,22 @@ def newUser():
 
         if email == "" or username == "" or password == "" or passwordConfirm == "":
             print("EMPTY FIELDS")
-            return jsonify({'message': "Fields can't be left empty."}), 400
+            return jsonify({'message_fields': "Fields can't be left empty."}), 400
+        
+        if not is_valid_email(email):
+            return jsonify({"message_email": "Invalid email format."}), 400
 
         findDupName = userCollection.find_one({"username": username})
         findDupEmail = userCollection.find_one({"email": email})
         
         if findDupEmail: # Checks Duplicate Emails
-            return jsonify({"message": "Email already in use. Please choose another one."}), 400
+            return jsonify({"message_email": "Email already in use. Please choose another one."}), 400
         
         if findDupName: # Checks for Duplicate Username
-            return jsonify({"message": "Username already exist. Please try another name."}), 400
+            return jsonify({"message_username": "Username already exist. Please try another name."}), 400
         
         if password != passwordConfirm: # Checks if Passwords are the Same
-            return jsonify({"message": "Passwords do not match."}), 400
+            return jsonify({"message_password": "Passwords do not match."}), 400
         
         # if len(password) < 8:
         #     return jsonify({"message": "Password has to be at least 8 characters."}), 400

@@ -160,6 +160,12 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
   const [isError, setIsError] = useState(false);
   const [isErrorMessage, setIsErrorMessage] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
+
+  const [isFieldsEmpty, setIsFieldsEmpty] = useState(false);
+  const [isEmailTaken, setIsEmailTaken] = useState(false);
+  const [isUsernameTaken, setIsUsernameTaken] = useState(false);
+  const [isPasswordMatchError, setIsPasswordMatchError] = useState(false);
+
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const { email_new, username_new, password_new, confirm_password_new } =
@@ -172,10 +178,10 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
       [name]: value,
     });
 
-    if (name === "email_new") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      setIsEmailValid(emailRegex.test(value));
-    }
+    // if (name === "email_new") {
+    //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //   setIsEmailValid(emailRegex.test(value));
+    // }
   };
 
   useEffect(() => {
@@ -188,10 +194,10 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
     event.preventDefault();
     setSubmitAttempted(true);
 
-    if (!isEmailValid) {
-      console.error("Invalid email");
-      return;
-    }
+    // if (!isEmailValid) {
+    //   console.error("Invalid email");
+    //   return;
+    // }
 
     const dataToSend = {
       email: email_new,
@@ -213,9 +219,20 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
       } else {
         const responseData = await response.json();
         console.error("Registration failed:", responseData);
+        setIsFieldsEmpty(responseData.message_fields);
+        setIsEmailTaken(responseData.message_email);
+        setIsUsernameTaken(responseData.message_username);
+        setIsPasswordMatchError(responseData.message_password);
+        console.error("PASSWORD ERROR", responseData.message_password);
+        console.log("Password Match Error:", isPasswordMatchError);
+
         setIsError(true);
         setIsErrorMessage(
-          responseData.message || "An error occurred during registration."
+          responseData.message ||
+            responseData.message_fields ||
+            responseData.message_email ||
+            responseData.message_username ||
+            responseData.message_password
         );
       }
     } catch (error) {
@@ -234,7 +251,9 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
         <div className="mb-2 w-full flex flex-col justify-center items-center gap-2">
           <input
             className={`p-2 border rounded-lg ${
-              !isEmailValid && submitAttempted ? "border-red-500" : ""
+              (!isEmailValid || isEmailTaken || isFieldsEmpty) && submitAttempted
+                ? "border-red-500"
+                : ""
             }`}
             id="email_new"
             type="text"
@@ -245,7 +264,9 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
             // required
           />
           <input
-            className="p-2 border rounded-lg "
+            className={`p-2 border rounded-lg ${
+              (isUsernameTaken || isFieldsEmpty) && submitAttempted ? "border-red-500" : ""
+            }`}
             id="username_new"
             type="text"
             placeholder="Username"
@@ -256,7 +277,9 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
             // required
           />
           <input
-            className="p-2 border rounded-lg"
+            className={`p-2 border rounded-lg ${
+              (isPasswordMatchError || isFieldsEmpty) && submitAttempted ? "border-red-500" : ""
+            }`}
             id="password_new"
             type="password"
             placeholder="Password"
@@ -266,7 +289,9 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
             // required
           />
           <input
-            className="p-2 border rounded-lg"
+            className={`p-2 border rounded-lg ${
+              (isPasswordMatchError || isFieldsEmpty) && submitAttempted ? "border-red-500" : ""
+            }`}
             id="confirm_password_new"
             type="password"
             placeholder="Confirm Password"
@@ -278,11 +303,6 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
           {isError && (
             <div className="absolute bottom-[102px] text-red-500 text-sm text-center w-full ">
               {isErrorMessage || "An error occurred. Please fix"}
-            </div>
-          )}
-          {!isError && !isEmailValid && submitAttempted && (
-            <div className="absolute bottom-[102px] text-red-500 text-sm text-center w-full ">
-              Please enter a valid email address.
             </div>
           )}
         </div>
