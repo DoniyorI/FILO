@@ -33,6 +33,8 @@ const LoginForm = ({ onRegisterClick }) => {
   const [isError, setIsError] = useState(false);
   const [isErrorMessage, setIsErrorMessage] = useState("");
   // const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [isFieldRequired, setIsFieldRequired] = useState(false);
+  const [isInvalid, setIsInvalid] = useState(false);
   const { username_exists, password_exists } = formData;
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
@@ -78,9 +80,15 @@ const LoginForm = ({ onRegisterClick }) => {
       } else {
         const responseData = await response.json();
         console.error("Login failed:", responseData);
+        setIsFieldRequired(responseData.message_required);
+        setIsInvalid(responseData.message_invalid);
+        console.log("FIELDS", responseData.message_required);
         setIsError(true);
         setIsErrorMessage(
-          responseData.message || "An error occurred during Login."
+          responseData.message ||
+            responseData.message_required ||
+            responseData.message_invalid ||
+            "An error occurred during Login."
         );
       }
     } catch (error) {
@@ -99,33 +107,41 @@ const LoginForm = ({ onRegisterClick }) => {
       <form className="w-5/12 mx-auto py-8" onSubmit={handleSubmit}>
         <div className="mb-2 w-full flex flex-col justify-center items-center gap-2">
           <input
-            className="p-2 border rounded-lg"
+            className={`p-2 border rounded-lg ${
+              (isFieldRequired || isInvalid) && submitAttempted
+                ? "border-red-500"
+                : ""
+            }`}
             id="username_exists"
             type="text"
             placeholder="Username"
             name="username_exists"
             value={username_exists}
             onChange={handleChange}
-            required
-            max="12"
+            // required
+            min="4"
           />
           <input
-            className="p-2 border rounded-lg"
+            className={`p-2 border rounded-lg ${
+              (isFieldRequired || isInvalid) && submitAttempted
+                ? "border-red-500"
+                : ""
+            }`}
             id="password_exists"
             type="password"
             placeholder="Password"
             name="password_exists"
             value={password_exists}
             onChange={handleChange}
-            required
-            max="12"
+            // required
+            min="4"
           />
+          {isError && (
+            <div className="absolute bottom-[9.5rem] text-red-500 text-sm text-center w-full">
+              {isErrorMessage || "An error has occurred."}
+            </div>
+          )}
         </div>
-        {isError && (
-          <div className="absolute bottom-[102px] text-red-500 text-sm text-center w-full">
-            {isErrorMessage || "An error occurred. Please fix"}
-          </div>
-        )}
         <button
           className="bg-primaryDark w-full p-2 mt-5 button-color shadow-lg text-white rounded-lg "
           type="submit"
@@ -251,7 +267,8 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
         <div className="mb-2 w-full flex flex-col justify-center items-center gap-2">
           <input
             className={`p-2 border rounded-lg ${
-              (!isEmailValid || isEmailTaken || isFieldsEmpty) && submitAttempted
+              (!isEmailValid || isEmailTaken || isFieldsEmpty) &&
+              submitAttempted
                 ? "border-red-500"
                 : ""
             }`}
@@ -261,11 +278,14 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
             name="email_new"
             value={email_new}
             onChange={handleChange}
+            min="4"
             // required
           />
           <input
             className={`p-2 border rounded-lg ${
-              (isUsernameTaken || isFieldsEmpty) && submitAttempted ? "border-red-500" : ""
+              (isUsernameTaken || isFieldsEmpty) && submitAttempted
+                ? "border-red-500"
+                : ""
             }`}
             id="username_new"
             type="text"
@@ -273,12 +293,14 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
             name="username_new"
             value={username_new}
             onChange={handleChange}
-            max="12"
+            min="4"
             // required
           />
           <input
             className={`p-2 border rounded-lg ${
-              (isPasswordMatchError || isFieldsEmpty) && submitAttempted ? "border-red-500" : ""
+              (isPasswordMatchError || isFieldsEmpty) && submitAttempted
+                ? "border-red-500"
+                : ""
             }`}
             id="password_new"
             type="password"
@@ -286,11 +308,14 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
             name="password_new"
             value={password_new}
             onChange={handleChange}
+            min="4"
             // required
           />
           <input
             className={`p-2 border rounded-lg ${
-              (isPasswordMatchError || isFieldsEmpty) && submitAttempted ? "border-red-500" : ""
+              (isPasswordMatchError || isFieldsEmpty) && submitAttempted
+                ? "border-red-500"
+                : ""
             }`}
             id="confirm_password_new"
             type="password"
@@ -301,8 +326,8 @@ const RegisterForm = ({ onLoginClick, onRegistrationSuccess }) => {
             // required
           />
           {isError && (
-            <div className="absolute bottom-[102px] text-red-500 text-sm text-center w-full ">
-              {isErrorMessage || "An error occurred. Please fix"}
+            <div className="absolute bottom-[102px] text-red-500 text-sm text-center w-full">
+              {isErrorMessage || "An error has occurred."}
             </div>
           )}
         </div>

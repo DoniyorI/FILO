@@ -24,9 +24,9 @@ export default function App() {
             path="/"
             element={
               <>
-                <Sidebar/>
+                <Sidebar />
                 <Navbar />
-                <Home />                
+                <Home />
               </>
             }
           />
@@ -42,7 +42,7 @@ export default function App() {
             path="/messages/:channelName"
             element={
               <>
-                <SidebarMsg/>
+                <SidebarMsg />
                 <Navbar />
                 <Messages />
               </>

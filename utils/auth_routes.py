@@ -85,7 +85,7 @@ def returningUser():
         userPassword = requestData.get("password")
 
         if not username or not userPassword:
-            return jsonify({'message': 'Username and password are required'}), 400
+            return jsonify({'message_required': 'Username and password are required.'}), 400
 
         userRecord = userCollection.find_one({"username": username})
 
@@ -104,9 +104,9 @@ def returningUser():
                 )
                 return response
             else:
-                return jsonify({'message': 'Invalid username or password'}), 400
+                return jsonify({'message_invalid': 'Invalid username or password'}), 400
         else:
-            return jsonify({'message': 'Invalid username or password'}), 400
+            return jsonify({'message_invalid': 'Invalid username or password'}), 400
 
     except Exception as e: 
         return jsonify({'message': 'An error occurred'}), 500

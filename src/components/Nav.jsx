@@ -137,9 +137,9 @@ const Nav = () => {
   return (
     // TODO: Implement search bar
     <header>
-      <nav className="nav_bg flex justify-between items-center w-full z-10 py-2 px-8 shadow-lg"> 
+      <nav className="nav_bg flex justify-between items-center w-full z-10 py-2 px-8 shadow-lg">
         <a href="/">
-          {/* <img src={Logo} alt="logo" width={35} height={25} /> */} 
+          {/* <img src={Logo} alt="logo" width={35} height={25} /> */}
         </a>
         <div className="flex gap-6 px-4">
           <h1 className="text-sand text-2xl font-bold">
@@ -253,9 +253,11 @@ const Nav = () => {
                 <div className="w-full flex justify-between px-2 text-2xl pb-10">
                   <div className="flex-1 flex justify-center items-center border-r">
                     <div className="text-center">
-                      <div className="font-semibold">Following: {user.following.length}</div>
+                      <div className="font-semibold">
+                        Following: {user.following.length}
+                      </div>
                       <div className="overflow-auto h-[10vh]">
-                      {user.following.map((following, index) => (
+                        {user.following.map((following, index) => (
                           <div key={index} className="flex items-center">
                             <div className="bg-primaryBlue w-7 h-7 border-[1px] border-goldenOrange rounded-full m-2">
                               <img
@@ -264,7 +266,9 @@ const Nav = () => {
                                 className="w-full h-full object-cover cursor-pointer"
                               />
                             </div>
-                            <div className="text-sm text-white">{following.username}</div>
+                            <div className="text-sm text-white">
+                              {following.username}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -274,7 +278,9 @@ const Nav = () => {
                   {/* Followers Column */}
                   <div className="flex-1 flex justify-center items-center">
                     <div className="text-center">
-                      <div className="font-semibold">Followers: {user.followers.length}</div>
+                      <div className="font-semibold">
+                        Followers: {user.followers.length}
+                      </div>
                       <div className="overflow-auto h-[10vh]">
                         {user.followers.map((follower, index) => (
                           <div key={index} className="flex items-center">
@@ -285,7 +291,9 @@ const Nav = () => {
                                 className="w-full h-full object-cover cursor-pointer"
                               />
                             </div>
-                            <div className="text-sm text-white">{follower.username}</div>
+                            <div className="text-sm text-white">
+                              {follower.username}
+                            </div>
                           </div>
                         ))}
                       </div>
