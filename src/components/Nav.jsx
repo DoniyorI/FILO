@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import UserContext, { useFetchUser } from "./UserContext";
+import { MdVerified } from "react-icons/md";
 
 import Logo from "../assets/FILO_Logo.png";
 
@@ -17,7 +18,6 @@ const Nav = () => {
 
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const profileMenuRef = useRef(null);
   const modalRef = useRef(null);
 
@@ -305,13 +305,44 @@ const Nav = () => {
               <div className="w-1/2 pl-2 ">
                 <div className="p-10">
                   <div className="user-info-field flex flex-col mb-4">
-                    <label className="mb-1 text-sm font-semibold">Email</label>
-                    <input
-                      className="border-0 border-b-2 border-gray-300   text-gray-600 bg-transparent focus:outline-none focus:ring-0"
-                      type="text"
-                      value={user ? user.email : "Loading..."}
-                      readOnly
-                    />
+                    <label className="mb-1 text-sm font-semibold flex items-center">
+                      <span className="text-sand">Email </span>
+                      {user.verify === "Verified" ? (
+                        <>
+                          <span className="text-green-500 italic text-xs">
+                            {user.verify}
+                          </span>
+                          <MdVerified className="text-green-500 mr-1 w-6 h-4" />
+                        </>
+                      ) : (
+                        <span className="text-red-500 italic text-xs ml-2">
+                          {user.verify || "Verification Error"}
+                        </span>
+                      )}
+                    </label>
+                    {/* <label className="mb-1 text-sm font-semibold">
+                      <span className="text-sand">Email </span>
+                      <span
+                        className={
+                          user.verify === "Verified"
+                            ? "text-green-500 italic text-xs pl-2"
+                            : "text-red-500 italic text-xs pl-2"
+                        }
+                      >
+                        {user.verify || "Verification Error"}
+                      </span>
+                    </label> */}
+                    <div className="flex justify-between items-center border-b-2 border-gray-300 mb-2">
+                      <input
+                        className="text-gray-500 bg-transparent focus:outline-none focus:ring-0 flex-grow"
+                        type="text"
+                        value={user ? user.email : "Loading..."}
+                        readOnly
+                      />
+                      <button className="bg-goldenOrange text-primaryDark border-2 border-primaryBlue rounded-xl flex justify-center items-center p-2 text-center text-sm font-semibold w-14 h-8 hover:bg-sand hover:border-goldenOrange">
+                        Verify
+                      </button>
+                    </div>
                   </div>
 
                   <div className="user-info-field flex flex-col mb-4">
@@ -319,7 +350,7 @@ const Nav = () => {
                       Username
                     </label>
                     <input
-                      className="border-0 border-b-2 border-gray-300  text-gray-600 bg-transparent focus:outline-none focus:ring-0"
+                      className="border-0 border-b-2 border-gray-300  text-gray-500 bg-transparent focus:outline-none focus:ring-0"
                       type="text"
                       value={user ? user.username : "Loading..."}
                       readOnly
@@ -331,7 +362,7 @@ const Nav = () => {
                       Password
                     </label>
                     <input
-                      className="border-0 border-b-2 border-gray-300 text-gray-600 bg-transparent focus:outline-none focus:ring-0"
+                      className="border-0 border-b-2 border-gray-300 text-gray-500 bg-transparent focus:outline-none focus:ring-0"
                       type="password"
                       value={"****************"}
                       readOnly
