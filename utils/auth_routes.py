@@ -105,7 +105,7 @@ def returningUser():
 
 def register():
     try:
-        return sendResponse(filenamedir="./build/index.html", path=None, mimetype="text/html", xcontenttypeoptions="nosniff", makeresponse=True)
+        return sendResponse(filenamedir="./build/index.html", path=None, xcontenttypeoptions="nosniff", makeresponse=True)
     except Exception:
         return page_not_found()
 
