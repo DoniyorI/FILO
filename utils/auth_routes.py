@@ -14,6 +14,7 @@ def is_valid_email(email):
     email_pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.match(email_pattern, email)
 
+
 def newUser():
     try:
         newUserDat = request.get_json()
@@ -71,6 +72,7 @@ def newUser():
             'followers': [],
             "profile_image": "public/image/mainProfile.png",
             "direct_messages": [],
+            "verified": False,
             })
         # print(userCollection)
         return make_response()
@@ -104,9 +106,9 @@ def returningUser():
                 )
                 return response
             else:
-                return jsonify({'message_invalid': 'Invalid username or password'}), 400
+                return jsonify({'message_invalid': 'Invalid username or password.'}), 400
         else:
-            return jsonify({'message_invalid': 'Invalid username or password'}), 400
+            return jsonify({'message_invalid': 'Invalid username or password.'}), 400
 
     except Exception as e: 
         return jsonify({'message': 'An error occurred'}), 500

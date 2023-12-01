@@ -4,15 +4,172 @@ from utils.post import *
 from utils.response import *
 from utils.userInteract import *
 from utils.channels import *
-
-from datetime import datetime, timedelta
-from flask import Flask, abort, make_response, jsonify
-from flask_socketio import SocketIO, emit, join_room, leave_room
-
 from utils.config import app, channelCollection
+
 import os
+from datetime import datetime, timedelta
+
+from flask import Flask, abort, make_response, jsonify, request, url_for
+# from flask_pymongo import PyMongo
+from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_oauthlib.client import OAuth
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer
+from google.oauth2.credentials import Credentials
+
 
 app = Flask(__name__)
+
+#! ************************************************************************************************************************
+# app.config['SECRET_KEY'] = 'your_secret_key'
+# app.config['GOOGLE_ID'] = 'your_google_client_id'
+# app.config['GOOGLE_SECRET'] = 'your_google_client_secret'
+# app.config['MONGO_URI'] = 'your_mongo_connection_string'
+
+# oauth = OAuth(app)
+
+# google = oauth.remote_app(
+#     'google',
+#     consumer_key=app.config['GOOGLE_ID'],
+#     consumer_secret=app.config['GOOGLE_SECRET'],
+#     request_token_params={'scope': 'email'},
+#     base_url='https://www.googleapis.com/oauth2/v1/',
+#     request_token_url=None,
+#     access_token_method='POST',
+#     access_token_url='https://accounts.google.com/o/oauth2/token',
+#     authorize_url='https://accounts.google.com/o/oauth2/auth',
+# )
+
+# mongo = PyMongo(app)
+#! ************************************************************************************************************************
+
+# TODO: Make these app.config confidential, not hardcoded here
+# Configure Flask-Mail
+# app.config['SECRET_KEY'] = str(os.urandom(16))
+# app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+# app.config['MAIL_PORT'] = 587
+# app.config['MAIL_USE_TLS'] = True
+# app.config['MAIL_USERNAME'] = 'FiloWebConnect@gmail.com'
+# app.config['MAIL_PASSWORD'] = 'FILOCSE312'
+# app.config['MAIL_DEFAULT_SENDER'] = 'FiloWebConnect@gmail.com'
+# app.config['MONGO_URI'] = 'mongodb://username:password@localhost:27017/mydatabase'
+
+clientId = "343448333586-v74sg0uojsrpbi2auiqn2tphs4ecoe9f.apps.googleusercontent.com"
+clientSecret = "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"
+redirURI = "https://developers.google.com/oauthplayground"
+refreshTok = "1//049zMs46M-bDoCgYIARAAGAQSNwF-L9IrzD1xL7WvqPEXbYg2Dyz_SD98l98-35Kg7BIdcSHgpIV9alM6TXhX4f1X1MqBDnrXRlM"
+
+mail = Mail(app)
+
+@app.route('/send-email')
+def send_email():
+    creds = Credentials(
+        None,
+        client_id=clientId,
+        client_secret=clientSecret,
+        token_uri='https://accounts.google.com/o/oauth2/token',
+        refresh_token=refreshTok
+    )
+
+    # Authorize the credentials
+    creds.refresh(Request())
+    service = build('gmail', 'v1', credentials=creds)
+
+    message = create_message('your_email@gmail.com', 'to_email@example.com', 'Subject', 'Email body')
+
+    try:
+        sent_message = service.users().messages().send(userId='me', body=message).execute()
+        return jsonify({'success': True, 'message_id': sent_message['id']})
+    except Exception as e:
+        return jsonify({'success': False, 'error_message': str(e)}), 500
+
+def create_message(sender, to, subject, message_text):
+    message = {
+        'raw': (
+            'From: {}\r\n'
+            'To: {}\r\n'
+            'Subject: {}\r\n\r\n'
+            '{}'
+        ).format(sender, to, subject, message_text)
+    }
+    return message
+
+# # Initialize Flask-Mail
+# mail = Mail(app)
+# # mongo = PyMongo(app)
+# serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+
+# # app = Flask(__name__)
+
+
+# # serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+# def generate_verification_token(email):
+#     return serializer.dumps(email, salt=app.config['SECRET_KEY'])
+
+# def verify_token(token, expiration=3600):
+#     try:
+#         email = serializer.loads(token, salt=app.config['SECRET_KEY'], max_age=expiration)
+#         return email
+#     except Exception as e:
+#         print(f"Token verification failed: {e}")
+#         return None
+
+def send_verification_email(email):
+    # Generate a unique token for the user
+    token = generate_verification_token(email)
+
+    # Construct the verification link with the token
+    verification_link = url_for('verify_email', token=token, _external=True)
+
+    # TODO: Update User's Database with the token
+    # You may store the token in the user's database record
+
+    # Create the email message
+    subject = 'Verify Your FILO Account'
+    body = f'Click the following link to verify your account: {verification_link}'
+    sender = 'filowebconnect@gmail.com'
+
+    msg = Message(subject, recipients=[email], sender=sender)
+    msg.body = body
+
+    try:
+        mail.send(msg)
+        return True
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        return False
+
+@app.route('/send-verification-email/<email>', methods=['POST'])
+def send_verification_email_route(email):
+    # Send verification email and update the user's database with the token
+    if send_verification_email(email):
+        return 'Verification email sent successfully!'
+    else:
+        return 'Failed to send verification email.'
+
+@app.route('/verify-email/<token>')
+def verify_email(token):
+    # Verify the token and update user's status in the database
+    email = verify_token(token)
+    if email:
+        # TODO: Update User's Database (e.g., set verified=True)
+        user_data = userCollection.find_one({"email": email})
+        if user_data:
+            userCollection.update_one({"email": email}, {"$set": {"verified": True}})
+            return jsonify({"message_verify": True}), 200
+            # return 'Email verified successfully!'
+        else:
+            return jsonify({"message_verify": False}), 200
+        
+        
+    else:
+        return jsonify({"message_verify": False, "error": "Invalid or expired token. Please request a new verification email."}), 200
+
+
+#! ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 app.config['SECRET_KEY'] = os.urandom(32)
 

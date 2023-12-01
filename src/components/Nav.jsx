@@ -21,8 +21,6 @@ const Nav = () => {
   const profileMenuRef = useRef(null);
   const modalRef = useRef(null);
 
-  // const { user, dmUsers, channels } = useContext(UserContext);
-
   const handleMenu = () => {
     setProfileMenuOpen(false);
   };
@@ -131,6 +129,29 @@ const Nav = () => {
       }
     } catch (error) {
       // Handle any errors
+    }
+  };
+
+  const handleVerifyClick = async () => {
+    // Make an API call to your Flask backend to request email verification
+    try {
+      const response = await fetch("/send-verification-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: user.email }),
+      });
+
+      if (response.ok) {
+        // Handle success
+        console.log("Verification email sent successfully");
+      } else {
+        // Handle error
+        console.error("Failed to send verification email");
+      }
+    } catch (error) {
+      console.error("Error sending verification email", error);
     }
   };
 
@@ -307,16 +328,16 @@ const Nav = () => {
                   <div className="user-info-field flex flex-col mb-4">
                     <label className="mb-1 text-sm font-semibold flex items-center">
                       <span className="text-sand">Email </span>
-                      {user.verify === "Verified" ? (
+                      {user.verified === true ? (
                         <>
                           <span className="text-green-500 italic text-xs">
-                            {user.verify}
+                            Verified
                           </span>
                           <MdVerified className="text-green-500 mr-1 w-6 h-4" />
                         </>
                       ) : (
                         <span className="text-red-500 italic text-xs ml-2">
-                          {user.verify || "Verification Error"}
+                          Not Verified
                         </span>
                       )}
                     </label>
@@ -339,9 +360,16 @@ const Nav = () => {
                         value={user ? user.email : "Loading..."}
                         readOnly
                       />
-                      <button className="bg-goldenOrange text-primaryDark border-2 border-primaryBlue rounded-xl flex justify-center items-center p-2 text-center text-sm font-semibold w-14 h-8 hover:bg-sand hover:border-goldenOrange">
-                        Verify
-                      </button>
+                      <a
+                        // href={verificationLink}
+                        // target="/verify"
+                        rel="noopener noreferrer"
+                        onClick={handleVerifyClick}
+                      >
+                        <button className="bg-goldenOrange text-primaryDark border-2 border-primaryBlue rounded-xl flex justify-center items-center p-2 text-center text-sm font-semibold w-14 h-8 hover:bg-sand hover:border-goldenOrange">
+                          Verify
+                        </button>
+                      </a>
                     </div>
                   </div>
 
