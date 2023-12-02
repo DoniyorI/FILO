@@ -30,28 +30,6 @@ from requests import HTTPError
 # app = Flask(__name__)
 
 
-# @app.route('/send-verification-email', methods=['POST'])
-# def send_verification_email_route():
-#     SCOPES = [
-#             "https://www.googleapis.com/auth/gmail.send"
-#         ]
-#     flow = InstalledAppFlow.from_client_secrets_file('googleCreds.json', SCOPES)
-#     creds = flow.run_local_server(port=8080)
-
-#     service = build('gmail', 'v1', credentials=creds)
-#     message = MIMEText('This is the body of the email')
-#     message['to'] = 'zodin.thanga9@gmail.com'
-#     message['subject'] = 'Email Subject'
-#     create_message = {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
-
-#     try:
-#         message = (service.users().messages().send(userId="me", body=create_message).execute())
-#         print(F'sent message to {message} Message Id: {message["id"]}')
-#     except HTTPError as error:
-#         print(F'An error occurred: {error}')
-#         message = None
-
-
 
 
 #! ************************************************************************************************************************
@@ -88,11 +66,12 @@ app = Flask(__name__)
 # TODO: Make these app.config confidential, not hardcoded here
 # Configure Flask-Mail
 app.config['SECRET_KEY'] = str(os.urandom(16))
-app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
-app.config['MAIL_PORT'] = 587
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587  # Use TLS
 app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False  # Do not use SSL
 app.config['MAIL_USERNAME'] = 'filowebconnect@gmail.com'
-app.config['MAIL_PASSWORD'] = 'OAuth2' # Set a placeholder for now, will be replaced dynamically
+app.config['MAIL_PASSWORD'] = 'eqhb brly eyns nqrs' # Set a placeholder for now, will be replaced dynamically
 app.config['MAIL_DEFAULT_SENDER'] = 'filowebconnect@gmail.com'
 # app.config['MONGO_URI'] = 'mongodb://username:password@localhost:27017/mydatabase'
 
@@ -199,41 +178,41 @@ def verify_email(token):
 
 #! GOOGLE OAUTH2.0 Functions
 
-# Function to send verification email using Google OAuth
-def send_verification_email_google(email, access_token):
-    token = generate_verification_token(email)
-    verification_link = url_for('verify_email', token=token, _external=True)
-    subject = 'Verify Your FILO Account'
-    body = f'Click the following link to verify your account: {verification_link}'
+# # Function to send verification email using Google OAuth
+# def send_verification_email_google(email, access_token):
+#     token = generate_verification_token(email)
+#     verification_link = url_for('verify_email', token=token, _external=True)
+#     subject = 'Verify Your FILO Account'
+#     body = f'Click the following link to verify your account: {verification_link}'
     
-    msg = Message(subject, recipients=[email], sender='your_email@gmail.com')
-    msg.body = body
+#     msg = Message(subject, recipients=[email], sender='your_email@gmail.com')
+#     msg.body = body
 
-    try:
-        # Dynamically set the MAIL_PASSWORD to the access token obtained from OAuth
-        app.config['MAIL_PASSWORD'] = access_token
-        mail.send(msg)
-        return True
-    except Exception as e:
-        print(f"Failed to send email: {e}")
-        return False
+#     try:
+#         # Dynamically set the MAIL_PASSWORD to the access token obtained from OAuth
+#         app.config['MAIL_PASSWORD'] = access_token
+#         mail.send(msg)
+#         return True
+#     except Exception as e:
+#         print(f"Failed to send email: {e}")
+#         return False
 
-# Route to send verification email using Google OAuth
-@app.route('/send-verification-email-google', methods=['POST'])
-def send_verification_email_google_route():
-    try:
-        data = request.get_json()
-        email = data.get('email')
-        access_token = data.get('access_token')  # Add this line to retrieve the access_token
+# # Route to send verification email using Google OAuth
+# @app.route('/send-verification-email-google', methods=['POST'])
+# def send_verification_email_google_route():
+#     try:
+#         data = request.get_json()
+#         email = data.get('email')
+#         access_token = data.get('access_token')  # Add this line to retrieve the access_token
 
-        if email and access_token:
-            send_verification_email_google(email, access_token)  # Pass both arguments to the function
-            return jsonify({'message': 'Verification email sent successfully'})
-        else:
-            return jsonify({'error': 'Email or access_token not provided in the request. Failed to send verification email.'}), 400
+#         if email and access_token:
+#             send_verification_email_google(email, access_token)  # Pass both arguments to the function
+#             return jsonify({'message': 'Verification email sent successfully'})
+#         else:
+#             return jsonify({'error': 'Email or access_token not provided in the request. Failed to send verification email.'}), 400
 
-    except Exception as e:
-        return jsonify({'error': f'Error: {str(e)}'}), 500
+#     except Exception as e:
+#         return jsonify({'error': f'Error: {str(e)}'}), 500
 
 #! ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
