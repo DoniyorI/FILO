@@ -12,8 +12,8 @@ from datetime import datetime, timedelta
 from flask import Flask, abort, make_response, jsonify, request, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room
 # from flask_pymongo import PyMongo
-from flask_oauthlib.client import OAuth
-from flask_mail import Mail, Message
+# from flask_oauthlib.client import OAuth
+# from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 from google.oauth2.credentials import Credentials
 
@@ -24,6 +24,7 @@ import base64
 from email.mime.text import MIMEText
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from google.auth.transport import Request
 from requests import HTTPError
 
 
@@ -66,17 +67,17 @@ app = Flask(__name__)
 # TODO: Make these app.config confidential, not hardcoded here
 # Configure Flask-Mail
 app.config['SECRET_KEY'] = str(os.urandom(16))
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587  # Use TLS
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False  # Do not use SSL
-app.config['MAIL_USERNAME'] = 'filowebconnect@gmail.com'
-app.config['MAIL_PASSWORD'] = 'eqhb brly eyns nqrs' # Set a placeholder for now, will be replaced dynamically
-app.config['MAIL_DEFAULT_SENDER'] = 'filowebconnect@gmail.com'
+# app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+# app.config['MAIL_PORT'] = 587  # Use TLS
+# app.config['MAIL_USE_TLS'] = True
+# app.config['MAIL_USE_SSL'] = False  # Do not use SSL
+# app.config['MAIL_USERNAME'] = 'filowebconnect@gmail.com'
+# app.config['MAIL_PASSWORD'] = 'eqhb brly eyns nqrs' # Set a placeholder for now, will be replaced dynamically
+# app.config['MAIL_DEFAULT_SENDER'] = 'filowebconnect@gmail.com'
 # app.config['MONGO_URI'] = 'mongodb://username:password@localhost:27017/mydatabase'
 
 # Configure OAuth for Google
-oauth = OAuth(app)
+# oauth = OAuth(app)
 
 # google = oauth.remote_app(
 #     'google',
@@ -91,7 +92,7 @@ oauth = OAuth(app)
 # )
 
 # Initialize Flask-Mail
-mail = Mail(app)
+# mail = Mail(app)
 
 # Initialize itsdangerous for token generation
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
@@ -101,6 +102,7 @@ serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 def generate_verification_token(email):
     return serializer.dumps(email, salt=app.config['SECRET_KEY'])
 
+creds = None
 def verify_token(token, expiration=3600):
     try:
         email = serializer.loads(token, salt=app.config['SECRET_KEY'], max_age=expiration)
@@ -110,42 +112,44 @@ def verify_token(token, expiration=3600):
         return None
 
 def send_verification_email(email):
-    # Generate a unique token for the user
     token = generate_verification_token(email)
-    print("############################################################")
-    print("USER'S TOKEN", token)
 
-    # Construct the verification link with the token
     verification_link = url_for('verify_email', token=token, _external=True)
 
-    # TODO: Update User's Database with the token
-    # You may store the token in the user's database record
-
-    # Create the email message
-    subject = 'Verify Your FILO Account'
     body = f'Click the following link to verify your account: {verification_link}'
     sender = 'filowebconnect@gmail.com'
 
-    msg = Message(subject, recipients=[email], sender=sender)
-    msg.body = body
+    global creds  # To access and modify the global credentials variable
+
+    if not creds:  # If credentials are not loaded, initiate the OAuth2 flow
+        SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
+        flow = InstalledAppFlow.from_client_secrets_file('googleCreds.json', SCOPES)
+        creds = flow.run_local_server(port="8080/callback")
+
+    # If the access token is expired, refresh it using the refresh token
+    if creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+
+    service = build('gmail', 'v1', credentials=creds)
+    message = MIMEText(f'Click the following link to verify your account: {verification_link}')
+    message['to'] = email
+    message['subject'] = 'Verify Your FILO Account'
+    create_message = {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
 
     try:
-        print("SEND VERIFICATION TRY")
-        mail.send(msg)
-        return True
-    except Exception as e:
-        print(f"Failed to send email: {e}")
-        return False
+        message = (service.users().messages().send(userId="me", body=create_message).execute())
+        print(F'sent message to {message} Message Id: {message["id"]}')
+    except HTTPError as error:
+        print(F'An error occurred: {error}')
+        message = None
 
 @app.route('/send-verification-email', methods=['POST'])
 def send_verification_email_route():
     try:
         # Extract email from the JSON payload
         data = request.get_json()
-        print("----------------------------------")
-        print("SEND VER. DATA", data)
+
         email = data.get('email')
-        print("SERVER.PY EMAIL", email)
 
         # Validate and send verification email
         if email:
@@ -166,7 +170,7 @@ def verify_email(token):
         user_data = userCollection.find_one({"email": email})
         if user_data:
             userCollection.update_one({"email": email}, {"$set": {"verified": True}})
-            return jsonify({"message_verify": True}), 200
+            return redirect("/")
             # return 'Email verified successfully!'
         else:
             return jsonify({"message_verify": False}), 200
