@@ -133,8 +133,10 @@ const Nav = () => {
   };
 
   const handleVerifyClick = async () => {
-    // Make an API call to your Flask backend to request email verification
     try {
+      // Add UI feedback (optional)
+      // setLoading(true);
+
       const response = await fetch("/send-verification-email", {
         method: "POST",
         headers: {
@@ -144,14 +146,15 @@ const Nav = () => {
       });
 
       if (response.ok) {
-        // Handle success
         console.log("Verification email sent successfully");
       } else {
-        // Handle error
         console.error("Failed to send verification email");
       }
     } catch (error) {
       console.error("Error sending verification email", error);
+    } finally {
+      // Remove UI feedback (optional)
+      // setLoading(false);
     }
   };
 
@@ -360,16 +363,12 @@ const Nav = () => {
                         value={user ? user.email : "Loading..."}
                         readOnly
                       />
-                      <a
-                        // href={verificationLink}
-                        // target="/verify"
-                        rel="noopener noreferrer"
+                      <button
+                        className="bg-goldenOrange text-primaryDark border-2 border-primaryBlue rounded-xl flex justify-center items-center p-2 text-center text-sm font-semibold w-14 h-8 hover:bg-sand hover:border-goldenOrange"
                         onClick={handleVerifyClick}
                       >
-                        <button className="bg-goldenOrange text-primaryDark border-2 border-primaryBlue rounded-xl flex justify-center items-center p-2 text-center text-sm font-semibold w-14 h-8 hover:bg-sand hover:border-goldenOrange">
-                          Verify
-                        </button>
-                      </a>
+                        Verify
+                      </button>
                     </div>
                   </div>
 
