@@ -27,6 +27,11 @@ from googleapiclient.discovery import build
 from google.auth.transport import Request
 from requests import HTTPError
 
+from Google import Create_Service
+import base64
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 # app = Flask(__name__)
 
@@ -56,8 +61,8 @@ from requests import HTTPError
 # mongo = PyMongo(app)
 #! ************************************************************************************************************************
 
-clientId = "343448333586-ijsrfcaqfknaqs85etmg8cbaul44bc0e.apps.googleusercontent.com"
-clientSecret = "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"
+# clientId = "343448333586-ijsrfcaqfknaqs85etmg8cbaul44bc0e.apps.googleusercontent.com"
+# clientSecret = "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"
 
 # redirURI = "http://localhost:8080/login"
 # refreshTok = "1//049zMs46M-bDoCgYIARAAGAQSNwF-L9IrzD1xL7WvqPEXbYg2Dyz_SD98l98-35Kg7BIdcSHgpIV9alM6TXhX4f1X1MqBDnrXRlM"
@@ -113,31 +118,37 @@ def verify_token(token, expiration=3600):
 
 def send_verification_email(email):
     token = generate_verification_token(email)
+    print("121")
 
     verification_link = url_for('verify_email', token=token, _external=True)
 
-    body = f'Click the following link to verify your account: {verification_link}'
-    sender = 'filowebconnect@gmail.com'
+    # body = f'Click the following link to verify your account: {verification_link}'
+    # sender = 'filowebconnect@gmail.com'
 
-    global creds  # To access and modify the global credentials variable
+    clientSecret = "client_secret.json"
+    apiName = 'gmail'
+    apiVersion = "v1"
+    scopes = ['https://mail.google.com/']
 
-    if not creds:  # If credentials are not loaded, initiate the OAuth2 flow
-        SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
-        flow = InstalledAppFlow.from_client_secrets_file('googleCreds.json', SCOPES)
-        creds = flow.run_local_server(port="8080/callback")
+    print("133")
 
-    # If the access token is expired, refresh it using the refresh token
-    if creds.expired and creds.refresh_token:
-        creds.refresh(Request())
+    service = Create_Service(clientSecret, apiName, apiVersion, scopes)
+    
+    print("137")
 
-    service = build('gmail', 'v1', credentials=creds)
-    message = MIMEText(f'Click the following link to verify your account: {verification_link}')
-    message['to'] = email
-    message['subject'] = 'Verify Your FILO Account'
-    create_message = {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
+    mimeMsg = MIMEMultipart()
+
+    emailMsg = f'Click the following link to verify your account: {verification_link}'
+    mimeMsg['to'] = email
+    mimeMsg['subject'] = 'Verify Your FILO Account'
+    mimeMsg.attach(MIMEText(emailMsg, 'plain'))
+    print("145")
+
+    raw_string = base64.urlsafe_b64encode(mimeMsg.as_bytes()).decode()
+    print("148")
 
     try:
-        message = (service.users().messages().send(userId="me", body=create_message).execute())
+        message = service.users().messages().send(userId='me', body={'raw': raw_string}).execute()
         print(F'sent message to {message} Message Id: {message["id"]}')
     except HTTPError as error:
         print(F'An error occurred: {error}')
