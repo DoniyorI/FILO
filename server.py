@@ -113,28 +113,24 @@ def verify_token(token, expiration=3600):
         email = serializer.loads(token, salt=app.config['SECRET_KEY'], max_age=expiration)
         return email
     except Exception as e:
-        print(f"Token verification failed: {e}")
+        # print(f"Token verification failed: {e}")
         return None
 
 def send_verification_email(email):
     token = generate_verification_token(email)
-    print("121")
 
     verification_link = url_for('verify_email', token=token, _external=True)
 
-    # body = f'Click the following link to verify your account: {verification_link}'
-    # sender = 'filowebconnect@gmail.com'
+
 
     clientSecret = "client_secret.json"
     apiName = 'gmail'
     apiVersion = "v1"
     scopes = ['https://mail.google.com/']
 
-    print("133")
 
     service = Create_Service(clientSecret, apiName, apiVersion, scopes)
     
-    print("137")
 
     mimeMsg = MIMEMultipart()
 
@@ -142,16 +138,14 @@ def send_verification_email(email):
     mimeMsg['to'] = email
     mimeMsg['subject'] = 'Verify Your FILO Account'
     mimeMsg.attach(MIMEText(emailMsg, 'plain'))
-    print("145")
 
     raw_string = base64.urlsafe_b64encode(mimeMsg.as_bytes()).decode()
-    print("148")
 
     try:
         message = service.users().messages().send(userId='me', body={'raw': raw_string}).execute()
-        print(F'sent message to {message} Message Id: {message["id"]}')
+        # print(F'sent message to {message} Message Id: {message["id"]}')
     except HTTPError as error:
-        print(F'An error occurred: {error}')
+        # print(F'An error occurred: {error}')
         message = None
 
 @app.route('/send-verification-email', methods=['POST'])
@@ -254,7 +248,7 @@ def handle_join_channel(timeData):
             utc_time = datetime.utcnow()
             currTime = utc_time - timedelta(hours=5)
 
-            print(currTime)
+            # print(currTime)
             end_time = channel["time"]
             closeServerTime = datetime(int(end_time[0]), int(end_time[1]), int(end_time[2]), int(end_time[3]), int(end_time[4]))
             # endTime = datetime.datetime.strptime(closeServerTime, "%Y/%m/%d/%H/%M")
@@ -285,8 +279,8 @@ def handle_join_channel(timeData):
             socketio.sleep(1)
             
         except KeyError as e:
-            print(f"Error joining channel: {e}")
-            print("someone left the channel")
+            # print(f"Error joining channel: {e}")
+            # print("someone left the channel")
             break
         # Handle the error appropriately
 
@@ -323,7 +317,7 @@ def handle_leave_channel(data):
 
 @app.route("/messages/<path:filename>")
 def doNothing(filename):
-    print(filename)
+    # print(filename)
     return serve_react_app()
 
 @app.route('/')
