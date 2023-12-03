@@ -11,20 +11,13 @@ from datetime import datetime, timedelta
 
 from flask import Flask, abort, make_response, jsonify, request, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room
-# from flask_pymongo import PyMongo
-# from flask_oauthlib.client import OAuth
-# from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
-from google.oauth2.credentials import Credentials
 
 
 
 
 import base64
 from email.mime.text import MIMEText
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from google.auth.transport import Request
 from requests import HTTPError
 
 from Google import Create_Service
@@ -32,82 +25,18 @@ import base64
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-
-# app = Flask(__name__)
-
-
-
-
-#! ************************************************************************************************************************
-# app.config['SECRET_KEY'] = 'your_secret_key'
-# app.config['GOOGLE_ID'] = 'your_google_client_id'
-# app.config['GOOGLE_SECRET'] = 'your_google_client_secret'
-# app.config['MONGO_URI'] = 'your_mongo_connection_string'
-
-# oauth = OAuth(app)
-
-# google = oauth.remote_app(
-#     'google',
-#     consumer_key=app.config['GOOGLE_ID'],
-#     consumer_secret=app.config['GOOGLE_SECRET'],
-#     request_token_params={'scope': 'email'},
-#     base_url='https://www.googleapis.com/oauth2/v1/',
-#     request_token_url=None,
-#     access_token_method='POST',
-#     access_token_url='https://accounts.google.com/o/oauth2/token',
-#     authorize_url='https://accounts.google.com/o/oauth2/auth',
-# )
-
-# mongo = PyMongo(app)
-#! ************************************************************************************************************************
-
-# clientId = "343448333586-ijsrfcaqfknaqs85etmg8cbaul44bc0e.apps.googleusercontent.com"
-# clientSecret = "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"
-
-# redirURI = "http://localhost:8080/login"
-# refreshTok = "1//049zMs46M-bDoCgYIARAAGAQSNwF-L9IrzD1xL7WvqPEXbYg2Dyz_SD98l98-35Kg7BIdcSHgpIV9alM6TXhX4f1X1MqBDnrXRlM"
-
 app = Flask(__name__)
 
 # TODO: Make these app.config confidential, not hardcoded here
-# Configure Flask-Mail
 app.config['SECRET_KEY'] = str(os.urandom(16))
-# app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-# app.config['MAIL_PORT'] = 587  # Use TLS
-# app.config['MAIL_USE_TLS'] = True
-# app.config['MAIL_USE_SSL'] = False  # Do not use SSL
-# app.config['MAIL_USERNAME'] = 'filowebconnect@gmail.com'
-# app.config['MAIL_PASSWORD'] = 'eqhb brly eyns nqrs' # Set a placeholder for now, will be replaced dynamically
-# app.config['MAIL_DEFAULT_SENDER'] = 'filowebconnect@gmail.com'
-# app.config['MONGO_URI'] = 'mongodb://username:password@localhost:27017/mydatabase'
-
-# Configure OAuth for Google
-# oauth = OAuth(app)
-
-# google = oauth.remote_app(
-#     'google',
-#     consumer_key=clientId,
-#     consumer_secret=clientSecret,
-#     request_token_params={'scope': 'email'},
-#     base_url='https://www.googleapis.com/oauth2/v1/',
-#     request_token_url=None,
-#     access_token_method='POST',
-#     access_token_url='https://accounts.google.com/o/oauth2/token',
-#     authorize_url='https://accounts.google.com/o/oauth2/auth',
-# )
-
-# Initialize Flask-Mail
-# mail = Mail(app)
 
 # Initialize itsdangerous for token generation
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
-# Rest of your existing code...
-
 def generate_verification_token(email):
     return serializer.dumps(email, salt=app.config['SECRET_KEY'])
 
-creds = None
+
 def verify_token(token, expiration=3600):
     try:
         email = serializer.loads(token, salt=app.config['SECRET_KEY'], max_age=expiration)
@@ -117,24 +46,22 @@ def verify_token(token, expiration=3600):
         return None
 
 def send_verification_email(email):
+
+    user_data = userCollection.find_one({"email": email})
+    username = user_data['username']
     token = generate_verification_token(email)
 
     verification_link = url_for('verify_email', token=token, _external=True)
-
-
 
     clientSecret = "client_secret.json"
     apiName = 'gmail'
     apiVersion = "v1"
     scopes = ['https://mail.google.com/']
 
-
     service = Create_Service(clientSecret, apiName, apiVersion, scopes)
-    
 
     mimeMsg = MIMEMultipart()
-
-    emailMsg = f'Click the following link to verify your account: {verification_link}'
+    emailMsg = f"Hello {username},\n\nClick the link below to verify your FILO account:\n\n{verification_link}\n\nBest regards,\nFILO"
     mimeMsg['to'] = email
     mimeMsg['subject'] = 'Verify Your FILO Account'
     mimeMsg.attach(MIMEText(emailMsg, 'plain'))
@@ -153,7 +80,6 @@ def send_verification_email_route():
     try:
         # Extract email from the JSON payload
         data = request.get_json()
-
         email = data.get('email')
 
         # Validate and send verification email
@@ -166,8 +92,9 @@ def send_verification_email_route():
     except Exception as e:
         return jsonify({'error': f'Error: {str(e)}'}), 500
 
-@app.route('/verify-email/<token>')
-def verify_email(token):
+@app.route('/verify')
+def verify_email():
+    token = request.args.get('token')
     # Verify the token and update user's status in the database
     email = verify_token(token)
     if email:
@@ -184,44 +111,6 @@ def verify_email(token):
     else:
         return jsonify({"message_verify": False, "error": "Invalid or expired token. Please request a new verification email."}), 200
 
-
-#! GOOGLE OAUTH2.0 Functions
-
-# # Function to send verification email using Google OAuth
-# def send_verification_email_google(email, access_token):
-#     token = generate_verification_token(email)
-#     verification_link = url_for('verify_email', token=token, _external=True)
-#     subject = 'Verify Your FILO Account'
-#     body = f'Click the following link to verify your account: {verification_link}'
-    
-#     msg = Message(subject, recipients=[email], sender='your_email@gmail.com')
-#     msg.body = body
-
-#     try:
-#         # Dynamically set the MAIL_PASSWORD to the access token obtained from OAuth
-#         app.config['MAIL_PASSWORD'] = access_token
-#         mail.send(msg)
-#         return True
-#     except Exception as e:
-#         print(f"Failed to send email: {e}")
-#         return False
-
-# # Route to send verification email using Google OAuth
-# @app.route('/send-verification-email-google', methods=['POST'])
-# def send_verification_email_google_route():
-#     try:
-#         data = request.get_json()
-#         email = data.get('email')
-#         access_token = data.get('access_token')  # Add this line to retrieve the access_token
-
-#         if email and access_token:
-#             send_verification_email_google(email, access_token)  # Pass both arguments to the function
-#             return jsonify({'message': 'Verification email sent successfully'})
-#         else:
-#             return jsonify({'error': 'Email or access_token not provided in the request. Failed to send verification email.'}), 400
-
-#     except Exception as e:
-#         return jsonify({'error': f'Error: {str(e)}'}), 500
 
 #! ------------------------------------------------------------------------------------------------------------------------------------------------------------
 

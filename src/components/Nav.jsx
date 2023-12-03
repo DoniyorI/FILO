@@ -18,6 +18,7 @@ const Nav = () => {
 
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const profileMenuRef = useRef(null);
   const modalRef = useRef(null);
 
@@ -333,7 +334,7 @@ const Nav = () => {
                       <span className="text-sand">Email </span>
                       {user.verified === true ? (
                         <>
-                          <span className="text-green-500 italic text-xs">
+                          <span className="text-green-500 italic text-xs ml-2">
                             Verified
                           </span>
                           <MdVerified className="text-green-500 mr-1 w-6 h-4" />
@@ -363,12 +364,14 @@ const Nav = () => {
                         value={user ? user.email : "Loading..."}
                         readOnly
                       />
-                      <button
-                        className="bg-goldenOrange text-primaryDark border-2 border-primaryBlue rounded-xl flex justify-center items-center p-2 text-center text-sm font-semibold w-14 h-8 hover:bg-sand hover:border-goldenOrange"
-                        onClick={handleVerifyClick}
-                      >
-                        Verify
-                      </button>
+                      {!user.verified && (
+                        <button
+                          className="bg-goldenOrange text-primaryDark border-2 border-primaryBlue rounded-xl flex justify-center items-center p-2 text-center text-sm font-semibold w-14 h-8 hover:bg-sand hover:border-goldenOrange"
+                          onClick={handleVerifyClick}
+                        >
+                          Verify
+                        </button>
+                      )}
                     </div>
                   </div>
 

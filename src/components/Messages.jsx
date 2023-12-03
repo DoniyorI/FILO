@@ -62,7 +62,7 @@ function Messages() {
       return;
     }
 
-    const newSocket = io.connect("http://127.0.0.1:8080", {
+    const newSocket = io.connect("https://chatfilo.me", {
       transports: ["websocket"],
     });
 
