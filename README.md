@@ -1,3 +1,6 @@
+# PUBLIC LINK FOR WEB APP:
+https://filochat.me
+
 # FILO - Post Message and Like Web App
 
 Welcome to FILO, a simple web app that allows you to create and like post messages. This README will guide you through the setup process.
