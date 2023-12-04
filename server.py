@@ -5,6 +5,7 @@ from utils.response import *
 from utils.userInteract import *
 from utils.channels import *
 from utils.config import app, channelCollection
+from utils.Google import *
 
 import os
 from datetime import datetime, timedelta
@@ -14,13 +15,8 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from itsdangerous import URLSafeTimedSerializer
 
 
-
-
 import base64
 from email.mime.text import MIMEText
-from requests import HTTPError
-
-from Google import Create_Service
 import base64
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -46,7 +42,7 @@ def verify_token(token, expiration=3600):
         return None
 
 def send_verification_email(email):
-
+    print()
     user_data = userCollection.find_one({"email": email})
     username = user_data['username']
     token = generate_verification_token(email)
@@ -236,25 +232,6 @@ def serve_image(filename):
 @app.route('/static/media/<path:filename>')
 def doSVG(filename):
     return serve_svg(filename)
-
-#TODO
-# Take the Channels from user collection and make its own collection
-            # Update "/get-user" so it sill sends the channel collection like original so front end does not have to update
-
-# "/new-channel" Create New Channel Post Request should add to Channel collection and redirect to the home (Store: Channel Name, Description, Member Limit, Image(Buffering), {Date, Time, TimeZone} or Never(TRUE or FALSE))
-
-# "/upload-profile Picture" (BUFFERING)
-
-# UPDATE for images at "/posts-upload" and "/get-post" if Needed (BUFFERING)
-
-# "/get-channel" send Channel information should receive a Channel ID to look up should send back everything of that Channel should also work with Web Sockets if the timer hits 0 should stop and no more typing so when messages are being sent and timer is 0 then dont update
-            # Messages should be updated (WEBSOCKET)
-            # Timer (WEBSOCKET)
-
-
-# Jesse Email
-# Add timing to the chat the rooms. Instead of having a room close when everyone leaves, have a room end after a certain amount of time passes. The timing must be maintained by the server and sent to each client via WebSockets. Once the timer hits 0, no one can chat in that room anymore
-# Anything else you come up with that satisfies both a live timer that is maintained by the server with the current time sent to the users via WebSockets -and- the app having some different behavior after a certain amount of time
 
 ## Login and Register
 @app.route('/login/new_user', methods=['POST'])  

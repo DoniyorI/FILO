@@ -5,7 +5,7 @@ from pymongo import MongoClient
 #! "localhost" for server.py, "mongo" for docker
 server = "localhost"
 server1 = "mongo"
-mongo_client = MongoClient(server)
+mongo_client = MongoClient(server1)
 db = mongo_client["FILO"]
 userCollection = db["user"]
 postCollection = db["global post"]
